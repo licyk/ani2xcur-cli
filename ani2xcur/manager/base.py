@@ -379,3 +379,39 @@ LINUX_CURSOR_LINKS = [
     ["dotbox", "icon"],
     ["dotbox", "target"],
 ]
+
+
+class LocalCursor(TypedDict):
+    """本地已安装的鼠标指针配置"""
+    name: str
+    """鼠标指针配置名称"""
+
+    cursor_files: list[Path]
+    """鼠标指针文件列表"""
+
+    install_paths: list[Path]
+    """鼠标指针安装路径列表 (鼠标指针文件所在父路径)"""
+
+
+CursorSchemesList: TypeAlias = list[LocalCursor]
+"""本地已安装的鼠标指针配置列表"""
+
+LINUX_ICONS_PATH = Path("/usr/share/icons")
+"""Linux 图标目录"""
+
+LINUX_USER_ICONS_PATH = Path("~/.local/share/icons").expanduser()
+"""Linux 用户图标目录"""
+
+class CurrentCursorInfo(TypedDict):
+    """当前桌面平台使用的鼠标指针名称和大小信息"""
+    platform: str
+    """桌面平台"""
+
+    cursor_name: str
+    """鼠标指针名称"""
+
+    cursor_size: int
+    """鼠标指针大小"""
+
+CurrentCursorInfoList: TypeAlias = list[CurrentCursorInfo]
+"""当前桌面平台使用的鼠标指针名称和大小信息列表"""

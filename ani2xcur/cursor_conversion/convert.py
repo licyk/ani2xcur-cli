@@ -1,11 +1,11 @@
 import os
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from ani2xcur.inf_parse.win import dict_to_inf_strings_format
+from ani2xcur.config_parse.win import dict_to_inf_strings_format
 from ani2xcur.manager.base import LINUX_CURSOR_LINKS
-from ani2xcur.manager.win_cur_manager import get_scheme_from_inf_file, generate_cursor_scheme_inf_string
+from ani2xcur.manager.win_cur_manager import extract_scheme_info_from_inf, generate_cursor_scheme_inf_string
 from ani2xcur.manager.base import CURSOR_KEYS
-from ani2xcur.manager.linux_cur_manager import get_scheme_from_desktop_entry_file
+from ani2xcur.manager.linux_cur_manager import extract_scheme_info_from_desktop_entry
 from ani2xcur.config import LINUX_CURSOR_SOURCE_PATH
 from ani2xcur.cursor_conversion.win2xcur_warp import win2xcur_process, x2wincur_process, Win2xcurArgs, X2wincurArgs
 from ani2xcur.file_operations.file_manager import copy_files, create_symlink
@@ -25,7 +25,7 @@ def win_cursor_to_x11(
     Returns:
         Path: Linux 的鼠标指针包的完整路径
     """
-    win_scheme = get_scheme_from_inf_file(inf_file)
+    win_scheme = extract_scheme_info_from_inf(inf_file)
     cursor_map = win_scheme["cursor_map"]
     cursor_name = win_scheme["scheme_name"]
     win2x_path_list: list[list[str, Path]] = []
@@ -142,7 +142,7 @@ def x11_cursor_to_win(
     Returns:
         Path: Linux 的鼠标指针包的完整路径
     """
-    linux_scheme = get_scheme_from_desktop_entry_file(desktop_entry_file)
+    linux_scheme = extract_scheme_info_from_desktop_entry(desktop_entry_file)
     cursor_map = linux_scheme["cursor_map"]
     cursor_name = linux_scheme["scheme_name"]
     x2win_path_list: list[list[str, Path]] = []

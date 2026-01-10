@@ -1,23 +1,45 @@
-try:
-    import winreg
-except ImportError:
-    winreg = None
-
-import ctypes
-import os
-import re
 from typing import TypedDict
 from pathlib import Path
 
-from ani2xcur.inf_parse.win import get_cursor_scheme_data_from_inf
+from ani2xcur.config_parse.win import parse_inf_file_content
 from ani2xcur.logger import get_logger
 from ani2xcur.config import LOGGER_LEVEL, LOGGER_COLOR, LOGGER_NAME
 from ani2xcur.file_operations.file_manager import remove_files, copy_files
-from ani2xcur.inf_parse.win import (
+from ani2xcur.config_parse.win import (
     dict_to_inf_strings_format,
 )
-from ani2xcur.manager.base import CURSOR_KEYS, CursorMap, WinCursorsConfig
-from ani2xcur.utils import extend_list_to_length, lowercase_dict_keys
+from ani2xcur.manager.base import (
+    CURSOR_KEYS,
+    CurrentCursorInfo,
+    CurrentCursorInfoList,
+    CursorMap,
+    LocalCursor,
+    CursorSchemesList,
+)
+from ani2xcur.manager.desktop_config.base import check_windows_cursor_size_value
+from ani2xcur.manager.desktop_config.windows import (
+    WINDOWS_CURSOR_CURSORS_SCHEME_PATH,
+    get_windows_cursor_size,
+    get_windows_cursor_theme,
+    has_var_string,
+)
+from ani2xcur.manager.desktop_config.windows import (
+    set_windows_cursor_theme as apply_windows_cursor_theme,
+)
+from ani2xcur.manager.desktop_config.windows import (
+    set_windows_cursor_size as apply_windows_cursor_size,
+)
+from ani2xcur.manager.regedit import (
+    RegistryAccess,
+    RegistryRootKey,
+    RegistryValueType,
+    registry_enum_values,
+    registry_delete_value,
+    registry_set_value,
+    registry_query_value,
+)
+from ani2xcur.utils import extend_list_to_length
+from ani2xcur.manager.desktop_config.windows import expand_var_string
 
 logger = get_logger(
     name=LOGGER_NAME,
@@ -26,303 +48,7 @@ logger = get_logger(
 )
 
 
-class CursorSchemes(TypedDict):
-    """鼠标指针方案配置"""
-
-    name: str
-    """方案名称"""
-
-    dtype: int
-    """类型"""
-
-    data: str
-    """指针方案数据"""
-
-
-CursorSchemesList = list[CursorSchemes]
-"""鼠标指针方案配置列表"""
-
-
-def get_current_cursors() -> WinCursorsConfig:
-    """获取当前鼠标指针的配置
-
-    Returns:
-        WinCursorsConfig: 鼠标指针配置字典
-    """
-    path = r"Control Panel\Cursors"
-    with winreg.OpenKey(winreg.HKEY_CURRENT_USER, path) as key:
-        result: WinCursorsConfig = {}
-        for name in CURSOR_KEYS["win"]:
-            try:
-                value = winreg.QueryValueEx(key, name)[0]
-                result[name] = value
-            except FileNotFoundError:
-                result[name] = None
-        return result
-
-
-def list_schemes() -> CursorSchemesList:
-    """获取鼠标指针方案列表
-
-    Returns:
-        CursorSchemesList: 鼠标指针方案列表
-    """
-    path = r"Control Panel\Cursors\Schemes"
-    with winreg.OpenKey(winreg.HKEY_CURRENT_USER, path) as key:
-        schemes: CursorSchemesList = []
-        i = 0
-        try:
-            while True:
-                name, data, dtype = winreg.EnumValue(key, i)
-                schemes.append({"name": name, "data": data, "dtype": dtype})
-                i += 1
-        except OSError:
-            pass
-        return schemes
-
-
-def get_scheme(scheme_name: str) -> str:
-    """获取指定鼠标指针预设
-
-    Args:
-        scheme_name (str): 鼠标指针预设名称
-    Returns:
-        str: 鼠标指针预设的数据
-    Raises:
-        ValueError: 未找到鼠标指针预设时
-    """
-    schemes = list_schemes()
-    for scheme in schemes:
-        if scheme["name"] == scheme_name:
-            return scheme["data"]
-    raise ValueError(f"未找到指定的鼠标指针预设: {scheme_name}")
-
-
-def resolve_env_vars(text: str) -> str:
-    """解析字符串中的环境变量
-
-    Args:
-        text (str): 包含环境变量的字符串, 例如 "%SYSTEMROOT%\\Cursors\\..."
-    Returns:
-        str: 解析后的字符串, 环境变量会被替换为实际值
-    """
-
-    def _replace_env_var(match: re.Match) -> str:
-        env_var = match.group(1)
-        return os.environ.get(env_var, match.group(0))
-
-    pattern = r"%([^%]+)%"
-    result = re.sub(pattern, _replace_env_var, text)
-    return result
-
-
-def apply_scheme(scheme_name: str) -> None:
-    """应用指定的鼠标指针方案
-
-    Args:
-        scheme_name (str): 鼠标指针预设名称
-    """
-    scheme_data = get_scheme(scheme_name)
-    schemes_path = scheme_data.split(",")
-    reg_path = r"Control Panel\Cursors"
-    with winreg.OpenKey(
-        winreg.HKEY_CURRENT_USER, reg_path, 0, winreg.KEY_SET_VALUE
-    ) as key:
-        winreg.SetValueEx(key, "", 0, winreg.REG_SZ, scheme_name)
-        for name, path in zip(CURSOR_KEYS["win"], schemes_path):
-            if not os.path.exists(resolve_env_vars(path)):
-                continue
-
-            winreg.SetValueEx(key, name, 0, winreg.REG_SZ, path)
-
-    refresh_system_params()
-
-
-def delete_scheme(scheme_name: str) -> None:
-    """删除指定鼠标指针方案
-
-    Args:
-        scheme_name (str): 鼠标指针方案名称
-    Raises:
-        ValueError: 当要删除的方案是当前应用的方案时
-        FileNotFoundError: 未找到指定鼠标指针方案
-    """
-    cursors_path = r"Control Panel\Cursors"
-    try:
-        with winreg.OpenKey(
-            winreg.HKEY_CURRENT_USER, cursors_path, 0, winreg.KEY_READ
-        ) as key:
-            current_scheme, _ = winreg.QueryValueEx(key, "")
-            if current_scheme == scheme_name:
-                raise ValueError(f"无法删除当前正在使用的鼠标指针方案: {scheme_name}")
-    except FileNotFoundError:
-        pass
-
-    path = r"Control Panel\Cursors\Schemes"
-    with winreg.OpenKey(winreg.HKEY_CURRENT_USER, path, 0, winreg.KEY_SET_VALUE) as key:
-        try:
-            winreg.DeleteValue(key, scheme_name)
-            delete_scheme_file(scheme_name)
-        except FileNotFoundError as e:
-            logger.error("未找到指定鼠标指针方案: %s", scheme_name)
-            raise FileNotFoundError(f"未找到指定鼠标指针方案: {scheme_name}") from e
-
-
-def delete_scheme_file(scheme_name: str) -> None:
-    """删除指定鼠标指针方案对应的鼠标指针文件
-
-    Args:
-        scheme_name (str): 鼠标指针方案名称
-    Raises:
-        OSError: 删除鼠标指针文件失败时
-    """
-    delete_file_list: list[Path] = []
-    cursor_path_list: list[Path] = []
-    schemes = list_schemes()
-    current_cursor_path_set = set(
-        [
-            Path(resolve_env_vars(p))
-            for p in get_scheme(scheme_name).split(",")
-            if p.strip() != "" and Path(resolve_env_vars(p)).is_file()
-        ]
-    )
-    for scheme in schemes:
-        if scheme["name"] == scheme_name:
-            continue
-
-        cursor_path_list += [
-            Path(resolve_env_vars(p))
-            for p in scheme["data"].split(",")
-            if p.strip() != "" and Path(resolve_env_vars(p)).is_file()
-        ]
-    cursor_path_set = set(cursor_path_list)
-    for cursor in current_cursor_path_set:
-        if cursor not in cursor_path_set and cursor not in delete_file_list:
-            delete_file_list.append(cursor)
-
-    errors = []
-    delete_failed_files: list[Path] = []
-
-    for file in delete_file_list:
-        try:
-            remove_files(file)
-        except Exception as e:
-            logger.error(
-                "删除鼠标指针文件 %s 失败, 可尝试使用管理员权限运行 Ani2xcur, 或尝试手动删除该文件",
-                file,
-            )
-            errors.append(e)
-            delete_failed_files.append(file)
-
-    if errors:
-        failed_files_str = "\n - ".join([""] + [str(x) for x in delete_failed_files])
-        raise OSError(
-            f"删除鼠标指针文件时发生 {len(errors)} 个错误, 以下鼠标指针文件删除失败: \n{failed_files_str}\n\n可尝试手动删除以上删除失败的鼠标指针文件"
-        )
-
-
-def install_cursor_scheme(
-    scheme_name: str,
-    scheme_data: str,
-) -> None:
-    """将鼠标指针方案安装到系统中
-
-    Args:
-        scheme_name (str): 鼠标指针方案名称
-        scheme_data (str): 鼠标指针方案数据，以逗号分隔的光标文件路径
-    Raises:
-        ValueError: 鼠标指针方案数据格式不正确时
-        FileNotFoundError: 未找到鼠标指针方案中对应的文件时
-    """
-    paths = scheme_data.split(",")
-    if len(paths) != len(CURSOR_KEYS["win"]):
-        raise ValueError(
-            f"鼠标指针方案数据格式不正确, 应包含 {len(CURSOR_KEYS['win'])} 个路径, 实际包含 {len(paths)} 个路径"
-        )
-
-    for path in paths:
-        if path.strip() == "":
-            continue
-
-        resolved_path = resolve_env_vars(path.strip())
-        if not os.path.exists(resolved_path):
-            raise FileNotFoundError(
-                f"{scheme_name} 鼠标指针文件不存在: {resolved_path}"
-            )
-
-    schemes_path = r"Control Panel\Cursors\Schemes"
-    with winreg.OpenKey(
-        winreg.HKEY_CURRENT_USER, schemes_path, 0, winreg.KEY_SET_VALUE
-    ) as key:
-        winreg.SetValueEx(key, scheme_name, 0, winreg.REG_SZ, scheme_data)
-
-
-def install_cursor(
-    inf_file: Path,
-    cursor_install_path: Path | None = None,
-) -> None:
-    """通过 INF 配置文件安装鼠标指针
-
-    Args:
-        inf_file (Path): 鼠标指针配置文件路径
-        cursor_install_path (Path | None): 自定义鼠标指针文件安装路径, 当为 None 时使用 INF 配置文件中的路径
-    """
-    install_scheme_info = get_scheme_from_inf_file(inf_file)
-    vars_dict = install_scheme_info["vars_dict"]
-
-    def _get_real_path(x: str) -> Path:
-        return Path(
-            resolve_env_vars_with_dict(x.replace('"', "").replace("'", ""), vars_dict)
-        )
-
-    if cursor_install_path is not None:
-        reg_config = install_scheme_info["default_reg"].split(",")
-
-        cursor_reg_info = reg_config[:4]
-        cursor_reg_paths = [
-            str(cursor_install_path / _get_real_path(x).name)
-            for x in reg_config[4:]
-            if _get_real_path(x).is_file()
-        ]
-        reg_config = ",".join(
-            cursor_reg_info
-            + [
-                f'"{",".join(extend_list_to_length(cursor_reg_paths, target_length=len(CURSOR_KEYS["win"])))}"'
-            ]
-        )
-        file_paths = [
-            Path(p["src_path"])
-            for _, p in install_scheme_info["cursor_map"].items()
-            if p["src_path"] is not None and Path(p["src_path"]).is_file()
-        ]
-        cursor_install_path.mkdir(parents=True, exist_ok=True)
-        for p in file_paths:
-            copy_files(p, cursor_install_path)
-    else:
-        reg_config = install_scheme_info["default_reg"]
-        for _, p in install_scheme_info["cursor_map"].items():
-            src = p["src_path"]
-            dst = p["dst_path"]
-            dst.parent.mkdir(parents=True, exist_ok=True)
-            copy_files(src, dst)
-
-    scheme_name = install_scheme_info["scheme_name"]
-    scheme_data = ",".join(
-        [x.replace('"', "").replace("'", "") for x in reg_config.split(",")[4:]]
-    )
-
-    install_cursor_scheme(
-        scheme_name=scheme_name,
-        scheme_data=scheme_data,
-    )
-
-
-def refresh_system_params() -> None:
-    """通知系统刷新设置以应用更改"""
-    ctypes.windll.user32.SystemParametersInfoW(0x0057, 0, None, 0x01 | 0x02)
-
-
-class InstallWinSchemeInfo(TypedDict):
+class InstallWindowsSchemeInfo(TypedDict):
     """Windows 鼠标指针安装信息"""
 
     scheme_name: str
@@ -332,7 +58,7 @@ class InstallWinSchemeInfo(TypedDict):
     """鼠标指针文件列表"""
 
     default_reg: str
-    """默认安装到注册表的鼠标指针方案"""
+    """默认安装到注册表的鼠标指针方案, 使用 [Scheme.Reg] 中的值"""
 
     default_dst_cursor_paths: list[Path]
     """默认复制到的目的路径的鼠标指针文件列表"""
@@ -344,69 +70,63 @@ class InstallWinSchemeInfo(TypedDict):
     """鼠标指针类型与对应的路径地图"""
 
 
-def resolve_env_vars_with_dict(text: str, vars_dict: dict[str, str]) -> str:
-    """将字符串中的 %var% 变量进行替换, 并优先查找变量表中的值
-
-    Args:
-        text (str): 需要处理的字符串
-        vars_dict (dict[str, str]): 变量字典
-    Returns:
-        str: 处理后的字符串
-    """
-
-    def _replace_env_var(match: re.Match) -> str:
-        env_var = match.group(1)
-        env_var_lower = match.group(1).lower().strip()
-        return vars_dict.get(env_var_lower, os.environ.get(env_var, match.group(0)))
-
-    pattern = r"%([^%]+)%"
-    vars_dict = lowercase_dict_keys(vars_dict)
-    result = re.sub(pattern, _replace_env_var, text.replace(r"%10%", r"%SYSTEMROOT%"))
-    return result
-
-
-def get_scheme_from_inf_file(
+def extract_scheme_info_from_inf(
     inf_file: Path,
-) -> InstallWinSchemeInfo:
+) -> InstallWindowsSchemeInfo:
     """从 INF 文件中获取鼠标指针配置
 
     Args:
         inf_file (Path): INF 文件路径
     Returns:
-        InstallSchemeInfo: 鼠标指针安装配置
+        InstallWindowsSchemeInfo: 鼠标指针安装配置
     Raises:
         ValueError: 鼠标指针配置文件中的注册表信息不合法时
     """
 
     def _get_real_path(x: str) -> Path:
-        return Path(
-            resolve_env_vars_with_dict(x.replace('"', "").replace("'", ""), vars_dict)
-        )
+        return Path(expand_var_string(x.replace('"', "").replace("'", ""), vars_dict))
 
-    scheme_info: InstallWinSchemeInfo = {}
-    inf_file_content = get_cursor_scheme_data_from_inf(inf_file)
-    reg_config = inf_file_content["Scheme.Reg"][0].split(
-        ","
-    )  # ["Scheme.Reg"]["files"][0].split(",")
+    scheme_info: InstallWindowsSchemeInfo = {}
+    cursor_map: CursorMap = {}
+    inf_file_content = parse_inf_file_content(inf_file)
+    scheme_reg = parse_scheme_reg_string(inf_file_content["Scheme.Reg"][0])
     vars_dict = inf_file_content["Strings"]
     scheme_name = vars_dict["SCHEME_NAME"]
     cursor_files = inf_file_content["Scheme.Cur"]
-    if len(reg_config) <= 4:
+
+    # 检查 [Scheme.Reg] 长度合法性
+    if len(scheme_reg) != 5:
         raise ValueError(
-            f"鼠标指针配置中的注册表配置不合法, 配置长度: {len(reg_config)}"
+            f"鼠标指针配置中的注册表配置不合法, 配置长度: {len(scheme_reg)}"
         )
 
-    cursor_reg_info = reg_config[:4]
-    cursor_reg_path = [
-        x.replace('"', "").replace("'", "")
-        for x in extend_list_to_length(reg_config[4:], target_length=len(CURSOR_KEYS["win"]))
-    ]
-    default_reg = ",".join(cursor_reg_info + [f'"{",".join(cursor_reg_path)}"'])
+    # 将鼠标指针字段扩展到合适长度
+    cursor_reg_paths: list[str] = extend_list_to_length(
+        scheme_reg[4].split(","), target_length=len(CURSOR_KEYS["win"])
+    )
+
+    # 检查 [Scheme.Reg] 中鼠标指针数量
+    if len(cursor_reg_paths) > len(CURSOR_KEYS["win"]):
+        raise ValueError(
+            f"鼠标指针配置中指定的鼠标指针数量不合法, 指定的鼠标指针数量: {len(cursor_reg_paths)}"
+        )
+
+    # 重新生成 [Scheme.Reg] 字段
+    default_reg = generate_scheme_reg_string(
+        key=scheme_reg[0],
+        sub_key=scheme_reg[1],
+        value_name=scheme_reg[2],
+        dtype=scheme_reg[3],
+        value=",".join(cursor_reg_paths),
+    )
+
+    # 获取鼠标指针配置中指针文件的实际安装路径列表
     default_dst_cursor_paths = [
-        _get_real_path(x) for x in reg_config[4:] if _get_real_path(x).is_file()
+        _get_real_path(x) for x in cursor_reg_paths if _get_real_path(x).is_file()
     ]
-    cursor_map: CursorMap = {}
-    for key, value in zip(CURSOR_KEYS["win"], cursor_reg_path):
+
+    # 记录鼠标指针原文件路径和安装到的实际路径, 并记录成字典
+    for key, value in zip(CURSOR_KEYS["win"], cursor_reg_paths):
         if value.strip() != "":
             dst_path = _get_real_path(value)
             src_path = inf_file.parent / dst_path.name
@@ -420,9 +140,13 @@ def get_scheme_from_inf_file(
             "dst_path": dst_path,
             "src_path": src_path,
         }
+
+    # 鼠标指针原文件列表
     cursor_paths = [
         inf_file.parent / x for x in cursor_files if (inf_file.parent / x).is_file()
     ]
+
+    # 生成字典
     scheme_info["scheme_name"] = scheme_name
     scheme_info["cursor_paths"] = cursor_paths
     scheme_info["default_reg"] = default_reg
@@ -432,22 +156,318 @@ def get_scheme_from_inf_file(
     return scheme_info
 
 
-def export_cursor_scheme(
-    scheme_name: str,
+def parse_scheme_reg_string(scheme_reg_string: str) -> list[str]:
+    """解析 INF 字符串中 [Scheme.Reg] 格式的字符串, 将字符串分割成列表
+
+    Args:
+        scheme_reg_string (str): 需要解析的字符串
+
+    Returns:
+        list[str]: 解析后的字符串列表
+    """
+    result: list[str] = []
+    current = ""
+    in_single_quotes = False
+    in_double_quotes = False
+    i = 0
+
+    while i < len(scheme_reg_string):
+        char = scheme_reg_string[i]
+
+        if char == '"' and not in_single_quotes:
+            # 切换双引号状态 (仅当不在单引号内)
+            in_double_quotes = not in_double_quotes
+            i += 1
+        elif char == "'" and not in_double_quotes:
+            # 切换单引号状态 (仅当不在双引号内)
+            in_single_quotes = not in_single_quotes
+            i += 1
+        elif char == "," and not in_single_quotes and not in_double_quotes:
+            # 只有在非引号状态下遇到逗号才分割
+            result.append(current)
+            current = ""
+            i += 1
+        else:
+            # 添加字符到当前项
+            current += char
+            i += 1
+
+    # 添加最后一项
+    if current or scheme_reg_string.endswith(","):
+        result.append(current)
+
+    # 去除每项首尾的引号 (如果存在)
+    cleaned_result: list[str] = []
+    for item in result:
+        cleaned_item = item
+        # 如果同时以单引号开头结尾, 则去除单引号
+        if (
+            len(cleaned_item) >= 2
+            and cleaned_item.startswith("'")
+            and cleaned_item.endswith("'")
+        ):
+            cleaned_item = cleaned_item[1:-1]
+        # 如果同时以双引号开头结尾, 则去除双引号
+        elif (
+            len(cleaned_item) >= 2
+            and cleaned_item.startswith('"')
+            and cleaned_item.endswith('"')
+        ):
+            cleaned_item = cleaned_item[1:-1]
+        cleaned_result.append(cleaned_item)
+
+    return cleaned_result
+
+
+def generate_scheme_reg_string(
+    key: str, sub_key: str, value_name: str, dtype: str, value: str
+) -> str:
+    """生成 INF 字符串中 [Scheme.Reg] 格式的字符串
+
+    [Scheme.Reg] 用于创建 Windows 注册表值, 格式: `<注册表根键>,<注册表子路径>,<键名>,<数据类型>,<值>`
+
+    Args:
+        key (str): 注册表根键
+        sub_key (str): 注册表子路径
+        value_name (str): 键名
+        dtype (str): 数据类型
+        value (str): 值
+    """
+    return f'{key},"{sub_key}","{value_name}",{dtype},"{value}"'
+
+
+def list_windows_cursors() -> CursorSchemesList:
+    """列出 Windows 系统中已有的鼠标指针
+
+    Returns:
+        CursorSchemesList: 本地已安装的鼠标指针列表
+    """
+    schemes = registry_enum_values(
+        sub_key=WINDOWS_CURSOR_CURSORS_SCHEME_PATH,
+        key=RegistryRootKey.CURRENT_USER,
+        access=RegistryAccess.READ,
+    )
+    cursors_list: CursorSchemesList = []
+    for name, data in schemes.items():
+        cursor_files = [
+            Path(expand_var_string(x))
+            for x in data.split(",")
+            if x.strip() != "" and Path(expand_var_string(x)).is_file()
+        ]
+        install_paths = list({x.parent for x in cursor_files})
+        cursors: LocalCursor = {}
+        cursors["name"] = name
+        cursors["cursor_files"] = cursor_files
+        cursors["install_paths"] = install_paths
+        cursors_list.append(cursors)
+
+    return cursors_list
+
+
+def set_windows_cursor_theme(cursor_name: str) -> None:
+    """设置 Windows 桌面当前使用的鼠标指针配置名称
+
+    Args:
+        cursor_name (str): 要设置的鼠标指针配置名称
+    Raises:
+        ValueError: 鼠标指针不存在时
+    """
+    cursors = [x["name"] for x in list_windows_cursors()]
+    if cursor_name not in cursors:
+        raise ValueError(f"鼠标指针 {cursor_name} 不存在")
+
+    apply_windows_cursor_theme(cursor_name)
+
+
+def set_windows_cursor_size(cursor_size: int) -> None:
+    """设置 Windows 桌面当前使用的鼠标指针大小
+
+    Args:
+        cursor_size (int): 要设置的鼠标指针大小
+    """
+    check_windows_cursor_size_value(cursor_size)
+    apply_windows_cursor_size(cursor_size)
+
+
+def get_windows_cursor_info() -> CurrentCursorInfoList:
+    """获取 Windows 当前鼠标指针信息
+
+    Returns:
+        CurrentCursorInfoList: 桌面平台的当前鼠标指针信息列表
+    """
+    info: CurrentCursorInfo = {}
+    info_list: CurrentCursorInfoList = []
+    info["platform"] = "Windows"
+    info["cursor_name"] = get_windows_cursor_theme()
+    info["cursor_size"] = get_windows_cursor_size()
+    info_list.append(info)
+    return info_list
+
+
+def delete_windows_cursor(cursor_name: str) -> None:
+    """删除 Windows 系统上指定的鼠标指针
+
+    Args:
+        cursor_name (str): 要删除的鼠标指针名称
+    Raises:
+        RuntimeError: 删除鼠标指针文件失败时
+        ValueError: 指定的鼠标指针不存在或者正在被使用时
+    """
+    cursors = list_windows_cursors()
+    if cursor_name not in [x["name"] for x in cursors]:
+        raise ValueError(f"鼠标指针 {cursor_name} 不存在")
+
+    if cursor_name == get_windows_cursor_theme():
+        raise ValueError(f"鼠标指针 {cursor_name} 正在被使用, 无法删除")
+
+    for scheme in cursors:
+        if cursor_name == scheme["name"]:
+            # 清理鼠标指针文件
+            for file in scheme["cursor_files"]:
+                if not file.exists():
+                    continue
+
+                try:
+                    remove_files(file)
+                except OSError as e:
+                    logger.error(
+                        "删除 %s 鼠标指针所使用的指针文件 %s 发生错误: %s\n可尝试使用管理员权限运行 Ani2xcur 进行删除, 或者尝试手动删除文件",
+                        cursor_name,
+                        file,
+                        e,
+                    )
+                    raise RuntimeError(
+                        f"删除 {cursor_name} 鼠标指针所使用的指针文件 {file} 发生错误: {e}\n可尝试使用管理员权限运行 Ani2xcur 进行删除, 或者尝试手动删除文件"
+                    ) from e
+
+            # 清理鼠标指针的父文件夹
+            for file in scheme["install_paths"]:
+                if not file.is_dir():
+                    continue
+
+                if any(file.iterdir()):
+                    continue
+
+                try:
+                    remove_files(file)
+                except OSError as e:
+                    logger.error(
+                        "清理 %s 鼠标指针文件的残留文件夹 %s 发生错误: %s\n可尝试使用管理员权限运行 Ani2xcur 进行删除, 或者尝试手动删除文件",
+                        cursor_name,
+                        file,
+                        e,
+                    )
+                    raise RuntimeError(
+                        f"清理 {cursor_name} 鼠标指针文件的残留文件夹 {file} 发生错误: {e}\n可尝试使用管理员权限运行 Ani2xcur 进行删除, 或者尝试手动删除文件"
+                    ) from e
+
+    # 清理注册表中对应的鼠标指针方案
+    registry_delete_value(
+        name=cursor_name,
+        sub_key=WINDOWS_CURSOR_CURSORS_SCHEME_PATH,
+        key=RegistryRootKey.CURRENT_USER,
+        access=RegistryAccess.SET_VALUE,
+    )
+
+
+def install_windows_cursor(
+    inf_file: Path,
+    cursor_install_path: Path | None = None,
+) -> None:
+    """通过 INF 配置文件安装鼠标指针
+
+    Args:
+        inf_file (Path): 鼠标指针配置文件路径
+        cursor_install_path (Path | None): 自定义鼠标指针文件安装路径, 当为 None 时使用 INF 配置文件中的路径
+    """
+    scheme_info = extract_scheme_info_from_inf(inf_file)
+    copy_paths: list[tuple[Path, Path]] = []
+    cursor_paths_in_reg: list[str] = []
+    cursor_name = scheme_info["scheme_name"]
+
+    # 生成复制路径列表
+    if cursor_install_path is not None:
+        # 使用自定义安装路径
+        for _, cursor_pair in scheme_info["cursor_map"].items():
+            src = cursor_pair["src_path"]
+            if src is not None:
+                dst = cursor_install_path / cursor_name / cursor_pair["dst_path"].name
+                cursor_paths_in_reg.append(str(dst))
+                copy_paths.append((src, dst))
+            else:
+                cursor_paths_in_reg.append("")
+
+        # 生成需要写入注册表的方案对应值
+        reg_scheme_value = ",".join(cursor_paths_in_reg)
+    else:
+        for _, cursor_pair in scheme_info["cursor_map"].items():
+            src = cursor_pair["src_path"]
+            if src is not None:
+                dst = cursor_pair["dst_path"]
+                copy_paths.append((src, dst))
+
+        # 生成需要写入注册表的方案对应值, 使用原始值
+        reg_scheme_value = parse_scheme_reg_string(scheme_info["default_reg"])[4]
+
+    # 复制鼠标指针文件
+    for src, dst in copy_paths:
+        try:
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            copy_files(src, dst)
+        except OSError as e:
+            logger.error(
+                "复制 %s 到 %s 时发送错误: %s\n可尝试使用管理员权限运行 Ani2xcur",
+                src,
+                dst,
+                e,
+            )
+            raise RuntimeError(
+                f"复制 {src} 到 {dst} 时发送错误: {e}\n可尝试使用管理员权限运行 Ani2xcur, 再执行鼠标指针安装操作"
+            ) from e
+
+    # 将方案写入注册表
+    reg_type = (
+        RegistryValueType.EXPAND_SZ
+        if has_var_string(reg_scheme_value)
+        else RegistryValueType.SZ
+    )
+    registry_set_value(
+        name=cursor_name,
+        value=reg_scheme_value,
+        reg_type=reg_type,
+        sub_key=WINDOWS_CURSOR_CURSORS_SCHEME_PATH,
+        key=RegistryRootKey.CURRENT_USER,
+        access=RegistryAccess.SET_VALUE,
+    )
+
+
+def export_windows_cursor(
+    cursor_name: str,
     output_path: Path,
     custom_install_path: Path | None = None,
 ) -> Path:
     """将系统中指定的鼠标指针方案导出为文件
 
     Args:
-        scheme_name (str): 要导出的鼠标指针方案的名称
+        cursor_name (str): 要导出的鼠标指针方案的名称
         output_path (Path): 鼠标指针导出的路径
         custom_install_path (Path | None): 自定义鼠标指针安装文件
     Returns:
         Path: 鼠标指针导出的文件路径
+    Raises:
+        ValueError: 鼠标指针在当前环境中不存在时
     """
+    cursors = list_windows_cursors()
+    cursor_data = None
+    for data in cursors:
+        if data["name"] == cursor_name:
+            cursor_data = data
+
+    if cursor_data is None:
+        raise ValueError(f"鼠标指针 {cursor_name} 不存在")
+
     config_dict = generate_cursor_scheme_config(
-        scheme_name=scheme_name,
+        cursor_name=cursor_name,
         custom_install_path=custom_install_path,
     )
 
@@ -459,111 +479,17 @@ def export_cursor_scheme(
         strings=config_dict["strings"],
     )
 
-    save_dir = output_path / scheme_name
+    save_dir = output_path / cursor_name
+    save_dir.mkdir(parents=True, exist_ok=True)
     inf_file_path = save_dir / "install_cursor.inf"
     for cursor in config_dict["cursor_src_file"]:
         copy_files(cursor, save_dir)
 
-    with open(inf_file_path, "w", encoding="utf-8") as file:
+    # Windows 系统只能使用 GBK 编码保存 INF
+    with open(inf_file_path, "w", encoding="gbk") as file:
         file.write(reg_content)
 
     return save_dir
-
-
-def generate_cursor_scheme_config(
-    scheme_name: str,
-    custom_install_path: Path | None = None,
-) -> dict[str, str]:
-    """生成鼠标指针的配置
-
-    Args:
-        scheme_name (str): 要导出的鼠标指针方案的名称
-        custom_install_path (Path | None): 自定义鼠标指针安装文件
-    Returns:
-        (dict[str, str]): 鼠标指针的配置字典
-    """
-    config_dict: dict[str, str] = {}
-    config_dict["cursor_src_file"] = []
-    scheme_data = get_scheme(scheme_name)
-    cursor_list = extend_list_to_length(
-        scheme_data.split(","), target_length=len(CURSOR_KEYS["win"])
-    )
-    paths_dict: dict[str, str | None] = {}
-    for name, path in zip(CURSOR_KEYS["win"], cursor_list):
-        if (
-            path.strip() != ""
-            and Path(resolve_env_vars_with_dict(text=path, vars_dict={})).is_file()
-        ):
-            cursor_src_file = Path(resolve_env_vars_with_dict(text=path, vars_dict={}))
-            config_dict["cursor_src_file"].append(cursor_src_file)
-            cursor_file_name = cursor_src_file.name
-        else:
-            cursor_file_name = None
-        cursor_file = None
-        if cursor_file_name is not None:
-            if custom_install_path is not None:
-                cursor_file = str(custom_install_path / scheme_name / cursor_file_name)
-            else:
-                cursor_file = rf"%SYSTEMROOT%\Cursors\{scheme_name}\{cursor_file_name}"
-        paths_dict[name] = cursor_file
-
-    scheme_cur = ""
-    strings_dict = {k: Path(v).name for k, v in paths_dict.items() if v is not None}
-    strings_dict["SCHEME_NAME"] = scheme_name
-    scheme_reg = r'HKCU,"Control Panel\Cursors\Schemes","%SCHEME_NAME%",,"'
-    wreg = r'HKCU,"Control Panel\Cursors",,0x00020000,"%SCHEME_NAME%"'
-    if custom_install_path is not None:
-        destination_dirs = rf'"{str(custom_install_path / scheme_name)}"'
-        for cursor_key in CURSOR_KEYS["win"]:
-            if paths_dict[cursor_key] is not None:
-                cursor_path = str(
-                    custom_install_path / scheme_name / rf"%{cursor_key}%"
-                )
-                wreg += "\n"
-                wreg += rf'HKCU,"Control Panel\Cursors",{cursor_key},0x00020000,"{cursor_path}"'
-            else:
-                cursor_path = ""
-            scheme_cur += "\n"
-            scheme_cur += (
-                rf'"{Path(strings_dict[cursor_key]).name}"'
-                if strings_dict.get(cursor_key) is not None
-                else ""
-            )
-            scheme_reg += cursor_path
-            if cursor_key != CURSOR_KEYS["win"][-1]:
-                scheme_reg += ","
-        scheme_reg += '"'
-        strings_dict["CUR_DIR"] = str(custom_install_path / scheme_name)
-    else:
-        destination_dirs = r'10,"%CUR_DIR%"'
-        for cursor_key in CURSOR_KEYS["win"]:
-            if paths_dict[cursor_key] is not None:
-                cursor_path = rf"%SYSTEMROOT%\%CUR_DIR%\%{cursor_key}%"
-                wreg += "\n"
-                wreg += rf'HKCU,"Control Panel\Cursors",{cursor_key},0x00020000,"{cursor_path}"'
-            else:
-                cursor_path = ""
-            scheme_cur += "\n"
-            scheme_cur += (
-                rf'"{Path(strings_dict[cursor_key]).name}"'
-                if strings_dict.get(cursor_key) is not None
-                else ""
-            )
-            scheme_reg += cursor_path
-            if cursor_key != CURSOR_KEYS["win"][-1]:
-                scheme_reg += ","
-        scheme_reg += '"'
-        strings_dict["CUR_DIR"] = rf"Cursors\{scheme_name}"
-
-    wreg += "\n"
-    wreg += r'HKLM,"SOFTWARE\Microsoft\Windows\CurrentVersion\Runonce\Setup\","",,"rundll32.exe shell32.dll,Control_RunDLL main.cpl @0"'
-    strings = dict_to_inf_strings_format(strings_dict)
-    config_dict["destination_dirs"] = destination_dirs
-    config_dict["wreg"] = wreg
-    config_dict["scheme_reg"] = scheme_reg
-    config_dict["scheme_cur"] = scheme_cur
-    config_dict["strings"] = strings
-    return config_dict
 
 
 def generate_cursor_scheme_inf_string(
@@ -580,7 +506,7 @@ def generate_cursor_scheme_inf_string(
     Returns:
         str: 鼠标指针的 INF 字符串
     """
-    reg_content = r"""
+    inf_content = r"""
 [Version]
 signature="$CHICAGO$"
 
@@ -612,9 +538,110 @@ Scheme.Cur = {{DESTINATION_DIRS}}
 """.strip()
 
     return (
-        reg_content.replace(r"{{DESTINATION_DIRS}}", destination_dirs.strip())
+        inf_content.replace(r"{{DESTINATION_DIRS}}", destination_dirs.strip())
         .replace(r"{{WREG}}", wreg.strip())
         .replace(r"{{SCHEME_REG}}", scheme_reg.strip())
         .replace(r"{{SCHEME_CUR}}", scheme_cur.strip())
         .replace(r"{{STRING_VARS}}", strings.strip())
     )
+
+def generate_cursor_scheme_config(
+    cursor_name: str,
+    custom_install_path: Path | None = None,
+) -> dict[str, str]:
+    """生成鼠标指针的配置, 配置字典字段:
+    - `cursor_src_file`: 鼠标指针文件路径列表, 用于导出文件
+    - `destination_dirs`: [DestinationDirs] 字段, 用于声明 Windows 读取 INF 文件时获取需要复制鼠标指针到的路径
+    - `wreg`: [Wreg] 字段, 用于声明 Windows 读取 INF 文件时立刻执行的配置鼠标指针应用操作
+    - `scheme_reg`: [Scheme.Reg] 字段, 写入到注册表中的鼠标指针方案
+    - `scheme_cur`: [Scheme.Cur] 字段, 保存需要复制的鼠标指针列表
+    - `strings`: [Strings] 字段, 保存 INF 文件中需要的变量
+
+    Args:
+        cursor_name (str): 要导出的鼠标指针方案的名称
+        custom_install_path (Path | None): 自定义鼠标指针安装文件
+    Returns:
+        (dict[str, str]): 鼠标指针的配置字典
+    """
+    config_dict: dict[str, str] = {}
+
+    # 查找鼠标指针对应的方案信息
+    cursor_paths_in_reg = registry_query_value(
+        name=cursor_name,
+        sub_key=WINDOWS_CURSOR_CURSORS_SCHEME_PATH,
+        key=RegistryRootKey.CURRENT_USER,
+        access=RegistryAccess.READ,
+    )
+
+    cursor_paths: list[Path] = []  # 用于导出的路径列表
+    paths_to_reg: list[str] = []  # [Scheme.Reg] 部分
+    cursor_map: dict[str, Path | None] = {}
+    strings: dict[str, str] = {}  # [Strings] 部分
+    wreg_list: list[str] = []  # [Wreg] 部分
+    wreg_list.append(r'HKCU,"Control Panel\Cursors",,0x00020000,"%SCHEME_NAME%"')
+    strings["SCHEME_NAME"] = cursor_name
+
+    # 将路径字符串解释成实际鼠标指针文件路径
+    raw_paths: list[str] = extend_list_to_length(
+        cursor_paths_in_reg.split(","), target_length=len(CURSOR_KEYS["win"])
+    )[: len(CURSOR_KEYS["win"])]
+    for key, origin_path in zip(CURSOR_KEYS["win"], raw_paths):
+        path = (
+            Path(expand_var_string(origin_path))
+            if origin_path.strip() != ""
+            and Path(expand_var_string(origin_path)).is_file()
+            else None
+        )
+        cursor_map[key] = path
+        if path is not None:
+            cursor_paths.append(path)
+
+        path_in_reg = ""
+        if custom_install_path is not None and path is not None:
+            # 使用自定义安装路径
+            path_in_reg = str(custom_install_path / cursor_name / f"%{key}%")
+        elif path is not None:
+            # 使用默认安装路径
+            path_in_reg = rf"%10%\%CUR_DIR%\%{key}%"
+
+        paths_to_reg.append(path_in_reg)
+        if path_in_reg != "":
+            strings[key] = path.name
+            wreg_list.append(
+                rf'HKCU,"Control Panel\Cursors",{key},0x00020000,"{path_in_reg}"'
+            )
+
+    wreg_list.append(
+        r'HKLM,"SOFTWARE\Microsoft\Windows\CurrentVersion\Runonce\Setup\","",,"rundll32.exe shell32.dll,Control_RunDLL main.cpl @0"'
+    )
+    wreg = "\n".join(wreg_list)
+
+    # 配置 [DistinationDirs] 字段和部分 [Strings] 字段
+    if custom_install_path is not None:
+        # 使用自定义安装路径
+        custom_path = str(custom_install_path / cursor_name)
+        strings["CUR_DIR"] = custom_path
+        destination_dirs = r'-1,"%CUR_DIR%"'
+    else:
+        strings["CUR_DIR"] = rf"Cursors\{cursor_name}"
+        destination_dirs = r'10,"%CUR_DIR%"'
+
+    # 配置 [Scheme.Reg] 字段
+    paths_to_reg_string = ",".join(paths_to_reg)
+    if custom_install_path is not None:
+        scheme_reg = rf'HKCU,"Control Panel\Cursors\Schemes","%SCHEME_NAME%",,"{paths_to_reg_string}"'
+    else:
+        scheme_reg = rf'HKCU,"Control Panel\Cursors\Schemes","%SCHEME_NAME%",0x00020000,"{paths_to_reg_string}"'
+
+    # 配置 [Scheme.Cur] 字段
+    scheme_cur = "\n".join([f'"{x.name}"' for x in cursor_paths])
+
+    # 打包参数
+    config_dict["cursor_src_file"] = cursor_paths
+    config_dict["destination_dirs"] = destination_dirs
+    config_dict["wreg"] = wreg
+    config_dict["scheme_reg"] = scheme_reg
+    config_dict["scheme_cur"] = scheme_cur
+    config_dict["strings"] = dict_to_inf_strings_format(strings)
+
+    return config_dict

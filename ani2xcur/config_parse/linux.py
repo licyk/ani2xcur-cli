@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Any, Literal, Protocol, TypedDict, cast
 
-from ani2xcur.inf_parse.parse import ParsedINF, parse_inf_file
+from ani2xcur.config_parse.parse import ParsedINF, parse_inf_file
 
 
 CursorShemeDesktopEntry = TypedDict(
@@ -56,7 +56,7 @@ def preprocess_desktop_entry_to_cursor_scheme(parsed: ParsedINF) -> CursorShemeD
     return out
 
 
-def get_cursor_scheme_data_from_desktop_entry(
+def parse_desktop_entry_content(
     desktop_entry_path: Path,
 ) -> CursorShemeDesktopEntry:
     """从 DesktopEntry 文件中获取鼠标指针配置数据

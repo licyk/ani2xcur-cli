@@ -1,0 +1,73 @@
+import shutil
+from ani2xcur.cmd import run_cmd
+from ani2xcur.utils import safe_convert_to_int
+
+
+def get_gnome_cursor_theme() -> str | None:
+    """获取 Gnome 桌面当前使用的鼠标指针配置名称
+
+    Returns:
+        (str | None): 当前使用的鼠标指针名称
+    """
+    if not shutil.which("gsettings"):
+        return None
+
+    result = run_cmd(
+        ["gsettings", "get", "org.gnome.desktop.interface", "cursor-theme"],
+        live=False,
+        check=False,
+    )
+
+    if isinstance(result, str):
+        result = result.strip()
+
+    return result
+def get_gnome_cursor_size() -> int | None:
+    """获取 Gnome 桌面当前使用的鼠标指针大小
+
+    Returns:
+        (int | None): 当前使用的鼠标指针大小
+    """
+    if not shutil.which("gsettings"):
+        return None
+
+    result = run_cmd(
+        ["gsettings", "get", "org.gnome.desktop.interface", "cursor-size"],
+        live=False,
+        check=False,
+    )
+    if isinstance(result, str):
+        result = result.strip()
+
+    return safe_convert_to_int(result)
+
+
+def set_gnome_cursor_theme(cursor_name: str) -> None:
+    """设置 Gnome 桌面当前使用的鼠标指针配置名称
+
+    Args:
+        cursor_name (str): 要设置的鼠标指针配置名称
+    """
+    if not shutil.which("gsettings"):
+        return
+
+    run_cmd(
+        ["gsettings", "set", "org.gnome.desktop.interface", "cursor-theme", cursor_name],
+        live=False,
+        check=False,
+    )
+
+def set_gnome_cursor_size(cursor_size: int) ->  None:
+    """设置 Gnome 桌面当前使用的鼠标指针大小
+
+    Args:
+        cursor_size (int): 要设置的鼠标指针大小
+    """
+    if not shutil.which("gsettings"):
+        return
+
+    run_cmd(
+        ["gsettings", "set", "org.gnome.desktop.interface", "cursor-size", cursor_size],
+        live=False,
+        check=False,
+    )

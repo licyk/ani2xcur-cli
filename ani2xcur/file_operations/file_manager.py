@@ -98,16 +98,18 @@ def get_file_list(
     resolve: bool | None = False,
     max_depth: int | None = -1,
     show_progress: bool | None = True,
+    include_dirs: bool | None = False,
 ) -> list[Path]:
-    """获取当前路径下的所有文件的绝对路径
+    """获取当前路径下的所有文件（和可选的目录）的绝对路径
 
     Args:
-        path (Path): 要获取文件列表的目录
+        path (Path): 要获取列表的目录
         resolve (bool | None): 将路径进行完全解析, 包括链接路径
         max_depth (int | None): 最大遍历深度, -1 表示不限制深度, 0 表示只遍历当前目录
         show_progress (bool | None): 是否显示 tqdm 进度条
+        include_dirs (bool | None): 是否在结果中包含目录路径
     Returns:
-        list[Path]: 文件列表的绝对路径
+        (list[Path]): 路径列表的绝对路径
     """
 
     if not path or not path.exists():
@@ -123,7 +125,7 @@ def get_file_list(
         desc=f"扫描目录 {path}", position=0, leave=True, disable=not show_progress
     ) as dir_pbar:
         with tqdm(
-            desc="发现文件数", position=1, leave=True, disable=not show_progress
+            desc="发现条目数", position=1, leave=True, disable=not show_progress
         ) as file_pbar:
             for root, dirs, files in os.walk(path):
                 root_path = Path(root)
@@ -131,7 +133,24 @@ def get_file_list(
 
                 # 超过最大深度则阻止继续向下遍历
                 if max_depth != -1 and current_depth >= max_depth:
+                    # 如果需要包含目录, 虽然停止深挖, 但当前层的目录仍可加入
+                    if include_dirs:
+                        for d in dirs:
+                            dir_path = root_path / d
+                            file_list.append(
+                                dir_path.resolve() if resolve else dir_path.absolute()
+                            )
+                            file_pbar.update(1)
                     dirs.clear()
+                else:
+                    # 如果启用，将当前层级的目录加入列表
+                    if include_dirs:
+                        for d in dirs:
+                            dir_path = root_path / d
+                            file_list.append(
+                                dir_path.resolve() if resolve else dir_path.absolute()
+                            )
+                            file_pbar.update(1)
 
                 for file in files:
                     file_path = root_path / file

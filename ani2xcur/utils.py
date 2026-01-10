@@ -13,26 +13,31 @@ logger = get_logger(
 )
 
 
-def in_jupyter() -> bool:
-    """检测当前环境是否在 Jupyter 中
+def save_convert_to_float(value: Any) -> float | Any:
+    """尝试将值转换为浮点数
 
+    Args:
+        value (Any): 用于转换的值
     Returns:
-        bool: 是否在 Jupyter 中
+        (float | Any): 转换成功时返回浮点数, 否则返回原始数据
     """
     try:
-        shell = get_ipython()  # type: ignore
-        if shell is None:
-            return False
-        # Jupyter Notebook 或 JupyterLab
-        if shell.__class__.__name__ == "ZMQInteractiveShell":
-            return True
-        # IPython 终端
-        if shell.__class__.__name__ == "TerminalInteractiveShell":
-            return False
-        return True
-    except NameError:
-        # 没有 get_ipython, 不是 Jupyter
-        return False
+        return float(value)
+    except (ValueError, TypeError):
+        return value
+
+def safe_convert_to_int(value: Any) -> int | Any:
+    """尝试将值转换为整数
+
+    Args:
+        value (Any): 用于转换的值
+    Returns:
+        (int | Any): 转换成功时返回整数, 否则返回原始数据
+    """
+    try:
+        return int(value)
+    except (ValueError, TypeError):
+        return value
 
 
 def open_file_as_bytes(

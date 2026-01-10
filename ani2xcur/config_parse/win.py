@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Any, Literal, Protocol, TypedDict, cast
 
-from ani2xcur.inf_parse.parse import ParsedINF, parse_inf_file
+from ani2xcur.config_parse.parse import ParsedINF, parse_inf_file
 
 
 CursorShemeINF = TypedDict(
@@ -18,6 +18,7 @@ CursorShemeINF = TypedDict(
     total=False,
 )
 """预处理后的鼠标指针配置 INF 结构"""
+
 INFSectionName = Literal[
     "Version",  # 版本信息
     "DefaultInstall",  # 默认需要安装的配置
@@ -98,7 +99,7 @@ def preprocess_inf_to_cursor_scheme(parsed: ParsedINF) -> CursorShemeINF:
     return out
 
 
-def get_cursor_scheme_data_from_inf(
+def parse_inf_file_content(
     inf_path: Path,
 ) -> CursorShemeINF:
     """从 INF 文件中获取鼠标指针配置数据

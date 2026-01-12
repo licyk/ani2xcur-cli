@@ -1,6 +1,14 @@
 import ctypes
 import os
 import re
+from typing import Literal
+try:
+    import win32gui
+    import win32con
+except ImportError:
+    win32gui = NotImplemented
+    win32con = NotImplemented
+
 from ani2xcur.manager.regedit import (
     registry_query_value,
     registry_set_value,
@@ -155,3 +163,32 @@ def set_windows_cursor_size(cursor_size: int) -> None:
         access=RegistryAccess.SET_VALUE,
     )
     refresh_system_params()
+
+
+def broadcast_settings_change(
+    area_name: Literal["Environment", "Policy", "intl"] | None = "Environment",
+) -> bool:
+    """发送 WM_SETTINGCHANGE 广播消息通知系统设置已更改
+
+    Args:
+        area_name (Literal["Environment", "Policy", "intl"] | None):
+            更改的区域名称
+            - 如果是环境变量, 传入 `Environment`
+            - 如果是通过注册表更改了策略或通用设置, 传入 `Policy`
+            - 如果是鼠标/字体等, 传入 `intl` 或留空
+    Returns:
+        bool: 通知结果
+    """
+    # WM_SETTINGCHANGE 的消息数值在 win32con 中已定义
+    # HWND_BROADCAST: 0xFFFF (发送给所有顶层窗口)
+    # SMTO_ABORTIFHUNG: 如果目标窗口挂起，则立即返回
+
+    result = win32gui.SendMessageTimeout(  # pylint: disable=c-extension-no-member,no-member
+        win32con.HWND_BROADCAST,
+        win32con.WM_SETTINGCHANGE,
+        0,
+        area_name,
+        win32con.SMTO_ABORTIFHUNG,
+        5000,  # 等待每个窗口响应的最大毫秒数
+    )
+    return result

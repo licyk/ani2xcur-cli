@@ -4,12 +4,7 @@ from typing import TypedDict
 from ani2xcur.logger import get_logger
 from ani2xcur.config import LOGGER_COLOR, LOGGER_LEVEL, LOGGER_NAME
 from ani2xcur.utils import open_file_as_bytes, save_bytes_to_file
-
-import win2xcur.scale
-import win2xcur.shadow
-from win2xcur.parser import open_blob
-from win2xcur.writer import to_x11
-from win2xcur.writer import to_smart
+from ani2xcur.win2xcur.patch import patch_win2xcur
 
 logger = get_logger(
     name=LOGGER_NAME,
@@ -60,7 +55,7 @@ def win2xcur_process(
     output_path: Path,
     save_name: str | None = None,
     shadow: bool | None = False,
-    shadow_opacity: int | None = 50,
+    shadow_opacity: int | None = 50,  # pylint: disable=unused-argument
     shadow_radius: float | None = 0.1,
     shadow_sigma: float | None = 0.1,
     shadow_x: float | None = 0.05,
@@ -88,6 +83,17 @@ def win2xcur_process(
         ValueError: 读取不支持的光标文件格式时
         Exception: 发生未知错误时
     """
+    try:
+        # 依赖关系: win2xcur -> wand -> ImageMagick
+        # 当 ImageMagick 未安装时将导致 win2xcur 导入失败
+        patch_win2xcur()
+        from win2xcur.scale import apply_to_frames as apply_to_frames_for_scale # pylint: disable=import-outside-toplevel
+        from win2xcur.shadow import apply_to_frames as apply_to_frames_for_shadow # pylint: disable=import-outside-toplevel
+        from win2xcur.parser import open_blob # pylint: disable=import-outside-toplevel
+        from win2xcur.writer import to_x11 # pylint: disable=import-outside-toplevel
+    except ImportError as e:
+        raise ImportError(f"导入 win2xcur 模块时发生错误: {e}\n这可能因 ImageMagick 未安装导致的问题, 请使用 Ani2xcur 的 ImageMagick 安装功能进行修复") from e
+
     if save_name is None:
         save_name = input_file.stem
 
@@ -103,10 +109,10 @@ def win2xcur_process(
         raise e
 
     if scale:
-        win2xcur.scale.apply_to_frames(cursor.frames, scale=scale)
+        apply_to_frames_for_scale(cursor.frames, scale=scale)
 
     if shadow:
-        win2xcur.shadow.apply_to_frames(
+        apply_to_frames_for_shadow(
             cursor.frames,
             color=shadow_color,
             radius=shadow_radius,
@@ -154,7 +160,18 @@ def x2wincur_process(
     Raises:
         ValueError: 读取不支持的光标文件格式时
         Exception: 发生未知错误时
+        ImportError: 当导入 win2xcur 模块发生失败时
     """
+    try:
+        # 依赖关系: win2xcur -> wand -> ImageMagick
+        # 当 ImageMagick 未安装时将导致 win2xcur 导入失败
+        patch_win2xcur()
+        from win2xcur.scale import apply_to_frames as apply_to_frames_for_scale # pylint: disable=import-outside-toplevel
+        from win2xcur.parser import open_blob # pylint: disable=import-outside-toplevel
+        from win2xcur.writer import to_smart # pylint: disable=import-outside-toplevel
+    except ImportError as e:
+        raise ImportError(f"导入 win2xcur 模块时发生错误: {e}\n这可能因 ImageMagick 未安装导致的问题, 请使用 Ani2xcur 的 ImageMagick 安装功能进行修复") from e
+
     if save_name is None:
         save_name = input_file.stem
 
@@ -170,7 +187,7 @@ def x2wincur_process(
         raise e
 
     if scale:
-        win2xcur.scale.apply_to_frames(cursor.frames, scale=scale)
+        apply_to_frames_for_scale(cursor.frames, scale=scale)
 
     ext, result = to_smart(cursor.frames)
     output_path = output_path / f"{save_name}{ext}"

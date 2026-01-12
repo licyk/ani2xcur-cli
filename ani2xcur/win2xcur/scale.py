@@ -1,5 +1,6 @@
-from win2xcur.cursor import CursorFrame
 
+
+from win2xcur.cursor import CursorFrame
 
 def apply_to_frames(frames: list[CursorFrame], *, scale: float) -> None:
     """将缩放应用到鼠标指针文件的帧上
@@ -14,3 +15,4 @@ def apply_to_frames(frames: list[CursorFrame], *, scale: float) -> None:
                 int(round(cursor.image.width * scale)),
                 int(round(cursor.image.height) * scale),
             )
+

@@ -481,7 +481,7 @@ def export_windows_cursor(
 
     save_dir = output_path / cursor_name
     save_dir.mkdir(parents=True, exist_ok=True)
-    inf_file_path = save_dir / "install_cursor.inf"
+    inf_file_path = save_dir / "AutoSetup.inf"
     for cursor in config_dict["cursor_src_file"]:
         copy_files(cursor, save_dir)
 
@@ -575,7 +575,6 @@ def generate_cursor_scheme_config(
 
     cursor_paths: list[Path] = []  # 用于导出的路径列表
     paths_to_reg: list[str] = []  # [Scheme.Reg] 部分
-    cursor_map: dict[str, Path | None] = {}
     strings: dict[str, str] = {}  # [Strings] 部分
     wreg_list: list[str] = []  # [Wreg] 部分
     wreg_list.append(r'HKCU,"Control Panel\Cursors",,0x00020000,"%SCHEME_NAME%"')
@@ -592,7 +591,6 @@ def generate_cursor_scheme_config(
             and Path(expand_var_string(origin_path)).is_file()
             else None
         )
-        cursor_map[key] = path
         if path is not None:
             cursor_paths.append(path)
 

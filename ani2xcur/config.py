@@ -18,3 +18,10 @@ ROOT_PATH = Path(__file__).parent
 
 LINUX_CURSOR_SOURCE_PATH = ROOT_PATH / "source"
 """Linux 鼠标指针补全文件目录"""
+
+IMAGE_MAGICK_WINDOWS_DOWNLOAD_URL = os.getenv("IMAGE_MAGICK_WINDOWS_DOWNLOAD_URL", "https://modelscope.cn/models/licyks/invokeai-core-model/resolve/master/pypatchmatch/ImageMagick-7.1.2-Q16-HDRI.zip")
+"""下载 ImageMagick Windows 版的 URL"""
+
+IMAGE_MAGICK_WINDOWS_INSTALL_PATH = Path(os.getenv("ProgramFiles", r'C:\Program Files')) / "ImageMagick-7.1.2-Q16-HDRI"
+"""Windows 默认 ImageMagick 安装路径"""
+

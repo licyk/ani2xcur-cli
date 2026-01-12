@@ -1,5 +1,6 @@
 """其他工具合集"""
 
+import ctypes
 from pathlib import Path
 from typing import Any
 from ani2xcur.logger import get_logger
@@ -216,3 +217,16 @@ def extend_list_to_length(
     if len(lst) < target_length:
         lst.extend([fill_value] * (target_length - len(lst)))
     return lst
+
+
+def is_admin_on_windows() -> bool:
+    """检测当前进程是否以管理员权限运行
+
+    Returns:
+        bool: 当使用管理员运行时返回 True
+    """
+    try:
+        return ctypes.windll.shell32.IsUserAnAdmin()
+    except AttributeError:
+        return False
+    

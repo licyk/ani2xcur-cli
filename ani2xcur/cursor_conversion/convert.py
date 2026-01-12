@@ -3,11 +3,19 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from ani2xcur.config_parse.win import dict_to_inf_strings_format
 from ani2xcur.manager.base import LINUX_CURSOR_LINKS
-from ani2xcur.manager.win_cur_manager import extract_scheme_info_from_inf, generate_cursor_scheme_inf_string
+from ani2xcur.manager.win_cur_manager import (
+    extract_scheme_info_from_inf,
+    generate_cursor_scheme_inf_string,
+)
 from ani2xcur.manager.base import CURSOR_KEYS
 from ani2xcur.manager.linux_cur_manager import extract_scheme_info_from_desktop_entry
 from ani2xcur.config import LINUX_CURSOR_SOURCE_PATH
-from ani2xcur.cursor_conversion.win2xcur_warp import win2xcur_process, x2wincur_process, Win2xcurArgs, X2wincurArgs
+from ani2xcur.cursor_conversion.win2xcur_warp import (
+    win2xcur_process,
+    x2wincur_process,
+    Win2xcurArgs,
+    X2wincurArgs,
+)
 from ani2xcur.file_operations.file_manager import copy_files, create_symlink
 
 
@@ -162,7 +170,7 @@ def x11_cursor_to_win(
             if src is None:
                 # 使用补全文件
                 src = LINUX_CURSOR_SOURCE_PATH / linux
-        
+
             x2win_path_list.append([win, src, dst])
 
         # 转换鼠标指针文件
@@ -174,6 +182,7 @@ def x11_cursor_to_win(
                 cursor_save_path = x2wincur_process(**x2win_args)
             else:
                 cursor_save_path = None
+
             cursor_save_paths.append((name, cursor_save_path))
 
         # 创建配置文件
@@ -188,6 +197,7 @@ def x11_cursor_to_win(
 
     return output_path / cursor_name
 
+
 def generate_win_cursor_config(
     cursor_name: str,
     cursor_path: Path,
@@ -200,28 +210,41 @@ def generate_win_cursor_config(
         cursor_path (Path): 鼠标指针包路径
         cursor_save_paths (list[tuple[str, Path | None]]): 鼠标指针类型对应的保存路径
     """
+
+    cursor_paths: list[Path] = []  # 用于导出的路径列表
+    strings: dict[str, str] = {}  # [Strings] 部分
+    wreg_list: list[str] = []  # [Wreg] 部分
+    paths_to_reg: list[str] = []  # [Scheme.Reg] 部分
+
     destination_dirs = r'10,"%CUR_DIR%"'
-    scheme_cur = ""
-    strings: dict[str, str] = {}
     strings["SCHEME_NAME"] = cursor_name
     strings["CUR_DIR"] = rf"Cursors\{cursor_name}"
-    scheme_reg = r'HKCU,"Control Panel\Cursors\Schemes","%SCHEME_NAME%",,"'
-    wreg = r'HKCU,"Control Panel\Cursors",,0x00020000,"%SCHEME_NAME%"'
+    wreg_list.append(r'HKCU,"Control Panel\Cursors\Schemes","%SCHEME_NAME%",,"')
+
     for name, path in cursor_save_paths:
-        scheme_reg += rf'%10%\%CUR_DIR%\%{name}%'
         if path is not None:
-            scheme_cur += "\n"
-            scheme_cur += rf'"{path.name}"'
-            wreg += "\n"
-            wreg += rf'HKCU,"Control Panel\Cursors",{name},0x00020000,"%10%\%CUR_DIR%\%{name}%"'
+            cursor_paths.append(path)
+            wreg_list.append(
+                rf'HKCU,"Control Panel\Cursors",{name},0x00020000,"%10%\%CUR_DIR%\%{name}%"'
+            )
             strings[name] = path.name
+            paths_to_reg.append(rf"%10%\%CUR_DIR%\%{name}%")
+        else:
+            paths_to_reg.append("")
 
-        if name != cursor_save_paths[-1][0]:
-            scheme_reg += ","
+    # 配置 [Wreg] 字段
+    wreg_list.append(
+        r'HKLM,"SOFTWARE\Microsoft\Windows\CurrentVersion\Runonce\Setup\","",,"rundll32.exe shell32.dll,Control_RunDLL main.cpl @0"'
+    )
+    wreg = "\n".join(wreg_list)
 
-    scheme_reg += '"'
-    wreg += "\n"
-    wreg += r'HKLM,"SOFTWARE\Microsoft\Windows\CurrentVersion\Runonce\Setup\","",,"rundll32.exe shell32.dll,Control_RunDLL main.cpl @0"'
+    # 配置 [Scheme.Reg] 字段
+    paths_to_reg_string = ",".join(paths_to_reg)
+    scheme_reg = rf'HKCU,"Control Panel\Cursors\Schemes","%SCHEME_NAME%",0x00020000,"{paths_to_reg_string}"'
+
+    # 配置 [Scheme.Cur] 字段
+    scheme_cur = "\n".join([f'"{x.name}"' for x in cursor_paths])
+
     inf = generate_cursor_scheme_inf_string(
         destination_dirs=destination_dirs,
         wreg=wreg,
@@ -229,5 +252,6 @@ def generate_win_cursor_config(
         scheme_cur=scheme_cur,
         strings=dict_to_inf_strings_format(strings),
     )
-    with open(cursor_path / "AutoSetup.inf", "w", encoding="utf-8") as f:
+
+    with open(cursor_path / "AutoSetup.inf", "w", encoding="gbk") as f:
         f.write(inf)

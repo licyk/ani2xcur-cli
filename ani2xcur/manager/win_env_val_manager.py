@@ -127,6 +127,7 @@ def delete_path_from_env_path(
         key=key,
         access=RegistryAccess.WRITE,
     )
+    broadcast_settings_change()
 
 
 def delete_val_from_env(

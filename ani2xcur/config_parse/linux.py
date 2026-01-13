@@ -43,6 +43,8 @@ def preprocess_desktop_entry_to_cursor_scheme(parsed: ParsedINF) -> CursorShemeD
         parsed (ParsedINF): DesktopEntry 类型字典
     Returns:
         CursorShemeDesktopEntry: 预处理后的鼠标指针 DesktopEntry 信息字典
+    Raises:
+        ValueError: 当鼠标指针配置文件不完整时
     """
 
 
@@ -52,6 +54,8 @@ def preprocess_desktop_entry_to_cursor_scheme(parsed: ParsedINF) -> CursorShemeD
     if "Icon Theme" in parsed_known:
         # 合并 var 和 constant（如果需要可扩展）
         out["Icon Theme"] = parsed_known["Icon Theme"].get("var", {})
+    else:
+        raise ValueError("未找到 Icon Theme 键, 鼠标指针配置不完整")
 
     return out
 
@@ -65,9 +69,14 @@ def parse_desktop_entry_content(
         desktop_entry_path (Path): 鼠标指针的 DesktopEntry 配置文件
     Returns:
         CursorShemeDesktopEntry: 鼠标指针配置数据
+    Raises:
+        ValueError: 当鼠标指针配置文件不完整时
     """
     desktop_entry = parse_inf_file(desktop_entry_path)
-    return preprocess_desktop_entry_to_cursor_scheme(desktop_entry)
+    try:
+        return preprocess_desktop_entry_to_cursor_scheme(desktop_entry)
+    except ValueError as e:
+        raise e
 
 def dict_to_desktop_entry_strings_format(
     data_dict: dict[str, str]

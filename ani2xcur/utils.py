@@ -1,7 +1,12 @@
 """其他工具合集"""
 
 import ctypes
+import gc
+import getpass
 from pathlib import Path
+import random
+import string
+import sys
 from typing import Any
 from ani2xcur.logger import get_logger
 from ani2xcur.config import LOGGER_COLOR, LOGGER_LEVEL, LOGGER_NAME
@@ -230,3 +235,100 @@ def is_admin_on_windows() -> bool:
     except AttributeError:
         return False
     
+
+def is_root_on_linux() -> bool:
+    """检测当前进程是否以管理员权限运行
+
+    Returns:
+        bool: 当使用管理员运行时返回 True
+    """
+    return getpass.getuser() == "root"
+
+
+def unload_specific_module(module_name: str) -> None:
+    """从内存卸载指定的 Python 模块
+
+    Args:
+        module_name (str): 要卸载的模块名称
+    """
+    if module_name not in sys.modules:
+        logger.info("%s 模块未被加载", module_name)
+        return
+
+    logger.info("卸载 %s 模块中", module_name)
+    # 尝试调用模块的清理函数
+    if hasattr(module_name, 'cleanup') and callable(getattr(module_name, 'cleanup')):
+        try:
+            getattr(module_name, 'cleanup')()
+        except Exception: # pylint: disable=broad-exception-caught
+            pass
+
+    # 如果模块有句柄属性
+        if hasattr(module_name, '_handle'):
+            handle = module_name._handle # pylint: disable=protected-access
+            if sys.platform.startswith('win'):
+                ctypes.windll.kernel32.FreeLibrary(handle)
+            elif sys.platform.startswith('linux'):
+                ctypes.CDLL(None).dlclose(handle)
+
+    # 删除 sys.modules 中的条目
+    del sys.modules[module_name]
+    logger.info("卸载模块: %s", module_name)
+
+    # 如果有子模块, 也要删除
+    module_keys_to_remove = []
+    for key in sys.modules.keys():
+        if key.startswith(module_name + '.'):
+            module_keys_to_remove.append(key)
+    
+    for key in module_keys_to_remove:
+        del sys.modules[key]
+        logger.info("卸载 %s 子模块: %s", module_name, key)
+
+    # 从局部命名空间删除模块引用 (如果在全局命名空间中)
+    if module_name in globals():
+        del globals()[module_name]
+
+    gc.collect()
+    logger.info("模块 %s 已彻底卸载", module_name)
+
+
+def generate_random_string(
+    length: int | None = 8,
+    chars: str | None = None,
+    include_uppercase: bool | None = True,
+    include_lowercase: bool | None = True,
+    include_digits: bool | None = True,
+    include_special: bool | None = False,
+):
+    """
+    生成随机字符串
+
+    Args:
+        length (int | None): 字符串长度, 默认为 8
+        chars (str | None): 自定义字符集，如果提供则忽略其他参数
+        include_uppercase (bool | None): 是否包含大写字母
+        include_lowercase (bool | None): 是否包含小写字母
+        include_digits (bool | None): 是否包含数字
+        include_special (bool | None): 是否包含特殊字符
+
+    Returns:
+        str: 生成的随机字符串
+    """
+    if chars is not None:
+        char_pool = chars
+    else:
+        char_pool = ""
+        if include_uppercase:
+            char_pool += string.ascii_uppercase
+        if include_lowercase:
+            char_pool += string.ascii_lowercase
+        if include_digits:
+            char_pool += string.digits
+        if include_special:
+            char_pool += "!@#$%^&*"
+
+    if not char_pool:
+        raise ValueError("字符池不能为空")
+
+    return "".join(random.choice(char_pool) for _ in range(length))

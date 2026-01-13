@@ -1,13 +1,16 @@
 import ctypes
 import os
+from pathlib import Path
 import re
 from typing import Literal
 try:
     import win32gui
     import win32con
+    import win32com.client
 except ImportError:
     win32gui = NotImplemented
     win32con = NotImplemented
+    win32com = NotImplemented
 
 from ani2xcur.manager.regedit import (
     registry_query_value,
@@ -192,3 +195,26 @@ def broadcast_settings_change(
         5000,  # 等待每个窗口响应的最大毫秒数
     )
     return result
+
+
+
+
+def create_windows_shortcut(target_path: Path, shortcut_path: Path, description: str | None = "", working_dir: Path | None = None, icon_path: Path | None  = None) -> None:
+    """创建 Windows 快捷方式
+    
+    Args:
+        target_path (Path): 目标文件路径
+        shortcut_path (Path): 快捷方式保存路径 (应以 .lnk 结尾)
+        description (str | None): 快捷方式描述
+        working_dir (Path | None): 工作目录
+        icon_path (Path | None): 图标路径
+    """
+    shell = win32com.client.Dispatch("WScript.Shell")
+    shortcut = shell.CreateShortCut(str(shortcut_path))
+    shortcut.Targetpath = str(target_path)
+    shortcut.WorkingDirectory = str(working_dir) or str(target_path.parent)
+    if description:
+        shortcut.Description = description
+    if icon_path is not None:
+        shortcut.IconLocation = str(icon_path)
+    shortcut.save()

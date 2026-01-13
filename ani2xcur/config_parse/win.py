@@ -62,6 +62,8 @@ def preprocess_inf_to_cursor_scheme(parsed: ParsedINF) -> CursorShemeINF:
         parsed (ParsedINF): INF 类型字典
     Returns:
         CursorShemeINF: 预处理后的鼠标指针 INF 信息字典
+    Raises:
+        ValueError: 当鼠标指针配置文件不完整时
     """
 
     def _ensure_list(v: str | list[str]) -> list[str]:
@@ -86,15 +88,21 @@ def preprocess_inf_to_cursor_scheme(parsed: ParsedINF) -> CursorShemeINF:
     # 一些节在不同 INF 中可能为 var 或 constant，这里以常见样式提取
     if "Scheme.Reg" in parsed_known:
         out["Scheme.Reg"] = parsed_known["Scheme.Reg"].get("constant", [])
+    else:
+        raise ValueError("未找到 Scheme.Reg 键, 鼠标指针配置不完整")
 
     if "Wreg" in parsed_known:
         out["Wreg"] = parsed_known["Wreg"].get("constant", [])
 
     if "Scheme.Cur" in parsed_known:
         out["Scheme.Cur"] = parsed_known["Scheme.Cur"].get("constant", [])
+    else:
+        raise ValueError("未找到 Scheme.Cur 键, 鼠标指针配置不完整")
 
     if "Strings" in parsed_known:
         out["Strings"] = parsed_known["Strings"].get("var", {})
+    else:
+        raise ValueError("未找到 Strings 键, 鼠标指针配置不完整")
 
     return out
 
@@ -108,9 +116,14 @@ def parse_inf_file_content(
         inf_path (Path): 鼠标指针的 INF 配置文件
     Returns:
         CursorShemeINF: 鼠标指针配置数据
+    Raises:
+        ValueError: 当鼠标指针配置文件不完整时
     """
     inf = parse_inf_file(inf_path)
-    return preprocess_inf_to_cursor_scheme(inf)
+    try:
+        return preprocess_inf_to_cursor_scheme(inf)
+    except ValueError as e:
+        raise e
 
 
 def dict_to_inf_strings_format(

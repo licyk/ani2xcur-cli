@@ -226,8 +226,8 @@ def set_linux_cursor_size(cursor_size: int) -> None:
     set_gtk_xsettings_cursor_size(cursor_size)
 
 
-def get_windows_cursor_info() -> CurrentCursorInfoList:
-    """获取 Windows 当前鼠标指针信息
+def get_linux_cursor_info() -> CurrentCursorInfoList:
+    """获取 Linux 当前鼠标指针信息
 
     Returns:
         CurrentCursorInfoList: 桌面平台的当前鼠标指针信息列表
@@ -405,7 +405,7 @@ def export_linux_cursor(
     Args:
         cursor_name (str): 要导出的鼠标指针方案的名称
         output_path (Path): 鼠标指针导出的路径
-        custom_install_path (Path | None): 自定义鼠标指针安装文件
+        custom_install_path (Path | None): 自定义鼠标指针安装时的文件安装路径
     Returns:
         Path: 鼠标指针导出的文件路径
     Raises:

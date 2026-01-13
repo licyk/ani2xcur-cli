@@ -15,35 +15,38 @@ logger = get_logger(
 )
 
 
-def remove_files(path: str | Path) -> None:
-    """文件删除工具
+def remove_files(path: Path) -> None:
+    """文件删除工具，支持删除只读文件和非空文件夹。
 
     Args:
-        path (str | Path): 要删除的文件路径
+        path (str | Path): 要删除的文件或目录路径
     Raises:
-        ValueError: 删除的路径不存在时
-        OSError: 删除文件失败时
+        ValueError: 路径不存在时
+        OSError: 删除过程中的系统错误
     """
 
-    def _handle_remove_readonly(_func, _path, _):
-        """处理只读文件的错误处理函数"""
-        if os.path.exists(_path):
-            os.chmod(_path, stat.S_IWRITE)
-            _func(_path)
-
-    try:
-        path_obj = Path(path)
-        if path_obj.is_file():
-            os.chmod(path_obj, stat.S_IWRITE)
-            path_obj.unlink()
-
-        if path_obj.is_dir():
-            shutil.rmtree(path_obj, onerror=_handle_remove_readonly)
-
+    if not path.exists():
         logger.error("路径不存在: %s", path)
         raise ValueError(f"要删除的 {path} 路径不存在")
+
+    def _handle_remove_readonly(func, path_str, _):
+        """处理只读文件的错误处理函数"""
+        if os.path.exists(path_str):
+            os.chmod(path_str, stat.S_IWRITE)
+            func(path_str)
+
+    try:
+        if path.is_file() or path.is_symlink():
+            # 处理文件或符号链接
+            os.chmod(path, stat.S_IWRITE)
+            path.unlink()
+            
+        elif path.is_dir():
+            # 处理文件夹
+            shutil.rmtree(path, onerror=_handle_remove_readonly)
+
     except OSError as e:
-        logger.error("删除失败: %s", e)
+        logger.error("删除失败: %s - 原因: %s", path, e)
         raise e
 
 

@@ -21,7 +21,7 @@ def typer_factory(help: str) -> typer.Typer: # pylint: disable=redefined-builtin
 
     Args:
         help (str): 命令的帮助信息
-    Returns
+    Returns:
         typer.Typer: typer 装饰器
     """
     return typer.Typer(

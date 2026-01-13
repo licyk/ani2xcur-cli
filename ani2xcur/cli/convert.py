@@ -1,0 +1,174 @@
+import sys
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from typing import Annotated
+
+import typer
+import click
+
+from ani2xcur.cursor_conversion.convert import (
+    win_cursor_to_x11,
+    x11_cursor_to_win,
+)
+from ani2xcur.cursor_conversion.win2xcur_warp import Win2xcurArgs, X2wincurArgs
+from ani2xcur.smart_finder import find_inf_file, find_desktop_entry_file
+from ani2xcur.config import (
+    LOGGER_NAME,
+    LOGGER_LEVEL,
+    LOGGER_COLOR,
+    SMART_FINDER_SEARCH_DEPTH,
+)
+from ani2xcur.logger import get_logger
+from ani2xcur.file_operations.archive_manager import (
+    create_archive,
+    SUPPORTED_ARCHIVE_FORMAT,
+)
+
+logger = get_logger(
+    name=LOGGER_NAME,
+    level=LOGGER_LEVEL,
+    color=LOGGER_COLOR,
+)
+
+
+def win2xcur(
+    input_path: Annotated[
+        Path,
+        typer.Argument(
+            help="Linux 鼠标指针文件的路径, 可以为 index.theme 文件路径, 或者鼠标指针压缩包文件路径",
+            resolve_path=True,
+        ),
+    ],
+    output_path: Annotated[
+        Path | None,
+        typer.Option(
+            help="保存转换后的鼠标指针路径",
+            resolve_path=True,
+        ),
+    ] = None,
+    shadow: Annotated[bool, typer.Option(help="是否模拟 Windows 的阴影效果")] = False,
+    shadow_opacity: Annotated[
+        int, typer.Option(help="阴影的不透明度 (0 到 255)", min=0, max=255)
+    ] = 50,
+    shadow_radius: Annotated[
+        float, typer.Option(help="阴影模糊效果的半径 (宽度的分数值)")
+    ] = 0.1,
+    shadow_sigma: Annotated[
+        float, typer.Option(help="阴影模糊效果的西格玛值 (宽度的分数值)")
+    ] = 0.1,
+    shadow_x: Annotated[
+        float, typer.Option(help="阴影的 x 偏移量 (宽度的分数值)")
+    ] = 0.05,
+    shadow_y: Annotated[
+        float, typer.Option(help="阴影的 y 偏移量 (高度的分数值)")
+    ] = 0.05,
+    shadow_color: Annotated[str, typer.Option(help="阴影的颜色")] = "#000000",
+    scale: Annotated[float | None, typer.Option(help="按指定倍数缩放光标")] = None,
+    compress: Annotated[
+        bool, typer.Option(help="转换完成后将鼠标指针打包成压缩包")
+    ] = False,
+    compress_format: Annotated[
+        str,
+        typer.Option(
+            help="打包成压缩包时使用的压缩包格式",
+            click_type=click.Choice(SUPPORTED_ARCHIVE_FORMAT),
+        ),
+    ] = ".zip",
+) -> None:
+    """将 Windows 鼠标指针文件包转换为 Linux 鼠标指针文件包"""
+    win2x_args: Win2xcurArgs = {}
+    win2x_args["shadow"] = shadow
+    win2x_args["shadow_opacity"] = shadow_opacity
+    win2x_args["shadow_radius"] = shadow_radius
+    win2x_args["shadow_sigma"] = shadow_sigma
+    win2x_args["shadow_x"] = shadow_x
+    win2x_args["shadow_y"] = shadow_y
+    win2x_args["shadow_color"] = shadow_color
+    win2x_args["scale"] = scale
+
+    with TemporaryDirectory() as temp_dir:
+        temp_dir = Path(temp_dir)
+        inf_file = find_inf_file(
+            input_file=input_path,
+            temp_dir=temp_dir,
+            depth=SMART_FINDER_SEARCH_DEPTH,
+        )
+
+        if inf_file is None:
+            logger.error("未找到鼠标指针的 INF 配置文件路径")
+            sys.exit(1)
+
+        save_path = win_cursor_to_x11(
+            inf_file=inf_file,
+            output_path=output_path,
+            win2x_args=win2x_args,
+        )
+
+    logger.info("鼠标指针转换完成, 保存路径: %s", save_path)
+    if compress:
+        logger.info("将鼠标指针进行打包")
+        archive_path = output_path / f"{save_path.name}{compress_format}"
+        create_archive(
+            sources=save_path,
+            archive_path=archive_path,
+        )
+        logger.info("鼠标指针打包完成, 保存路径: %s", archive_path)
+
+
+def x2wincur(
+    input_path: Annotated[
+        Path,
+        typer.Argument(
+            help="Windows 鼠标指针文件的路径, 可以为 inf / ani / cur 文件路径, 或者鼠标指针压缩包文件路径"
+        ),
+    ],
+    output_path: Annotated[
+        Path | None, typer.Option(help="保存转换后的鼠标指针路径")
+    ] = None,
+    scale: Annotated[float | None, typer.Option(help="按指定倍数缩放光标")] = None,
+    compress: Annotated[
+        bool, typer.Option(help="转换完成后将鼠标指针打包成压缩包")
+    ] = False,
+    compress_format: Annotated[
+        str,
+        typer.Option(
+            help="打包成压缩包时使用的压缩包格式",
+            click_type=click.Choice(SUPPORTED_ARCHIVE_FORMAT),
+        ),
+    ] = ".zip",
+) -> None:
+    """将 Linux 鼠标指针文件包转换为 Windows 鼠标指针文件包"""
+    x2win_args: X2wincurArgs = {}
+    x2win_args["scale"] = scale
+
+    with TemporaryDirectory() as temp_dir:
+        temp_dir = Path(temp_dir)
+        desktop_entry_file = find_desktop_entry_file(
+            input_file=input_path,
+            temp_dir=temp_dir,
+            depth=SMART_FINDER_SEARCH_DEPTH,
+        )
+
+        if desktop_entry_file is None:
+            logger.error("未找到鼠标指针的 DesktopEntry 配置文件路径")
+            sys.exit(1)
+
+        if not (desktop_entry_file.parent / "cursors").is_dir():
+            logger.error("鼠标指针目录缺失, 无法进行鼠标指针转换")
+            sys.exit(1)
+
+        save_path = x11_cursor_to_win(
+            desktop_entry_file=desktop_entry_file,
+            output_path=output_path,
+            x2win_args=x2win_args,
+        )
+
+    logger.info("鼠标指针转换完成, 保存路径: %s", save_path)
+    if compress:
+        logger.info("将鼠标指针进行打包")
+        archive_path = output_path / f"{save_path.name}{compress_format}"
+        create_archive(
+            sources=save_path,
+            archive_path=archive_path,
+        )
+        logger.info("鼠标指针打包完成, 保存路径: %s", archive_path)

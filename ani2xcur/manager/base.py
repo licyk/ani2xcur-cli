@@ -379,6 +379,7 @@ LINUX_CURSOR_LINKS = [
     ["dotbox", "icon"],
     ["dotbox", "target"],
 ]
+"""Linux 鼠标指针需要链接的别名"""
 
 
 class LocalCursor(TypedDict):

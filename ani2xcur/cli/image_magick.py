@@ -7,10 +7,23 @@ from pathlib import Path
 
 import typer
 
-from ani2xcur.config import LOGGER_NAME, LOGGER_LEVEL, LOGGER_COLOR, IMAGE_MAGICK_WINDOWS_INSTALL_PATH
+from ani2xcur.config import (
+    LOGGER_NAME,
+    LOGGER_LEVEL,
+    LOGGER_COLOR,
+    IMAGE_MAGICK_WINDOWS_INSTALL_PATH,
+)
 from ani2xcur.logger import get_logger
-from ani2xcur.image_magick_manager import install_image_magick_windows, install_image_magick_linux, uninstall_image_magick_windows, uninstall_image_magick_linux
-from ani2xcur.utils import is_admin_on_windows, is_root_on_linux
+from ani2xcur.image_magick_manager import (
+    install_image_magick_windows,
+    install_image_magick_linux,
+    uninstall_image_magick_windows,
+    uninstall_image_magick_linux,
+)
+from ani2xcur.utils import (
+    is_admin_on_windows,
+    is_root_on_linux,
+)
 
 logger = get_logger(
     name=LOGGER_NAME,

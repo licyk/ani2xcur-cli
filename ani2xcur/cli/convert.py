@@ -13,7 +13,10 @@ from ani2xcur.cursor_conversion.convert import (
     x11_cursor_to_win,
 )
 from ani2xcur.cursor_conversion.win2xcur_warp import Win2xcurArgs, X2wincurArgs
-from ani2xcur.smart_finder import find_inf_file, find_desktop_entry_file
+from ani2xcur.smart_finder import (
+    find_inf_file,
+    find_desktop_entry_file,
+)
 from ani2xcur.config import (
     LOGGER_NAME,
     LOGGER_LEVEL,
@@ -37,7 +40,7 @@ def win2xcur(
     input_path: Annotated[
         Path,
         typer.Argument(
-            help="Linux 鼠标指针文件的路径, 可以为 index.theme 文件路径, 或者鼠标指针压缩包文件路径",
+            help="Windows 鼠标指针文件的路径, 可以为 inf / ani / cur 文件路径, 或者鼠标指针压缩包文件路径",
             resolve_path=True,
         ),
     ],
@@ -112,7 +115,7 @@ def win2xcur(
 def x2wincur(
     input_path: Annotated[
         Path,
-        typer.Argument(help="Windows 鼠标指针文件的路径, 可以为 inf / ani / cur 文件路径, 或者鼠标指针压缩包文件路径", resolve_path=True),
+        typer.Argument(help="Linux 鼠标指针文件的路径, 可以为 index.theme 文件路径, 或者鼠标指针压缩包文件路径", resolve_path=True),
     ],
     output_path: Annotated[Path | None, typer.Option(help="保存转换后的鼠标指针路径", resolve_path=True)] = None,
     scale: Annotated[float | None, typer.Option(help="按指定倍数缩放光标")] = None,

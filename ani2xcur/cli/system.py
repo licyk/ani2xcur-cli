@@ -9,7 +9,15 @@ from rich.console import Console
 from rich.table import Table
 from rich import box
 
-from ani2xcur.config import LOGGER_NAME, LOGGER_LEVEL, LOGGER_COLOR, IMAGE_MAGICK_WINDOWS_DOWNLOAD_URL, ANI2XCUR_REPOSITORY_URL, WIN2XCUR_REPOSITORY_URL, SMART_FINDER_SEARCH_DEPTH
+from ani2xcur.config import (
+    LOGGER_NAME,
+    LOGGER_LEVEL,
+    LOGGER_COLOR,
+    IMAGE_MAGICK_WINDOWS_DOWNLOAD_URL,
+    ANI2XCUR_REPOSITORY_URL,
+    WIN2XCUR_REPOSITORY_URL,
+    SMART_FINDER_SEARCH_DEPTH,
+)
 from ani2xcur.logger import get_logger
 from ani2xcur.updater import self_update
 

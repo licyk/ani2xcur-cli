@@ -14,7 +14,12 @@ from ani2xcur.manager.win_cur_manager import (
 )
 from ani2xcur.manager.base import CURSOR_KEYS
 from ani2xcur.manager.linux_cur_manager import extract_scheme_info_from_desktop_entry
-from ani2xcur.config import LINUX_CURSOR_SOURCE_PATH, LOGGER_NAME, LOGGER_LEVEL, LOGGER_COLOR
+from ani2xcur.config import (
+    LINUX_CURSOR_SOURCE_PATH,
+    LOGGER_NAME,
+    LOGGER_LEVEL,
+    LOGGER_COLOR,
+)
 from ani2xcur.logger import get_logger
 from ani2xcur.cursor_conversion.win2xcur_warp import (
     win2xcur_process,
@@ -22,7 +27,10 @@ from ani2xcur.cursor_conversion.win2xcur_warp import (
     Win2xcurArgs,
     X2wincurArgs,
 )
-from ani2xcur.file_operations.file_manager import copy_files, create_symlink
+from ani2xcur.file_operations.file_manager import (
+    copy_files,
+    create_symlink,
+)
 
 logger = get_logger(
     name=LOGGER_NAME,

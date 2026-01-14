@@ -4,7 +4,10 @@ from pathlib import Path
 
 from ani2xcur.config_parse.win import parse_inf_file_content
 from ani2xcur.config_parse.linux import parse_desktop_entry_content
-from ani2xcur.file_operations.archive_manager import is_supported_archive_format, extract_archive
+from ani2xcur.file_operations.archive_manager import (
+    is_supported_archive_format,
+    extract_archive,
+)
 from ani2xcur.file_operations.file_manager import get_file_list
 from ani2xcur.utils import generate_random_string
 from ani2xcur.logger import get_logger

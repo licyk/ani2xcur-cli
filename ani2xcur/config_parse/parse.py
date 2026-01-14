@@ -2,11 +2,19 @@
 
 import re
 from pathlib import Path
-from typing import TypedDict, TypeAlias, cast
+from typing import (
+    TypedDict,
+    TypeAlias,
+    cast,
+)
 
 
 from ani2xcur.logger import get_logger
-from ani2xcur.config import LOGGER_LEVEL, LOGGER_COLOR, LOGGER_NAME
+from ani2xcur.config import (
+    LOGGER_LEVEL,
+    LOGGER_COLOR,
+    LOGGER_NAME,
+)
 from ani2xcur.utils import detect_encoding
 
 logger = get_logger(

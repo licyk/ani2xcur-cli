@@ -7,7 +7,14 @@ from datetime import datetime, timedelta
 
 from ani2xcur.cmd import run_cmd
 from ani2xcur.logger import get_logger
-from ani2xcur.config import LOGGER_COLOR, LOGGER_LEVEL, LOGGER_NAME, ANI2XCUR_REPOSITORY_URL, WIN2XCUR_REPOSITORY_URL, ANI2XCUR_CONFIG_PATH
+from ani2xcur.config import (
+    LOGGER_COLOR,
+    LOGGER_LEVEL,
+    LOGGER_NAME,
+    ANI2XCUR_REPOSITORY_URL,
+    WIN2XCUR_REPOSITORY_URL,
+    ANI2XCUR_CONFIG_PATH,
+)
 from ani2xcur.file_operations.file_manager import remove_files
 
 
@@ -50,6 +57,7 @@ def self_update(
     try:
         logger.info("更新 Ani2xcur 中")
         run_cmd(cmd, live=enable_log)
+        logger.info("Ani2xcur 更新成功")
     except RuntimeError as e:
         logger.error("更新 Ani2xcur 时发生错误: %s", e)
         raise RuntimeError(f"更新 Ani2xcur 时发生错误: {e}") from e
@@ -97,7 +105,7 @@ def check_update_time() -> bool:
             with open(_time_record_file, "w", encoding="utf-8") as f:
                 f.write(_record.strftime(time_format))
         except (PermissionError, OSError) as e:
-            logger.error("保存检查更新时间记录发生错误: %s", e)
+            logger.debug("保存检查更新时间记录发生错误: %s", e)
 
     # 清除无效的更新时间记录文件夹
     if time_record_file.is_dir():
@@ -108,10 +116,13 @@ def check_update_time() -> bool:
         try:
             with open(time_record_file, "r", encoding="utf-8") as f:
                 record = datetime.strptime(f.read(), time_format)
+                logger.debug("上次检查更新时间: %s", record)
         except (PermissionError, OSError, ValueError):
+            logger.debug("解析更新时间记录失败, 尝试覆盖时间记录文件")
             record = datetime.now()
             _save_time_record(record, time_record_file)
     else:
+        logger.debug("未找到更新时间记录文件, 尝试生成中")
         record = datetime.now() - time_span
         _save_time_record(record, time_record_file)
 

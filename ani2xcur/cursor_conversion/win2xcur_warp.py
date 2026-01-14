@@ -4,8 +4,15 @@ from pathlib import Path
 from typing import TypedDict
 
 from ani2xcur.logger import get_logger
-from ani2xcur.config import LOGGER_COLOR, LOGGER_LEVEL, LOGGER_NAME
-from ani2xcur.utils import open_file_as_bytes, save_bytes_to_file
+from ani2xcur.config import (
+    LOGGER_COLOR,
+    LOGGER_LEVEL,
+    LOGGER_NAME,
+)
+from ani2xcur.utils import (
+    open_file_as_bytes,
+    save_bytes_to_file,
+)
 from ani2xcur.win2xcur.patch import patch_win2xcur
 
 logger = get_logger(

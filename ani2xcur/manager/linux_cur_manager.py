@@ -12,7 +12,11 @@ from ani2xcur.manager.base import (
     LocalCursor,
 )
 from ani2xcur.config_parse.linux import parse_desktop_entry_content
-from ani2xcur.file_operations.file_manager import copy_files, get_file_list, remove_files
+from ani2xcur.file_operations.file_manager import (
+    copy_files,
+    get_file_list,
+    remove_files,
+)
 from ani2xcur.manager.base import (
     CursorSchemesList,
     LINUX_ICONS_PATH,
@@ -85,7 +89,11 @@ from ani2xcur.manager.desktop_config.xsettings import (
     get_gtk_xsettings_cursor_size,
     get_gtk_xsettings_cursor_theme,
 )
-from ani2xcur.config import LOGGER_LEVEL, LOGGER_COLOR, LOGGER_NAME
+from ani2xcur.config import (
+    LOGGER_LEVEL,
+    LOGGER_COLOR,
+    LOGGER_NAME,
+)
 from ani2xcur.logger import get_logger
 
 logger = get_logger(

@@ -6,7 +6,11 @@ import shutil
 from pathlib import Path
 from tqdm import tqdm
 from ani2xcur.logger import get_logger
-from ani2xcur.config import LOGGER_LEVEL, LOGGER_COLOR, LOGGER_NAME
+from ani2xcur.config import (
+    LOGGER_LEVEL,
+    LOGGER_COLOR,
+    LOGGER_NAME,
+)
 
 logger = get_logger(
     name=LOGGER_NAME,

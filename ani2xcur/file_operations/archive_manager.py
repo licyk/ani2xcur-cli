@@ -13,7 +13,11 @@ import zstandard as zstd
 import py7zr
 import lzo
 
-from ani2xcur.config import LOGGER_NAME, LOGGER_LEVEL, LOGGER_COLOR
+from ani2xcur.config import (
+    LOGGER_NAME,
+    LOGGER_LEVEL,
+    LOGGER_COLOR,
+)
 from ani2xcur.logger import get_logger
 
 logger = get_logger(

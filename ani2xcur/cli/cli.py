@@ -31,7 +31,7 @@ def typer_factory(help: str) -> typer.Typer:  # pylint: disable=redefined-builti
         add_completion=True,  # 启用自动补全功能
         no_args_is_help=True,  # 不带参数运行时显示帮助信息
         cls=AlphabeticalMixedGroup,  # 使用自定义的分组类
-        rich_markup_mode=None,  # 禁用rich标记模式
-        rich_help_panel=None,  # 禁用rich帮助面板
+        rich_markup_mode=None,  # 禁用 rich 标记模式
+        rich_help_panel=None,  # 禁用 rich 帮助面板
         pretty_exceptions_enable=False,  # 禁用美化异常显示
     )

@@ -3,13 +3,18 @@
 import ctypes
 import gc
 import getpass
-from pathlib import Path
 import random
 import string
 import sys
 from typing import Any
+from pathlib import Path
+
 from ani2xcur.logger import get_logger
-from ani2xcur.config import LOGGER_COLOR, LOGGER_LEVEL, LOGGER_NAME
+from ani2xcur.config import (
+    LOGGER_COLOR,
+    LOGGER_LEVEL,
+    LOGGER_NAME,
+)
 
 
 logger = get_logger(

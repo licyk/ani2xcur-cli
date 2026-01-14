@@ -7,7 +7,11 @@ from urllib.parse import urlparse
 from tqdm import tqdm
 
 from ani2xcur.logger import get_logger
-from ani2xcur.config import LOGGER_COLOR, LOGGER_LEVEL, LOGGER_NAME
+from ani2xcur.config import (
+    LOGGER_COLOR,
+    LOGGER_LEVEL,
+    LOGGER_NAME,
+)
 
 
 logger = get_logger(

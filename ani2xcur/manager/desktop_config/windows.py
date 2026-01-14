@@ -23,7 +23,10 @@ from ani2xcur.manager.regedit import (
     RegistryRootKey,
     RegistryValueType,
 )
-from ani2xcur.utils import extend_list_to_length, lowercase_dict_keys
+from ani2xcur.utils import (
+    extend_list_to_length,
+    lowercase_dict_keys,
+)
 from ani2xcur.manager.base import CURSOR_KEYS
 
 WINDOWS_CURSOR_CURSORS_PATH = r"Control Panel\Cursors"

@@ -5,8 +5,15 @@ from pathlib import Path
 
 from ani2xcur.config_parse.win import parse_inf_file_content
 from ani2xcur.logger import get_logger
-from ani2xcur.config import LOGGER_LEVEL, LOGGER_COLOR, LOGGER_NAME
-from ani2xcur.file_operations.file_manager import remove_files, copy_files
+from ani2xcur.config import (
+    LOGGER_LEVEL,
+    LOGGER_COLOR,
+    LOGGER_NAME,
+)
+from ani2xcur.file_operations.file_manager import (
+    remove_files,
+    copy_files,
+)
 from ani2xcur.config_parse.win import (
     dict_to_inf_strings_format,
 )

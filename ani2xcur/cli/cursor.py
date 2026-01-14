@@ -11,7 +11,10 @@ from rich.console import Console
 from rich.table import Table
 from rich import box
 
-from ani2xcur.manager.base import WINDOWS_USER_CURSOR_PATH, LINUX_USER_ICONS_PATH
+from ani2xcur.manager.base import (
+    WINDOWS_USER_CURSOR_PATH,
+    LINUX_USER_ICONS_PATH,
+)
 from ani2xcur.manager.win_cur_manager import (
     install_windows_cursor,
     delete_windows_cursor,
@@ -37,7 +40,10 @@ from ani2xcur.config import (
     SMART_FINDER_SEARCH_DEPTH,
 )
 from ani2xcur.logger import get_logger
-from ani2xcur.smart_finder import find_inf_file, find_desktop_entry_file
+from ani2xcur.smart_finder import (
+    find_inf_file,
+    find_desktop_entry_file,
+)
 
 logger = get_logger(
     name=LOGGER_NAME,

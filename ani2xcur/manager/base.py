@@ -1,7 +1,10 @@
 """管理工具基础配置"""
 
 from pathlib import Path
-from typing import TypeAlias, TypedDict
+from typing import (
+    TypeAlias,
+    TypedDict,
+)
 
 
 WIN_CURSOR_KEYS = [

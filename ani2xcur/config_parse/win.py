@@ -1,9 +1,18 @@
 """Windows 鼠标指针配置解析"""
 
 from pathlib import Path
-from typing import Any, Literal, Protocol, TypedDict, cast
+from typing import (
+    Any,
+    Literal,
+    Protocol,
+    TypedDict,
+    cast,
+)
 
-from ani2xcur.config_parse.parse import ParsedINF, parse_inf_file
+from ani2xcur.config_parse.parse import (
+    ParsedINF,
+    parse_inf_file,
+)
 
 
 CursorShemeINF = TypedDict(

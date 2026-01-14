@@ -3,10 +3,28 @@
 import typer
 
 from ani2xcur.cli.cli import typer_factory
-from ani2xcur.cli.system import version, update, env
-from ani2xcur.cli.convert import win2xcur, x2wincur
-from ani2xcur.cli.cursor import install_cursor, uninstall_cursor, export_cursor, set_cursor_theme, set_cursor_size, list_cursor, get_current_cursor
-from ani2xcur.cli.image_magick import install_image_magick, uninstall_image_magick
+from ani2xcur.cli.system import (
+    version,
+    update,
+    env,
+)
+from ani2xcur.cli.convert import (
+    win2xcur,
+    x2wincur,
+)
+from ani2xcur.cli.cursor import (
+    install_cursor,
+    uninstall_cursor,
+    export_cursor,
+    set_cursor_theme,
+    set_cursor_size,
+    list_cursor,
+    get_current_cursor,
+)
+from ani2xcur.cli.image_magick import (
+    install_image_magick,
+    uninstall_image_magick,
+)
 from ani2xcur.updater import auto_check_update
 
 

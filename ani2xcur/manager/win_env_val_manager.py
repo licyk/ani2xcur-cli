@@ -3,8 +3,14 @@
 from typing import Literal
 
 from ani2xcur.manager.desktop_config.windows import broadcast_settings_change
-from ani2xcur.manager.regedit import RegistryAccess, RegistryRootKey, RegistryValueType, registry_query_value, registry_set_value, registry_delete_value
-
+from ani2xcur.manager.regedit import (
+    RegistryAccess,
+    RegistryRootKey,
+    RegistryValueType,
+    registry_query_value,
+    registry_set_value,
+    registry_delete_value,
+)
 
 WINDOWS_ENV_VALUE_REGESTRY_PATH_SYSTEM = [RegistryRootKey.LOCAL_MACHINE, r"SYSTEM\ControlSet001\Control\Session Manager\Environment"]
 """Windows 的环境变量的注册表路径 (系统变量)"""

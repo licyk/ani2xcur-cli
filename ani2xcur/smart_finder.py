@@ -45,6 +45,7 @@ def find_desktop_entry_file(
         visited = set()
 
     logger.debug("已搜索路径: %s", visited)
+    logger.debug("查找路径: %s", input_file)
 
     # 获取绝对路径并验证存在性
     try:
@@ -129,6 +130,9 @@ def find_inf_file(input_file: Path, temp_dir: Path, depth: int | None = 0, visit
     # 初始化去重集合
     if visited is None:
         visited = set()
+
+    logger.debug("已搜索路径: %s", visited)
+    logger.debug("查找路径: %s", input_file)
 
     # 智能路径修正 (仅在首次调用且输入为光标文件时触发)
     # 该目录可能为鼠标指针路径, 则尝试定位到其父文件夹

@@ -252,11 +252,12 @@ def set_windows_cursor_theme(cursor_name: str) -> None:
     """
     cursors = [x["name"] for x in list_windows_cursors()]
     if cursor_name not in cursors:
+        logger.error("鼠标指针 %s 不存在", cursor_name)
         raise ValueError(f"鼠标指针 {cursor_name} 不存在")
 
     logger.info("将 Windows 系统中使用的鼠标指针主题设置为 %s", cursor_name)
     apply_windows_cursor_theme(cursor_name)
-    logger.info("鼠标指针主题已设置为 %s", cursor_name)
+    logger.info("Windows 鼠标指针主题已设置为 %s", cursor_name)
 
 
 def set_windows_cursor_size(cursor_size: int) -> None:

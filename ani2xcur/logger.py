@@ -84,4 +84,5 @@ def get_logger(name: str | None = None, level: int | None = logging.INFO, color:
         _logger.addHandler(handler)
 
     _logger.setLevel(level)
+    _logger.debug("Logger 初始化完成")
     return _logger

@@ -166,6 +166,7 @@ def install_image_magick_windows(
     # 下载并解压 ImageMagick
     with TemporaryDirectory() as tmp_dir:
         tmp_dir = Path(tmp_dir)
+        logger.debug("从 %s 下载 ImageMagick", IMAGE_MAGICK_WINDOWS_DOWNLOAD_URL)
         image_magick_archive_path = download_file_from_url(
             url=IMAGE_MAGICK_WINDOWS_DOWNLOAD_URL,
             save_path=tmp_dir,
@@ -178,6 +179,7 @@ def install_image_magick_windows(
     # 创建快捷方式
     shortcut_path = IMAGE_MAGICK_WINDOWS_ICON_PATH / "ImageMagick Web Pages.lnk"
     IMAGE_MAGICK_WINDOWS_ICON_PATH.mkdir(parents=True, exist_ok=True)
+    logger.debug("为 ImageMagick 创建快捷方式, 创建路径: %s", shortcut_path)
     create_windows_shortcut(target_path=install_path / "index.html", shortcut_path=shortcut_path, description="ImageMagick Web Pages", working_dir=install_path)
 
     # 获取 ImageMagick 版本信息
@@ -195,6 +197,7 @@ def install_image_magick_windows(
     # ImageMagick 注册表配置信息 (子表路径)
     image_magick_windows_registry_sub_config_path = rf"SOFTWARE\ImageMagick\{version_number}\{quality_setting}"
 
+    logger.debug("写入 ImageMagick 信息到注册表中")
     # ImageMagick 配置信息
     registry_create_path(
         sub_key=IMAGE_MAGICK_WINDOWS_REGISTRY_CONFIG_PATH,
@@ -243,6 +246,7 @@ def install_image_magick_windows(
         )
 
     # 配置环境变量
+    logger.debug("为 ImageMagick 配置环境变量")
     add_image_magick_to_path(install_path)
     logger.info("ImageMagick 已安装到 Windows 系统中")
 
@@ -257,7 +261,8 @@ def get_image_magick_version(magick_bin: Path) -> tuple[str, str, str]:
     """
     try:
         result = run_cmd([magick_bin.as_posix(), "-version"], live=False)
-    except RuntimeError:
+    except RuntimeError as e:
+        logger.debug("获取 ImageMagick 版本失败: %s", e)
         return None, None, None
 
     pattern = r"ImageMagick\s+([0-9.-]+)\s+([A-Z0-9-]+)\s+([a-zA-Z0-9]+)"
@@ -271,6 +276,7 @@ def get_image_magick_version(magick_bin: Path) -> tuple[str, str, str]:
         quality_setting = None
         architecture = None
 
+    logger.debug("获取 ImageMagick 的版本信息: 版本号 %s, 质量设置 %s, 架构 %s", version_number, quality_setting, architecture)
     return version_number, quality_setting, architecture
 
 
@@ -337,6 +343,7 @@ def uninstall_image_magick_windows() -> None:
     logger.info("从 Windows 系统中卸载 ImageMagick 中, ImagwMagick 路径: %s", install_path)
     # 删除 ImageMagick 文件
     if install_path.exists():
+        logger.debug("删除 ImageMagick 主文件")
         try:
             remove_files(install_path)
         except OSError as e:
@@ -345,12 +352,14 @@ def uninstall_image_magick_windows() -> None:
 
     # 删除 ImageMagick 启动图标
     if IMAGE_MAGICK_WINDOWS_ICON_PATH.exists():
+        logger.debug("删除 ImageMagick 快捷方式")
         try:
             remove_files(IMAGE_MAGICK_WINDOWS_ICON_PATH)
         except OSError as e:
             logger.error("删除 ImageMagick 图标时发生错误: %s", e)
             raise RuntimeError(f"删除 ImageMagick 图标时发生错误: {e}") from e
 
+    logger.debug("清除 ImageMagick 的注册表信息")
     # 删除注册表中的 ImageMagick 信息
     registry_delete_tree(
         sub_key=str(Path(IMAGE_MAGICK_WINDOWS_REGISTRY_CONFIG_PATH).parent),
@@ -363,6 +372,7 @@ def uninstall_image_magick_windows() -> None:
         key=RegistryRootKey.LOCAL_MACHINE,
     )
 
+    logger.debug("清除 ImageMagick 的环境变量")
     # 将 ImageMagick 从环境变量中移除
     delete_image_magick_to_path(install_path)
     logger.info("从 Windows 系统卸载 ImageMagick 完成")
@@ -377,6 +387,7 @@ def find_image_magick_install_path_windows() -> Path | None:
     install_path = None
     for name in ["BinPath", "ConfigurePath", "LibPath"]:
         try:
+            logger.debug("在 %s 查找 ImageMagick 的键: %s", IMAGE_MAGICK_WINDOWS_REGISTRY_CONFIG_PATH, name)
             install_path = registry_query_value(
                 name=name,
                 sub_key=IMAGE_MAGICK_WINDOWS_REGISTRY_CONFIG_PATH,
@@ -391,6 +402,7 @@ def find_image_magick_install_path_windows() -> Path | None:
 
     if install_path is None:
         try:
+            logger.debug("在 %s 查找 ImageMagick 的键: InstallLocation", IMAGE_MAGICK_WINDOWS_REGISTRY_UNINSTALL_CONFIG_PATH)
             install_path = registry_query_value(
                 name="InstallLocation",
                 sub_key=IMAGE_MAGICK_WINDOWS_REGISTRY_UNINSTALL_CONFIG_PATH,
@@ -423,35 +435,41 @@ def install_image_magick_linux() -> None:
 
     # Debian / Ubuntu
     if shutil.which("apt"):
+        logger.debug("匹配到 apt 包管理器")
         run_cmd(["apt", "update"])
         run_cmd(["apt", "install", "libmagickwand-dev", "-y"])
         return
 
     # CentOS / RHEL / Fedora
     if shutil.which("yum"):
+        logger.debug("匹配到 yum 包管理器")
         run_cmd(["yum", "update"])
         run_cmd(["yum", "install", "ImageMagick-devel", "-y"])
         return
 
     # Alpine Linux
     if shutil.which("apk"):
+        logger.debug("匹配到 apk 包管理器")
         run_cmd(["apk", "update"])
         run_cmd(["apk", "add", "imagemagick"])
         return
 
     # Arch Linux
     if shutil.which("pacman"):
+        logger.debug("匹配到 pacman 包管理器")
         run_cmd(["pacman", "-Syyu", "imagemagick", "--noconfirm"])
         return
 
     # openSUSE
     if shutil.which("zypper"):
+        logger.debug("匹配到 zypper 包管理器")
         run_cmd(["zypper", "refresh"])
         run_cmd(["zypper", "install", "ImageMagick", "-y"])
         return
 
     # NixOS / Nix
     if shutil.which("nix-env"):
+        logger.debug("匹配到 nix 包管理器")
         run_cmd(["nix-channel", "--update"])
         run_cmd(["nix-env", "-iA", "nixos.imagemagick"])
         return
@@ -476,6 +494,7 @@ def uninstall_image_magick_linux() -> None:
 
     # Debian / Ubuntu
     if shutil.which("apt"):
+        logger.debug("匹配到 apt 包管理器")
         # 使用 purge 可以同时删除配置文件，如果只需删除程序可用 remove
         run_cmd(["apt", "purge", "libmagickwand-dev", "-y"])
         run_cmd(["apt", "autoremove", "-y"])
@@ -483,27 +502,32 @@ def uninstall_image_magick_linux() -> None:
 
     # CentOS / RHEL / Fedora
     if shutil.which("yum"):
+        logger.debug("匹配到 yum 包管理器")
         run_cmd(["yum", "remove", "ImageMagick-devel", "-y"])
         return
 
     # Alpine Linux
     if shutil.which("apk"):
+        logger.debug("匹配到 apk 包管理器")
         run_cmd(["apk", "del", "imagemagick"])
         return
 
     # Arch Linux
     if shutil.which("pacman"):
+        logger.debug("匹配到 pacman 包管理器")
         # -Rs 会同时删除该软件及其不再被需要的依赖
         run_cmd(["pacman", "-Rs", "imagemagick", "--noconfirm"])
         return
 
     # openSUSE
     if shutil.which("zypper"):
+        logger.debug("匹配到 zypper 包管理器")
         run_cmd(["zypper", "remove", "ImageMagick", "-y"])
         return
 
     # NixOS / Nix
     if shutil.which("nix-env"):
+        logger.debug("匹配到 nix 包管理器")
         # 注意：nix-env 卸载时使用的是安装时的包名（非属性路径 A）
         run_cmd(["nix-env", "-e", "imagemagick"])
         return

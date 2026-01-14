@@ -112,7 +112,7 @@ def check_update_time() -> bool:
             record = datetime.now()
             _save_time_record(record, time_record_file)
     else:
-        record = datetime.now()
+        record = datetime.now() - time_span
         _save_time_record(record, time_record_file)
 
     # 检查上次更新时间与当前时间的间隔

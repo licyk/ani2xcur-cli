@@ -66,6 +66,7 @@ def win2xcur(
     ] = ".zip",
 ) -> None:
     """将 Windows 鼠标指针文件包转换为 Linux 鼠标指针文件包"""
+    logger.info("将 %s 的 Windows 鼠标指针主题包转换为 Linux 鼠标指针主题包中", input_path)
     win2x_args: Win2xcurArgs = {}
     win2x_args["shadow"] = shadow
     win2x_args["shadow_opacity"] = shadow_opacity
@@ -113,7 +114,7 @@ def x2wincur(
         Path,
         typer.Argument(help="Windows 鼠标指针文件的路径, 可以为 inf / ani / cur 文件路径, 或者鼠标指针压缩包文件路径", resolve_path=True),
     ],
-    output_path: Annotated[Path | None, typer.Option(help="保存转换后的鼠标指针路径")] = None,
+    output_path: Annotated[Path | None, typer.Option(help="保存转换后的鼠标指针路径", resolve_path=True)] = None,
     scale: Annotated[float | None, typer.Option(help="按指定倍数缩放光标")] = None,
     compress: Annotated[bool, typer.Option(help="转换完成后将鼠标指针打包成压缩包")] = False,
     compress_format: Annotated[
@@ -125,6 +126,7 @@ def x2wincur(
     ] = ".zip",
 ) -> None:
     """将 Linux 鼠标指针文件包转换为 Windows 鼠标指针文件包"""
+    logger.info("将 %s 的 Linux 鼠标指针主题包转换为 Windows 鼠标指针主题包中", input_path)
     x2win_args: X2wincurArgs = {}
     x2win_args["scale"] = scale
 

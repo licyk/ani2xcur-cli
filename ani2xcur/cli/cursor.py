@@ -79,6 +79,7 @@ def install_cursor(
         else:
             logger.info("使用自定义鼠标指针安装路径: %s", install_path)
 
+        logger.info("安装的 Windows 鼠标指针: %s", input_path)
         with TemporaryDirectory() as temp_dir:
             temp_dir = Path(temp_dir)
             inf_file = find_inf_file(
@@ -108,6 +109,7 @@ def install_cursor(
         else:
             logger.info("使用自定义鼠标指针安装路径: %s", install_path)
 
+        logger.info("安装的 Windows 鼠标指针: %s", input_path)
         with TemporaryDirectory() as temp_dir:
             temp_dir = Path(temp_dir)
             desktop_entry_file = find_desktop_entry_file(

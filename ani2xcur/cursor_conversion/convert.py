@@ -46,6 +46,7 @@ def win_cursor_to_x11(
         Path: Linux 的鼠标指针包的完整路径
     """
     win_scheme = extract_scheme_info_from_inf(inf_file)
+    logger.debug("INF 鼠标指针配置文件内容: %s", win_scheme)
     cursor_map = win_scheme["cursor_map"]
     cursor_name = win_scheme["scheme_name"]
     win2x_path_list: list[tuple[str, Path, Path]] = []
@@ -93,6 +94,7 @@ def win_cursor_to_x11(
             win2x_args["input_file"] = src
             win2x_args["output_path"] = cursors_dir
             win2x_args["save_name"] = name
+            logger.debug("调用 win2xcur 使用的参数: %s", win2x_args)
             win2xcur_process(**win2x_args)
 
         # 补全鼠标指针文件
@@ -143,7 +145,7 @@ Comment={cursor_name} cursor for Linux
 Inherits={cursor_name}
 """.strip()
 
-    logger.debug("鼠标指针配置文件内容:\n\n- cursor.theme:\n%s\n\n- index.theme:\n%s", cursor_config, index_config)
+    logger.debug("鼠标指针配置文件内容:\n\n- cursor.theme:\n````\n%s\n```\n\n- index.theme:\n```\n%s\n```", cursor_config, index_config)
     with open((cursor_path / "cursor.theme"), "w", encoding="utf-8") as file:
         file.write(cursor_config)
     with open((cursor_path / "index.theme"), "w", encoding="utf-8") as file:
@@ -158,13 +160,14 @@ def x11_cursor_to_win(
     """将 Linux 鼠标指针包转换为 Windows 的鼠标指针包
 
     Args:
-        desktop_entry_file (Path): Windows 鼠标指针包中的 INF 文件路径
+        desktop_entry_file (Path): Linux 鼠标指针包中的 DesktopEntry 文件路径
         output_path (Path): 导出路径
         x2win_args (X2wincurArgs): 传递给 x2wincur_process() 函数的参数
     Returns:
         Path: Linux 的鼠标指针包的完整路径
     """
     linux_scheme = extract_scheme_info_from_desktop_entry(desktop_entry_file)
+    logger.debug("DesktopEntry 鼠标指针配置文件内容: %s", linux_scheme)
     cursor_map = linux_scheme["cursor_map"]
     cursor_name = linux_scheme["scheme_name"]
     x2win_path_list: list[tuple[str, Path, Path]] = []
@@ -195,6 +198,7 @@ def x11_cursor_to_win(
             x2win_args["input_file"] = src
             x2win_args["output_path"] = cursors_dir
             x2win_args["save_name"] = name
+            logger.debug("调用 x2wincur 的参数: %s", x2win_args)
             if src is not None:
                 cursor_save_path = x2wincur_process(**x2win_args)
             else:
@@ -209,10 +213,12 @@ def x11_cursor_to_win(
             cursor_save_paths=cursor_save_paths,
         )
 
-        # 导出文件到输出文件夹
-        copy_files((tmp_dir / cursor_name), output_path)
+        save_dir = output_path / cursor_name
 
-    return output_path / cursor_name
+        # 导出文件到输出文件夹
+        copy_files((tmp_dir / cursor_name), save_dir)
+
+    return save_dir
 
 
 def generate_win_cursor_config(
@@ -266,6 +272,6 @@ def generate_win_cursor_config(
         strings=dict_to_inf_strings_format(strings),
     )
 
-    logger.debug("鼠标指针配置文件内容:\n%s", inf)
+    logger.debug("鼠标指针配置文件内容:\n```\n%s\n```", inf)
     with open(cursor_path / "AutoSetup.inf", "w", encoding="gbk") as f:
         f.write(inf)

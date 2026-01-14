@@ -187,6 +187,7 @@ def set_linux_cursor_theme(cursor_name: str) -> None:
     """
     cursors = [x["name"] for x in list_linux_cursors()]
     if cursor_name not in cursors:
+        logger.error("鼠标指针 %s 不存在", cursor_name)
         raise ValueError(f"鼠标指针 {cursor_name} 不存在")
 
     logger.info("将 Linux 系统中使用的鼠标指针主题设置为 %s", cursor_name)
@@ -202,7 +203,7 @@ def set_linux_cursor_theme(cursor_name: str) -> None:
     set_xdg_cursor_theme(cursor_name)
     set_xfce_cursor_theme(cursor_name)
     set_gtk_xsettings_cursor_theme(cursor_name)
-    logger.info("鼠标指针主题已设置为 %s", cursor_name)
+    logger.info("Linux 鼠标指针主题已设置为 %s", cursor_name)
 
 
 def set_linux_cursor_size(cursor_size: int) -> None:

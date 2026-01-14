@@ -5,8 +5,6 @@ import importlib.metadata
 from pathlib import Path
 from datetime import datetime, timedelta
 
-import requests
-
 from ani2xcur.cmd import run_cmd
 from ani2xcur.logger import get_logger
 from ani2xcur.config import LOGGER_COLOR, LOGGER_LEVEL, LOGGER_NAME, ANI2XCUR_REPOSITORY_URL, WIN2XCUR_REPOSITORY_URL, ANI2XCUR_CONFIG_PATH
@@ -59,6 +57,7 @@ def self_update(
 
 def auto_check_update() -> None:
     """检查 Ani2xcur 的更新并提示信息"""
+    import requests
 
     if not check_update_time():
         return

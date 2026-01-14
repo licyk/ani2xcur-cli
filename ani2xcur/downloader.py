@@ -4,7 +4,6 @@ import hashlib
 from pathlib import Path
 from urllib.parse import urlparse
 
-import requests
 from tqdm import tqdm
 
 from ani2xcur.logger import get_logger
@@ -40,6 +39,8 @@ def download_file_from_url(
     Raises:
         ValueError: 当提供了 hash_prefix 但文件哈希值不匹配时
     """
+    import requests
+
     if save_path is None:
         save_path = Path.cwd()
 

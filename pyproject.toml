@@ -1,0 +1,61 @@
+[build-system]
+requires = ["setuptools", "pip", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ani2xcur"
+description = "鼠标指针转换、管理、和管理 ImageMagick 的命令行工具"
+requires-python = ">=3.10"
+readme = { content-type = "text/markdown", file = "README.md" }
+license = "GPL-3.0"
+dynamic = ["version"]
+authors = [ {name = "licyk"} ]
+dependencies = [
+    "win2xcur>=0.1.2",
+    "typer",
+    "click",
+    "zstandard",
+    "python-lzo",
+    "py7zr",
+    "rarfile",
+    "requests",
+    "tqdm",
+]
+
+[project.scripts]
+"ani2xcur" = "ani2xcur.cli.main:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["ani2xcur*"]
+exclude = ["tests*", "docs*", "*__pycache__*", "*.pyc", "*.pyo", "*.pyd", ".git*", "__pycache__"]
+namespaces = true
+
+[tool.setuptools.exclude-package-data]
+"*" = ["__pycache__", "*.pyc", "*.pyo", "*.pyd", ".git*", ".github*", "tests*", "docs*"]
+
+[tool.setuptools.dynamic]
+version = { attr = "ani2xcur.version.VERSION" }
+
+[tool.pylint]
+disable = [
+    "missing-timeout",
+    "too-many-lines",
+    "import-outside-toplevel",
+    "broad-exception-caught",
+    "broad-exception-raised",
+    "subprocess-run-check",
+    "keyword-arg-before-vararg",
+    "fixme"
+]
+
+[tool.pylint.format]
+max-line-length = 180
+ignore-long-lines = "^\\s*(# )?<?https?://\\S+>?$"
+
+[tool.ruff]
+line-length = 180
+indent-width = 4
+ignore = [
+    "E402" # module-import-not-at-top-of-file
+]

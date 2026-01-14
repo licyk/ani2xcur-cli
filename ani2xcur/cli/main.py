@@ -13,6 +13,7 @@ from ani2xcur.cli.cursor import (
     get_current_cursor
 )
 from ani2xcur.cli.image_magick import install_image_magick, uninstall_image_magick
+from ani2xcur.updater import auto_check_update
 
 def get_app() -> typer.Typer:
     """获取 Ani2xcur 命令行应用
@@ -54,6 +55,7 @@ def get_app() -> typer.Typer:
 def main() -> None:
     """主函数"""
     get_app()()
+    auto_check_update()
 
 
 if __name__ == "__main__":

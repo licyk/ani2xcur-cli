@@ -129,7 +129,7 @@ def export_cursor(
             help="自定义鼠标指针配置文件在安装时的文件安装路径",
             resolve_path=True,
         ),
-    ],
+    ] = None,
 ) -> None:
     """将鼠标指针从系统中导出"""
     if sys.platform == "win32":

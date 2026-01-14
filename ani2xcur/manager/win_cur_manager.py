@@ -264,8 +264,16 @@ def set_windows_cursor_size(cursor_size: int) -> None:
 
     Args:
         cursor_size (int): 要设置的鼠标指针大小
+    Raises:
+        TypeError: 鼠标指针大小的值不是整数时
+        ValueError: 鼠标指针大小的值超过合法范围时
     """
-    check_windows_cursor_size_value(cursor_size)
+    try:
+        check_windows_cursor_size_value(cursor_size)
+    except TypeError as e:
+        raise TypeError("鼠标指针大小的值必须为整数") from e
+    except ValueError as e:
+        raise ValueError("鼠标指针大小的值超过合法范围") from e
     logger.info("将 Windows 系统中使用的鼠标指针大小设置为 %s", cursor_size)
     apply_windows_cursor_size(cursor_size)
     logger.info("鼠标指针大小已设置为 %s", cursor_size)
@@ -361,6 +369,8 @@ def install_windows_cursor(
     Args:
         inf_file (Path): 鼠标指针配置文件路径
         cursor_install_path (Path | None): 自定义鼠标指针文件安装路径, 当为 None 时使用 INF 配置文件中的路径
+    Returns:
+        PermissionError: 当复制鼠标指针时没有权限进行复制时
     """
     scheme_info = extract_scheme_info_from_inf(inf_file)
     copy_paths: list[tuple[Path, Path]] = []
@@ -408,7 +418,7 @@ def install_windows_cursor(
                 dst,
                 e,
             )
-            raise RuntimeError(f"复制 {src} 到 {dst} 时发送错误: {e}\n可尝试使用管理员权限运行 Ani2xcur, 再执行鼠标指针安装操作") from e
+            raise PermissionError(f"复制 {src} 到 {dst} 时发送错误: {e}\n可尝试使用管理员权限运行 Ani2xcur, 再执行鼠标指针安装操作") from e
 
     # 将方案写入注册表
     reg_type = RegistryValueType.EXPAND_SZ if has_var_string(reg_scheme_value) else RegistryValueType.SZ

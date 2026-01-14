@@ -210,8 +210,16 @@ def set_linux_cursor_size(cursor_size: int) -> None:
 
     Args:
         cursor_size (int): 要设置的鼠标指针大小
+    Raises:
+        TypeError: 鼠标指针大小的值不是整数时
+        ValueError: 鼠标指针大小的值超过合法范围时
     """
-    check_linux_cursor_size_value(cursor_size)
+    try:
+        check_linux_cursor_size_value(cursor_size)
+    except TypeError as e:
+        raise TypeError("鼠标指针大小的值必须为整数") from e
+    except ValueError as e:
+        raise ValueError("鼠标指针大小的值超过合法范围") from e
 
     logger.info("将 Linux 系统中使用的鼠标指针大小设置为 %s", cursor_size)
     set_cinnamon_cursor_size(cursor_size)

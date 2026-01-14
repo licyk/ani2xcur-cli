@@ -19,7 +19,7 @@ logger = get_logger(
 
 
 def install_image_magick(
-    install_path: Annotated[Path | None, typer.Option(help="自定义安装 ImageMagick 的目录", resolve_path=True)] = None,
+    install_path: Annotated[Path | None, typer.Option(help="(仅 Windows 平台) 自定义安装 ImageMagick 的目录", resolve_path=True)] = None,
     force: Annotated[bool, typer.Option("--yes", "-y", help="直接确认安装")] = False,
 ) -> None:
     """安装 ImageMagick 到系统中"""
@@ -27,9 +27,6 @@ def install_image_magick(
         if not is_admin_on_windows():
             logger.error("当前未使用管理员权限运行 Ani2xcur, 无法安装 ImageMagick, 请使用管理员权限启动 Ani2xcur")
             sys.exit(1)
-
-        if install_path is None:
-            typer.prompt("请输入安装")
 
         if install_path is None:
             install_path = IMAGE_MAGICK_WINDOWS_INSTALL_PATH

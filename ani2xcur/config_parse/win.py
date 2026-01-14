@@ -127,14 +127,14 @@ def parse_inf_file_content(
 
 
 def dict_to_inf_strings_format(
-    data_dict: dict[str, str], indent_width: int | None = 8
+    data_dict: dict[str, str], indent_width: int | None = 12
 ) -> str:
     """
     将字典转换为 INF 文件 [Strings] 部分的格式
 
     Args:
         data_dict (dict[str, str]): 包含键值对的字典
-        indent_width (int | None): 缩进宽度, 默认为 8 个空格
+        indent_width (int | None): 缩进宽度, 默认为 12 个空格
 
     Returns:
         str: 格式化的字符串

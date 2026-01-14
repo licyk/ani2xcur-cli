@@ -122,7 +122,8 @@ def x2wincur(
     input_path: Annotated[
         Path,
         typer.Argument(
-            help="Windows 鼠标指针文件的路径, 可以为 inf / ani / cur 文件路径, 或者鼠标指针压缩包文件路径"
+            help="Windows 鼠标指针文件的路径, 可以为 inf / ani / cur 文件路径, 或者鼠标指针压缩包文件路径",
+            resolve_path=True
         ),
     ],
     output_path: Annotated[
@@ -143,6 +144,9 @@ def x2wincur(
     """将 Linux 鼠标指针文件包转换为 Windows 鼠标指针文件包"""
     x2win_args: X2wincurArgs = {}
     x2win_args["scale"] = scale
+
+    if output_path is None:
+        output_path = input_path.parent
 
     with TemporaryDirectory() as temp_dir:
         temp_dir = Path(temp_dir)

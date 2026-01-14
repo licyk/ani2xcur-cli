@@ -332,3 +332,18 @@ def generate_random_string(
         raise ValueError("字符池不能为空")
 
     return "".join(random.choice(char_pool) for _ in range(length))
+
+
+def normalized_filepath(filepath: str | Path) -> Path:
+    """将输入的路径转换为绝对路径
+
+    Args:
+        filepath (str | Path): 原始的路径
+    Returns:
+        Path: 绝对路径
+    """
+    if filepath is not None:
+        filepath = Path(filepath).absolute()
+
+    logger.debug("解析成绝对路径后的路径: %s", filepath)
+    return filepath

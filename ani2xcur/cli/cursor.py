@@ -10,6 +10,7 @@ from rich.console import Console
 from rich.table import Table
 from rich import box
 
+from ani2xcur.manager.base import WINDOWS_USER_CURSOR_PATH, LINUX_USER_ICONS_PATH
 from ani2xcur.manager.win_cur_manager import (
     install_windows_cursor,
     delete_windows_cursor,
@@ -49,7 +50,7 @@ def install_cursor(
         Path,
         typer.Argument(
             help="Linux 鼠标指针文件的路径, 可以为 index.theme 文件路径, 或者鼠标指针压缩包文件路径",
-            resolve_path=True,
+            resolve_path=False,
         ),
     ],
     install_path: Annotated[
@@ -59,9 +60,25 @@ def install_cursor(
             resolve_path=True,
         ),
     ] = None,
+    use_inf_config_path: Annotated[
+        bool,
+        typer.Option(
+            help="(仅 Windows 平台) 使用 INF 配置文件中的鼠标指针安装路径",
+        ),
+    ] = False,
 ) -> None:
     """将鼠标指针安装到系统中"""
+    print(input_path)
     if sys.platform == "win32":
+        if install_path is None:
+            if use_inf_config_path:
+                logger.info("使用 INF 配置文件中的鼠标指针安装路径")
+            else:
+                install_path = WINDOWS_USER_CURSOR_PATH
+                logger.info("未指定鼠标指针安装路径, 使用默认鼠标指针安装路径: %s", install_path)
+        else:
+            logger.info("使用自定义鼠标指针安装路径: %s", install_path)
+
         with TemporaryDirectory() as temp_dir:
             temp_dir = Path(temp_dir)
             inf_file = find_inf_file(
@@ -78,6 +95,12 @@ def install_cursor(
                 cursor_install_path=install_path,
             )
     elif sys.platform == "linux":
+        if install_path is None:
+            install_path = LINUX_USER_ICONS_PATH
+            logger.info("未指定鼠标指针安装路径, 使用默认鼠标指针安装路径: %s", install_path)
+        else:
+            logger.info("使用自定义鼠标指针安装路径: %s", install_path)
+
         with TemporaryDirectory() as temp_dir:
             temp_dir = Path(temp_dir)
             desktop_entry_file = find_desktop_entry_file(

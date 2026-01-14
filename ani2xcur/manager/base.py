@@ -423,3 +423,6 @@ class CurrentCursorInfo(TypedDict):
 
 CurrentCursorInfoList: TypeAlias = list[CurrentCursorInfo]
 """当前桌面平台使用的鼠标指针名称和大小信息列表"""
+
+WINDOWS_USER_CURSOR_PATH = Path("~").expanduser() / "AppData" / "Local" / "Cursors"
+"""Windows 系统安装鼠标的用户目录路径"""

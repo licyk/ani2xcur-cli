@@ -1,4 +1,5 @@
 import os
+import re
 import getpass
 import ctypes.util
 import itertools
@@ -107,6 +108,21 @@ def install_image_magick_windows(
         ),
         ("BinPath", str(install_path), RegistryValueType.SZ),
     ]
+    registry_sub_config: list[tuple[str, str | int, RegistryValueType]] = [
+        ("LibPath", str(install_path), RegistryValueType.SZ),
+        (
+            "FilterModulesPath",
+            str(install_path / "modules" / "filters"),
+            RegistryValueType.SZ,
+        ),
+        ("ConfigurePath", str(install_path), RegistryValueType.SZ),
+        (
+            "CoderModulesPath",
+            str(install_path / "modules" / "coders"),
+            RegistryValueType.SZ,
+        ),
+        ("BinPath", str(install_path), RegistryValueType.SZ),
+    ]
     uninstall_exe = str(install_path / "unins000.exe")
     uninstall_config: list[tuple[str, str | int, RegistryValueType]] = [
         ("DisplayIcon", str(install_path / "ImageMagick.ico"), RegistryValueType.SZ),
@@ -174,6 +190,21 @@ def install_image_magick_windows(
         working_dir=install_path
     )
 
+    # 获取 ImageMagick 版本信息
+    magick_bin = install_path / "magick.exe"
+    version_number, quality_setting, _ = get_image_magick_version(magick_bin)
+    if version_number is not None:
+        version_number = version_number.split("-")[0]
+    else:
+        version_number = "7.1.2"
+    if quality_setting is not None:
+        quality_setting =         re.sub(r'([A-Z]+)(\d+)', r'\1:\2', quality_setting.split("-")[0])
+    else:
+        quality_setting = "Q:16"
+
+    # ImageMagick 注册表配置信息 (子表路径)
+    image_magick_windows_registry_sub_config_path = rf"SOFTWARE\ImageMagick\{version_number}\{quality_setting}"
+    
     # ImageMagick 配置信息
     registry_create_path(
         sub_key=IMAGE_MAGICK_WINDOWS_REGISTRY_CONFIG_PATH,
@@ -186,6 +217,21 @@ def install_image_magick_windows(
             value=value,
             reg_type=dtype,
             sub_key=IMAGE_MAGICK_WINDOWS_REGISTRY_CONFIG_PATH,
+            key=RegistryRootKey.LOCAL_MACHINE,
+            access=RegistryAccess.SET_VALUE,
+        )
+
+    registry_create_path(
+        sub_key=image_magick_windows_registry_sub_config_path,
+        key=RegistryRootKey.LOCAL_MACHINE,
+        access=RegistryAccess.WRITE,
+    )
+    for key, value, dtype in registry_sub_config:
+        registry_set_value(
+            name=key,
+            value=value,
+            reg_type=dtype,
+            sub_key=image_magick_windows_registry_sub_config_path,
             key=RegistryRootKey.LOCAL_MACHINE,
             access=RegistryAccess.SET_VALUE,
         )
@@ -209,6 +255,32 @@ def install_image_magick_windows(
     # 配置环境变量
     add_image_magick_to_path(install_path)
 
+
+def get_image_magick_version(magick_bin: Path) -> tuple[str, str, str]:
+    """获取 ImageMagick 版本号, 质量设置和架构
+
+    Args:
+        magick_bin (Path): ImageMagick 可执行文件路径
+    Returns:
+        (tuple[str | None, str | None, str | None]): ImageMagick 的版本号, 质量设置, 架构
+    """
+    try:
+        result = run_cmd([magick_bin.as_posix(), "-version"] ,live=False)
+    except RuntimeError:
+        return None, None, None
+    
+    pattern = r'ImageMagick\s+([0-9.-]+)\s+([A-Z0-9-]+)\s+([a-zA-Z0-9]+)'
+    match = re.search(pattern, result)
+    if match:
+        version_number = match.group(1)   # 版本号
+        quality_setting = match.group(2)  # 质量设置
+        architecture = match.group(3)     # 架构
+    else:
+        version_number = None
+        quality_setting = None
+        architecture = None
+
+    return version_number, quality_setting, architecture
 
 def add_image_magick_to_path(
     install_path: Path,

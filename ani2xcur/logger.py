@@ -1,6 +1,5 @@
 """日志工具"""
 
-import os
 import sys
 import copy
 import inspect
@@ -61,26 +60,28 @@ def get_logger(name: str | None = None, level: int | None = logging.INFO, color:
     Returns:
         logging.Logger: Logging 对象
     """
-    stack = inspect.stack()
-    calling_filename = os.path.basename(stack[1].filename)
-    if name is None:
-        name = calling_filename
+    if name is not None:
+        log_format = "[%(name)s]-|%(asctime)s|-%(levelname)s: %(message)s"
+        logger_name = name
+    else:
+        frame = inspect.currentframe().f_back
+        module = inspect.getmodule(frame)
+        logger_name = module.__name__ if module else "root"
+        log_format = "[%(name)s:%(funcName)s:%(lineno)d]-|%(asctime)s|-%(levelname)s: %(message)s"
 
-    _logger = logging.getLogger(name)
+    _logger = logging.getLogger(logger_name)
     _logger.propagate = False
 
     if not _logger.handlers:
         handler = logging.StreamHandler(sys.stdout)
         handler.setFormatter(
             LoggingColoredFormatter(
-                r"[%(name)s]-|%(asctime)s|-%(levelname)s: %(message)s",
-                r"%Y-%m-%d %H:%M:%S",
+                fmt=log_format,
+                datefmt=r"%H:%M:%S",
                 color=color,
             )
         )
         _logger.addHandler(handler)
 
     _logger.setLevel(level)
-    _logger.debug("Logger 初始化完成")
-
     return _logger

@@ -86,6 +86,9 @@ def win2xcur(
     win2x_args["shadow_color"] = shadow_color
     win2x_args["scale"] = scale
 
+    if output_path is None:
+        output_path = input_path.parent
+
     with TemporaryDirectory() as temp_dir:
         temp_dir = Path(temp_dir)
         inf_file = find_inf_file(

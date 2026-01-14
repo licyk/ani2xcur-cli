@@ -366,10 +366,12 @@ def install_windows_cursor(
     copy_paths: list[tuple[Path, Path]] = []
     cursor_paths_in_reg: list[str] = []
     cursor_name = scheme_info["scheme_name"]
+    install_path = None
 
     # 生成复制路径列表
     if cursor_install_path is not None:
         # 使用自定义安装路径
+        install_path = cursor_install_path
         for _, cursor_pair in scheme_info["cursor_map"].items():
             src = cursor_pair["src_path"]
             if src is not None:
@@ -385,13 +387,14 @@ def install_windows_cursor(
         for _, cursor_pair in scheme_info["cursor_map"].items():
             src = cursor_pair["src_path"]
             if src is not None:
+                install_path = cursor_pair["dst_path"].parent
                 dst = cursor_pair["dst_path"]
                 copy_paths.append((src, dst))
 
         # 生成需要写入注册表的方案对应值, 使用原始值
         reg_scheme_value = parse_scheme_reg_string(scheme_info["default_reg"])[4]
 
-    logger.info("将 %s 鼠标指针安装到 %s 中", cursor_name, dst)
+    logger.info("将 %s 鼠标指针安装到 %s 中", cursor_name, install_path)
 
     # 复制鼠标指针文件
     for src, dst in copy_paths:
@@ -417,7 +420,7 @@ def install_windows_cursor(
         key=RegistryRootKey.CURRENT_USER,
         access=RegistryAccess.SET_VALUE,
     )
-    logger.info("%s 鼠标指针已安装到 %s", cursor_name, dst)
+    logger.info("%s 鼠标指针已安装到 Windows 系统中", cursor_name)
 
 
 def export_windows_cursor(

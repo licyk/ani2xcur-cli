@@ -60,39 +60,49 @@ def copy_files(src: Path | str, dst: Path | str) -> None:
         PermissionError: 没有权限复制文件时
         OSError: 复制文件失败时
         FileNotFoundError: 源文件未找到时
+        ValueError: 路径逻辑错误（如循环复制）时
     """
     try:
-        src_path = Path(src)
-        dst_path = Path(dst)
+        # 转换为绝对路径以进行准确的路径比对
+        src_path = src.resolve()
+        dst_path = dst.resolve()
 
         # 检查源是否存在
         if not src_path.exists():
             logger.error("源路径不存在: %s", src)
             raise FileNotFoundError(f"源路径不存在: {src}")
 
-        # 如果目标是目录, 创建完整路径
-        if dst_path.is_dir():
+        # 防止递归复制（例如将目录复制到其自身的子目录中）
+        if src_path.is_dir() and dst_path.is_relative_to(src_path):
+            logger.error("不能将目录复制到自身或其子目录中: %s", src)
+            raise ValueError(f"不能将目录复制到自身或其子目录中: {src}")
+
+        # 如果目标是已存在的目录, 则在其下创建同名项
+        if dst_path.exists() and dst_path.is_dir():
             dst_file = dst_path / src_path.name
         else:
             dst_file = dst_path
 
-        # 确保目标目录存在
+        # 确保目标父目录存在
         dst_file.parent.mkdir(parents=True, exist_ok=True)
 
-        # 复制文件
+        # 复制操作
         if src_path.is_file():
-            shutil.copy2(src, dst_file)
+            # copy2 会尽量保留文件元数据
+            shutil.copy2(src_path, dst_file)
         else:
-            # 如果是目录, 使用 copytree
-            if dst_file.exists():
-                shutil.rmtree(dst_file)
-            shutil.copytree(src, dst_file)
+            # symlinks=True: 保留软链接本身而非复制指向的内容
+            # dirs_exist_ok=True: 实现合并逻辑，如果目标目录已存在则覆盖同名文件
+            shutil.copytree(src_path, dst_file, symlinks=True, dirs_exist_ok=True)
 
     except PermissionError as e:
         logger.error("权限错误, 请检查文件权限或以管理员身份运行: %s", e)
         raise e
     except OSError as e:
         logger.error("复制失败: %s", e)
+        raise e
+    except Exception as e:
+        logger.error("发生非预期错误: %s", e)
         raise e
 
 

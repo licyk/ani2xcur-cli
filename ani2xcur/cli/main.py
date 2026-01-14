@@ -1,7 +1,7 @@
 import typer
 
 from ani2xcur.cli.cli import typer_factory
-from ani2xcur.cli.system import version, update
+from ani2xcur.cli.system import version, update, env
 from ani2xcur.cli.convert import win2xcur, x2wincur
 from ani2xcur.cli.cursor import install_cursor, uninstall_cursor, export_cursor, set_cursor_theme, set_cursor_size, list_cursor, get_current_cursor
 from ani2xcur.cli.image_magick import install_image_magick, uninstall_image_magick
@@ -17,6 +17,7 @@ def get_app() -> typer.Typer:
     app = typer_factory("鼠标指针转换、管理、和管理 ImageMagick 的命令行工具")
     app.command(help="显示 Ani2xcur 和其他组件的当前版本", name="version")(version)
     app.command(help="更新 Ani2xcur", name="update")(update)
+    app.command(help="列出 Ani2xcur 所使用的环境变量", name="env")(env)
 
     convert_cli = typer_factory(help="鼠标指针转换工具")
     convert_cli.command(help="将 Windows 鼠标指针文件包转换为 Linux 鼠标指针文件包", name="win2x")(win2xcur)

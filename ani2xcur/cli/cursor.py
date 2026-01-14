@@ -192,8 +192,8 @@ def list_cursor() -> None:
         # 设置列样式
         # style 参数控制该列所有单元格的默认样式
         table.add_column("鼠标指针名称", style="bold white", no_wrap=True)
-        table.add_column("数量", justify="right", style="white")
-        table.add_column("安装路径", style="cyan")
+        table.add_column("数量", justify="left", style="white")
+        table.add_column("安装路径", style="cyan", overflow="fold")
 
         for item in items:
             path = ", ".join([str(x) for x in item["install_paths"]])
@@ -235,9 +235,9 @@ def get_current_cursor() -> None:
         
         # 设置列样式
         # style 参数控制该列所有单元格的默认样式
-        table.add_column("鼠标指针名称", style="bold white", no_wrap=True)
-        table.add_column("数量", justify="right", style="white")
-        table.add_column("安装路径", style="cyan")
+        table.add_column("平台", style="bold white", no_wrap=True)
+        table.add_column("鼠标指针主题", justify="left", style="white")
+        table.add_column("鼠标指针大小", style="cyan", overflow="fold")
 
         for item in items:
             platform = item["platform"]
@@ -247,7 +247,7 @@ def get_current_cursor() -> None:
             table.add_row(
                 platform,
                 cursor_name,
-                cursor_size
+                str(cursor_size)
             )
 
         console.print(table)

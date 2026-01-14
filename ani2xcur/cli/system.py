@@ -11,6 +11,10 @@ from ani2xcur.config import (
     LOGGER_NAME,
     LOGGER_LEVEL,
     LOGGER_COLOR,
+    IMAGE_MAGICK_WINDOWS_DOWNLOAD_URL,
+    ANI2XCUR_REPOSITORY_URL,
+    WIN2XCUR_REPOSITORY_URL,
+    SMART_FINDER_SEARCH_DEPTH
 )
 from ani2xcur.logger import get_logger
 from ani2xcur.updater import self_update
@@ -115,3 +119,41 @@ def remove_optional_dependence_from_package(filename: str) -> str:
         str: 移除可选依赖后的软件包名, e.g. diffusers[torch]==0.10.2 -> diffusers==0.10.2
     """
     return re.sub(r"\[.*?\]", "", filename)
+
+
+def env() -> None:
+    """列出 Ani2xcur 使用的环境变量"""
+    def _display_frame(items) -> None:
+        console = Console()
+        
+        # 设置表格整体样式
+        table = Table(
+            header_style="bright_yellow",
+            border_style="bright_black",
+            box=box.ROUNDED,
+        )
+        
+        # 设置列样式
+        # style 参数控制该列所有单元格的默认样式
+        table.add_column("环境变量", style="bold white", no_wrap=True)
+        table.add_column("值", justify="left", style="white", overflow="fold")
+
+        for item in items:
+            table.add_row(
+                item["key"],
+                str(item["var"]),
+            )
+
+        console.print(table)
+
+    info = [
+        {"key": "ANI2XCUR_LOGGER_NAME", "var": LOGGER_NAME},
+        {"key": "ANI2XCUR_LOGGER_LEVEL", "var": LOGGER_LEVEL},
+        {"key": "ANI2XCUR_LOGGER_COLOR", "var": LOGGER_COLOR},
+        {"key": "IMAGE_MAGICK_WINDOWS_DOWNLOAD_URL", "var": IMAGE_MAGICK_WINDOWS_DOWNLOAD_URL},
+        {"key": "ANI2XCUR_REPOSITORY_URL", "var": ANI2XCUR_REPOSITORY_URL},
+        {"key": "WIN2XCUR_REPOSITORY_URL", "var": WIN2XCUR_REPOSITORY_URL},
+        {"key": "ANI2XCUR_SMART_FINDER_SEARCH_DEPTH", "var": SMART_FINDER_SEARCH_DEPTH},
+    ]
+
+    _display_frame(info)

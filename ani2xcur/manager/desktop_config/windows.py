@@ -1,8 +1,11 @@
+"""Windows 桌面环境配置工具"""
+
 import ctypes
 import os
-from pathlib import Path
 import re
+from pathlib import Path
 from typing import Literal
+
 try:
     import win32gui
     import win32con
@@ -119,12 +122,7 @@ def set_windows_cursor_theme(cursor_name: str) -> None:
         return
 
     scheme_data = schemes[cursor_name]
-    cursor_paths = [
-        x
-        for x in extend_list_to_length(
-            scheme_data.split(","), target_length=len(CURSOR_KEYS["win"])
-        )
-    ]
+    cursor_paths = [x for x in extend_list_to_length(scheme_data.split(","), target_length=len(CURSOR_KEYS["win"]))]
 
     # 设置方案名称
     registry_set_value(
@@ -197,11 +195,9 @@ def broadcast_settings_change(
     return result
 
 
-
-
-def create_windows_shortcut(target_path: Path, shortcut_path: Path, description: str | None = "", working_dir: Path | None = None, icon_path: Path | None  = None) -> None:
+def create_windows_shortcut(target_path: Path, shortcut_path: Path, description: str | None = "", working_dir: Path | None = None, icon_path: Path | None = None) -> None:
     """创建 Windows 快捷方式
-    
+
     Args:
         target_path (Path): 目标文件路径
         shortcut_path (Path): 快捷方式保存路径 (应以 .lnk 结尾)

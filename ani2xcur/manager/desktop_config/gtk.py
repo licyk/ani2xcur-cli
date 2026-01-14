@@ -1,3 +1,5 @@
+"""GTK 环境配置工具"""
+
 import re
 import configparser
 from pathlib import Path
@@ -10,6 +12,7 @@ GTK3_CONFIG_PATH = Path("~/.config/gtk-3.0/settings.ini").expanduser()
 
 GTK2_CONFIG_PATH = Path("~/.gtkrc-2.0").expanduser()
 """GTK 2.0 配置文件路径"""
+
 
 def read_gtk2_config(config_path: Path) -> dict[str, str]:
     """读取 GTK 2.0 配置文件并返回配置字典
@@ -52,7 +55,7 @@ def write_gtk2_config(config_path: Path, updates: dict[str, str]) -> None:
     """
     lines = []
     found_keys = set()
-    
+
     if config_path.exists():
         with open(config_path, "r", encoding="utf-8") as f:
             lines = f.readlines()
@@ -87,6 +90,7 @@ def write_gtk2_config(config_path: Path, updates: dict[str, str]) -> None:
 
     with open(config_path, "w", encoding="utf-8") as f:
         f.writelines(new_lines)
+
 
 def get_gtk4_cursor_theme() -> str | None:
     """获取 GTK4 标准方案的当前使用的鼠标指针配置名称
@@ -126,6 +130,7 @@ def get_gtk2_cursor_theme() -> str | None:
     config = read_gtk2_config(GTK2_CONFIG_PATH)
     return config.get("gtk-cursor-theme-name")
 
+
 def get_gtk4_cursor_size() -> int | None:
     """获取 GTK4 标准方案的当前使用的鼠标指针大小
 
@@ -150,8 +155,6 @@ def get_gtk3_cursor_size() -> int | None:
     if "Settings" in config and "gtk-cursor-theme-size" in config["Settings"]:
         return int(config.get("Settings", "gtk-cursor-theme-size"))
     return None
-
-
 
 
 def get_gtk2_cursor_size() -> int | None:
@@ -183,6 +186,7 @@ def set_gtk4_cursor_theme(cursor_name: str) -> None:
     with open(GTK4_CONFIG_PATH, "w", encoding="utf-8") as f:
         config.write(f, space_around_delimiters=False)
 
+
 def set_gtk3_cursor_theme(cursor_name: str) -> None:
     """设置 GTK3 标准方案的当前使用的鼠标指针配置名称
 
@@ -200,8 +204,6 @@ def set_gtk3_cursor_theme(cursor_name: str) -> None:
         config.write(f, space_around_delimiters=False)
 
 
-
-
 def set_gtk2_cursor_theme(cursor_name: str) -> None:
     """设置 GTK2 标准方案的当前使用的鼠标指针配置名称
 
@@ -209,12 +211,7 @@ def set_gtk2_cursor_theme(cursor_name: str) -> None:
         cursor_name (str): 要设置的鼠标指针配置名称
     """
     GTK2_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    write_gtk2_config(
-        config_path=GTK2_CONFIG_PATH, 
-        updates={"gtk-cursor-theme-name": cursor_name}
-    )
-
-
+    write_gtk2_config(config_path=GTK2_CONFIG_PATH, updates={"gtk-cursor-theme-name": cursor_name})
 
 
 def set_gtk4_cursor_size(cursor_size: int) -> None:
@@ -232,6 +229,7 @@ def set_gtk4_cursor_size(cursor_size: int) -> None:
     config["Settings"]["gtk-cursor-theme-size"] = str(cursor_size)
     with open(GTK4_CONFIG_PATH, "w", encoding="utf-8") as f:
         config.write(f, space_around_delimiters=False)
+
 
 def set_gtk3_cursor_size(cursor_size: int) -> None:
     """设置 GTK3 标准方案的当前使用的鼠标指针大小
@@ -257,7 +255,4 @@ def set_gtk2_cursor_size(cursor_size: int) -> None:
         cursor_size (str): 要设置的鼠标指针大小
     """
     GTK2_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    write_gtk2_config(
-        config_path=GTK2_CONFIG_PATH, 
-        updates={"gtk-cursor-theme-size": str(cursor_size)}
-    )
+    write_gtk2_config(config_path=GTK2_CONFIG_PATH, updates={"gtk-cursor-theme-size": str(cursor_size)})

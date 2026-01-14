@@ -32,6 +32,7 @@ def save_convert_to_float(value: Any) -> float | Any:
     except (ValueError, TypeError):
         return value
 
+
 def safe_convert_to_int(value: Any) -> int | Any:
     """尝试将值转换为整数
 
@@ -128,6 +129,7 @@ def is_utf8_bom_encoding_file(file_path: Path) -> bool:
         bom = file.read(3)
         return bom == b"\xef\xbb\xbf"
 
+
 def detect_encoding(file_path: Path) -> str:
     """
     检测文件的编码格式
@@ -200,19 +202,14 @@ def lowercase_dict_keys(d: dict[str, Any]) -> dict[str, Any]:
             new_dict[final_key] = lowercase_dict_keys(value)
         elif isinstance(value, list):
             # 如果值是列表, 检查列表中的每个元素是否为字典
-            new_dict[final_key] = [
-                lowercase_dict_keys(item) if isinstance(item, dict) else item
-                for item in value
-            ]
+            new_dict[final_key] = [lowercase_dict_keys(item) if isinstance(item, dict) else item for item in value]
         else:
             new_dict[final_key] = value
 
     return new_dict
 
 
-def extend_list_to_length(
-    lst: list[Any], target_length: int, fill_value: str | None = ""
-) -> list[Any]:
+def extend_list_to_length(lst: list[Any], target_length: int, fill_value: str | None = "") -> list[Any]:
     """将列表扩展到指定长度
 
     Args:
@@ -237,7 +234,7 @@ def is_admin_on_windows() -> bool:
         return ctypes.windll.shell32.IsUserAnAdmin()
     except AttributeError:
         return False
-    
+
 
 def is_root_on_linux() -> bool:
     """检测当前进程是否以管理员权限运行
@@ -260,18 +257,18 @@ def unload_specific_module(module_name: str) -> None:
 
     logger.info("卸载 %s 模块中", module_name)
     # 尝试调用模块的清理函数
-    if hasattr(module_name, 'cleanup') and callable(getattr(module_name, 'cleanup')):
+    if hasattr(module_name, "cleanup") and callable(getattr(module_name, "cleanup")):
         try:
-            getattr(module_name, 'cleanup')()
-        except Exception: # pylint: disable=broad-exception-caught
+            getattr(module_name, "cleanup")()
+        except Exception:  # pylint: disable=broad-exception-caught
             pass
 
-    # 如果模块有句柄属性
-        if hasattr(module_name, '_handle'):
-            handle = module_name._handle # pylint: disable=protected-access
-            if sys.platform.startswith('win'):
+        # 如果模块有句柄属性
+        if hasattr(module_name, "_handle"):
+            handle = module_name._handle  # pylint: disable=protected-access
+            if sys.platform.startswith("win"):
                 ctypes.windll.kernel32.FreeLibrary(handle)
-            elif sys.platform.startswith('linux'):
+            elif sys.platform.startswith("linux"):
                 ctypes.CDLL(None).dlclose(handle)
 
     # 删除 sys.modules 中的条目
@@ -281,9 +278,9 @@ def unload_specific_module(module_name: str) -> None:
     # 如果有子模块, 也要删除
     module_keys_to_remove = []
     for key in sys.modules.keys():
-        if key.startswith(module_name + '.'):
+        if key.startswith(module_name + "."):
             module_keys_to_remove.append(key)
-    
+
     for key in module_keys_to_remove:
         del sys.modules[key]
         logger.info("卸载 %s 子模块: %s", module_name, key)

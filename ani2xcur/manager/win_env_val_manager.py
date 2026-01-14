@@ -1,12 +1,9 @@
+"""Windows 环境变量管理工具"""
+
 from typing import Literal
 
 from ani2xcur.manager.desktop_config.windows import broadcast_settings_change
-from ani2xcur.manager.regedit import (
-    RegistryAccess, RegistryRootKey, RegistryValueType, registry_query_value, registry_set_value, registry_delete_value)
-
-
-
-
+from ani2xcur.manager.regedit import RegistryAccess, RegistryRootKey, RegistryValueType, registry_query_value, registry_set_value, registry_delete_value
 
 
 WINDOWS_ENV_VALUE_REGESTRY_PATH_SYSTEM = [RegistryRootKey.LOCAL_MACHINE, r"SYSTEM\ControlSet001\Control\Session Manager\Environment"]
@@ -43,7 +40,7 @@ def add_path_to_env_path(
         key=key,
         access=RegistryAccess.READ,
     )
-    paths = [p for p in raw_path.split(';') if p.strip()]
+    paths = [p for p in raw_path.split(";") if p.strip()]
     if new_path in paths:
         return False
 
@@ -92,7 +89,6 @@ def add_val_to_env(
     broadcast_settings_change()
 
 
-
 def delete_path_from_env_path(
     key_path: str,
     dtype: Literal["user", "system"] | None = "user",
@@ -108,7 +104,7 @@ def delete_path_from_env_path(
     if dtype == "user":
         key, sub_key = WINDOWS_ENV_VALUE_REGESTRY_PATH_USER
     elif dtype == "system":
-        key, sub_key  = WINDOWS_ENV_VALUE_REGESTRY_PATH_SYSTEM
+        key, sub_key = WINDOWS_ENV_VALUE_REGESTRY_PATH_SYSTEM
     else:
         raise ValueError(f"未知的环境变量类型: {dtype}")
 
@@ -118,7 +114,7 @@ def delete_path_from_env_path(
         key=key,
         access=RegistryAccess.READ,
     )
-    paths = [p for p in raw_path.split(';') if p.strip() and key_path not in p]
+    paths = [p for p in raw_path.split(";") if p.strip() and key_path not in p]
     registry_set_value(
         name="Path",
         value=";".join(paths),
@@ -148,11 +144,6 @@ def delete_val_from_env(
         key, sub_key = WINDOWS_ENV_VALUE_REGESTRY_PATH_SYSTEM
     else:
         raise ValueError(f"未知的环境变量类型: {dtype}")
-    
-    registry_delete_value(
-        name=name,
-        sub_key=sub_key,
-        key=key,
-        access=RegistryAccess.WRITE
-    )
+
+    registry_delete_value(name=name, sub_key=sub_key, key=key, access=RegistryAccess.WRITE)
     broadcast_settings_change()

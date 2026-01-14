@@ -1,3 +1,5 @@
+"""鼠标指针包转换工具"""
+
 import os
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -72,21 +74,15 @@ def win_cursor_to_x11(
             win2x_path_list.append((linux, src, dst))
 
         # 补全文件列表
-        completed_cursor_list.append(
-            (LINUX_CURSOR_SOURCE_PATH / "vertical-text", cursors_dir / "vertical-text")
-        )
+        completed_cursor_list.append((LINUX_CURSOR_SOURCE_PATH / "vertical-text", cursors_dir / "vertical-text"))
         completed_cursor_list.append(
             (
                 LINUX_CURSOR_SOURCE_PATH / "wayland-cursor",
                 cursors_dir / "wayland-cursor",
             )
         )
-        completed_cursor_list.append(
-            (LINUX_CURSOR_SOURCE_PATH / "zoom-out", cursors_dir / "zoom-out")
-        )
-        completed_cursor_list.append(
-            (LINUX_CURSOR_SOURCE_PATH / "zoom-in", cursors_dir / "zoom-in")
-        )
+        completed_cursor_list.append((LINUX_CURSOR_SOURCE_PATH / "zoom-out", cursors_dir / "zoom-out"))
+        completed_cursor_list.append((LINUX_CURSOR_SOURCE_PATH / "zoom-in", cursors_dir / "zoom-in"))
 
         # 链接文件列表
         link_file_list = [(Path(s), Path(v)) for s, v in LINUX_CURSOR_LINKS]
@@ -146,7 +142,7 @@ Name={cursor_name}
 Comment={cursor_name} cursor for Linux
 Inherits={cursor_name}
 """.strip()
-    
+
     logger.debug("鼠标指针配置文件内容:\n\n- cursor.theme:\n%s\n\n- index.theme:\n%s", cursor_config, index_config)
     with open((cursor_path / "cursor.theme"), "w", encoding="utf-8") as file:
         file.write(cursor_config)
@@ -245,18 +241,14 @@ def generate_win_cursor_config(
     for name, path in cursor_save_paths:
         if path is not None:
             cursor_paths.append(path)
-            wreg_list.append(
-                rf'HKCU,"Control Panel\Cursors",{name},0x00020000,"%10%\%CUR_DIR%\%{name}%"'
-            )
+            wreg_list.append(rf'HKCU,"Control Panel\Cursors",{name},0x00020000,"%10%\%CUR_DIR%\%{name}%"')
             strings[name] = path.name
             paths_to_reg.append(rf"%10%\%CUR_DIR%\%{name}%")
         else:
             paths_to_reg.append("")
 
     # 配置 [Wreg] 字段
-    wreg_list.append(
-        r'HKLM,"SOFTWARE\Microsoft\Windows\CurrentVersion\Runonce\Setup\","",,"rundll32.exe shell32.dll,Control_RunDLL main.cpl @0"'
-    )
+    wreg_list.append(r'HKLM,"SOFTWARE\Microsoft\Windows\CurrentVersion\Runonce\Setup\","",,"rundll32.exe shell32.dll,Control_RunDLL main.cpl @0"')
     wreg = "\n".join(wreg_list)
 
     # 配置 [Scheme.Reg] 字段

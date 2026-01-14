@@ -1,3 +1,5 @@
+"""管理工具基础配置"""
+
 from pathlib import Path
 from typing import TypeAlias, TypedDict
 
@@ -57,6 +59,7 @@ class CursorKeys(TypedDict):
 
 CURSOR_KEYS: CursorKeys = {"win": WIN_CURSOR_KEYS, "linux": LINUX_CURSOR_KEYS}
 """鼠标指针对应的键值表 (Windows / Linux)"""
+
 
 class CursorFilePair(TypedDict):
     """单个光标文件的源路径与目标路径"""
@@ -384,6 +387,7 @@ LINUX_CURSOR_LINKS = [
 
 class LocalCursor(TypedDict):
     """本地已安装的鼠标指针配置"""
+
     name: str
     """鼠标指针配置名称"""
 
@@ -403,8 +407,10 @@ LINUX_ICONS_PATH = Path("/usr/share/icons")
 LINUX_USER_ICONS_PATH = Path("~/.local/share/icons").expanduser()
 """Linux 用户图标目录"""
 
+
 class CurrentCursorInfo(TypedDict):
     """当前桌面平台使用的鼠标指针名称和大小信息"""
+
     platform: str
     """桌面平台"""
 
@@ -413,6 +419,7 @@ class CurrentCursorInfo(TypedDict):
 
     cursor_size: int
     """鼠标指针大小"""
+
 
 CurrentCursorInfoList: TypeAlias = list[CurrentCursorInfo]
 """当前桌面平台使用的鼠标指针名称和大小信息列表"""

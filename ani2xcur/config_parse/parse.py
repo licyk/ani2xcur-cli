@@ -1,3 +1,5 @@
+"""配置文件解析"""
+
 import re
 from pathlib import Path
 from typing import TypedDict, TypeAlias, cast
@@ -63,10 +65,7 @@ def parse_inf_text(text: str) -> ParsedINF:
                 val = rhs_raw[1:-1]
             else:
                 # 按逗号分割, 但避免拆分引号内的逗号 (使用正则)
-                parts = [
-                    p.strip()
-                    for p in re.split(r',(?=(?:[^"]*"[^"]*")*[^"]*$)', rhs_raw)
-                ]
+                parts = [p.strip() for p in re.split(r',(?=(?:[^"]*"[^"]*")*[^"]*$)', rhs_raw)]
                 # 如果只有一项则返回字符串, 否则返回列表
                 # 注意: 不去掉内部项的引号 (除非整体被引号包裹)
                 val = parts[0] if len(parts) == 1 else parts
@@ -91,5 +90,3 @@ def parse_inf_file(path: Path) -> ParsedINF:
     """
     with open(path, "r", encoding=detect_encoding(path), errors="ignore") as f:
         return parse_inf_text(f.read())
-
-

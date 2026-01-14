@@ -1,3 +1,5 @@
+"""Win2xcur 调用工具"""
+
 from pathlib import Path
 from typing import TypedDict
 
@@ -87,10 +89,10 @@ def win2xcur_process(
         # 依赖关系: win2xcur -> wand -> ImageMagick
         # 当 ImageMagick 未安装时将导致 win2xcur 导入失败
         patch_win2xcur()
-        from win2xcur.scale import apply_to_frames as apply_to_frames_for_scale # pylint: disable=import-outside-toplevel
-        from win2xcur.shadow import apply_to_frames as apply_to_frames_for_shadow # pylint: disable=import-outside-toplevel
-        from win2xcur.parser import open_blob # pylint: disable=import-outside-toplevel
-        from win2xcur.writer import to_x11 # pylint: disable=import-outside-toplevel
+        from win2xcur.scale import apply_to_frames as apply_to_frames_for_scale  # pylint: disable=import-outside-toplevel
+        from win2xcur.shadow import apply_to_frames as apply_to_frames_for_shadow  # pylint: disable=import-outside-toplevel
+        from win2xcur.parser import open_blob  # pylint: disable=import-outside-toplevel
+        from win2xcur.writer import to_x11  # pylint: disable=import-outside-toplevel
     except ImportError as e:
         raise ImportError(f"导入 win2xcur 模块时发生错误: {e}\n这可能因 ImageMagick 未安装导致的问题, 请使用 Ani2xcur 的 ImageMagick 安装功能进行修复") from e
 
@@ -166,9 +168,9 @@ def x2wincur_process(
         # 依赖关系: win2xcur -> wand -> ImageMagick
         # 当 ImageMagick 未安装时将导致 win2xcur 导入失败
         patch_win2xcur()
-        from win2xcur.scale import apply_to_frames as apply_to_frames_for_scale # pylint: disable=import-outside-toplevel
-        from win2xcur.parser import open_blob # pylint: disable=import-outside-toplevel
-        from win2xcur.writer import to_smart # pylint: disable=import-outside-toplevel
+        from win2xcur.scale import apply_to_frames as apply_to_frames_for_scale  # pylint: disable=import-outside-toplevel
+        from win2xcur.parser import open_blob  # pylint: disable=import-outside-toplevel
+        from win2xcur.writer import to_smart  # pylint: disable=import-outside-toplevel
     except ImportError as e:
         raise ImportError(f"导入 win2xcur 模块时发生错误: {e}\n这可能因 ImageMagick 未安装导致的问题, 请使用 Ani2xcur 的 ImageMagick 安装功能进行修复") from e
 

@@ -1,3 +1,5 @@
+"""Linux 鼠标指针管理工具"""
+
 import stat
 from typing import TypedDict
 from pathlib import Path
@@ -126,9 +128,7 @@ def extract_scheme_info_from_desktop_entry(
     scheme_name = desktop_entry_content["Icon Theme"]["Name"]
     cursor_path = desktop_entry_file.parent / "cursors"
     if not cursor_path.is_dir():
-        raise FileNotFoundError(
-            f"未找到 {cursor_path} 目录, 无法搜索已有的鼠标指针文件"
-        )
+        raise FileNotFoundError(f"未找到 {cursor_path} 目录, 无法搜索已有的鼠标指针文件")
 
     cursor_paths = get_file_list(
         path=desktop_entry_file.parent / "cursors",
@@ -161,9 +161,7 @@ def list_linux_cursors() -> CursorSchemesList:
         CursorSchemesList: 本地已安装的鼠标指针列表
     """
     cursors_list: CursorSchemesList = []
-    icon_paths = get_file_list(
-        LINUX_ICONS_PATH, max_depth=0, include_dirs=True
-    ) + get_file_list(LINUX_USER_ICONS_PATH, max_depth=0, include_dirs=True)
+    icon_paths = get_file_list(LINUX_ICONS_PATH, max_depth=0, include_dirs=True) + get_file_list(LINUX_USER_ICONS_PATH, max_depth=0, include_dirs=True)
     for path in icon_paths:
         cursors_dir = path / "cursors"
         if not cursors_dir.is_dir():
@@ -338,7 +336,7 @@ def delete_linux_cursor(cursor_name: str) -> None:
     cursors = list_linux_cursors()
     if cursor_name not in [x["name"] for x in cursors]:
         raise ValueError(f"鼠标指针 {cursor_name} 不存在")
-    
+
     logger.info("从 Linux 系统删除 %s 鼠标指针中", cursor_name)
     for scheme in cursors:
         if cursor_name == scheme["name"]:
@@ -402,7 +400,7 @@ def install_linux_cursor(
     except OSError as e:
         logger.error("复制鼠标指针 %s 到 %s 时发生错误: %s\n可尝试使用 root 权限运行 Ani2xcur 进行鼠标指针安装操作", src, dst, e)
         raise RuntimeError(f"复制鼠标指针 {src} 到 {dst} 时发生错误: {e}\n可尝试使用 root 权限运行 Ani2xcur 进行鼠标指针安装操作") from e
-    
+
     logger.info("%s 鼠标指针已安装到 %s", cursor_name, dst)
 
 
@@ -431,7 +429,7 @@ def export_linux_cursor(
 
     if cursor_data is None:
         raise ValueError(f"鼠标指针 {cursor_name} 不存在")
-    
+
     src = cursor_data["install_paths"]
     save_dir = output_path / cursor_name
 
@@ -486,9 +484,7 @@ else
     exit 1
 fi
 """.strip()
-    sh_content = (
-        sh_content.replace("{{__INSTALL_PATH__}}", install_path).replace("{{__CURSOR_NAME__}}", cursor_name)
-    )
+    sh_content = sh_content.replace("{{__INSTALL_PATH__}}", install_path).replace("{{__CURSOR_NAME__}}", cursor_name)
 
     sh_path = save_dir / "install_cursor.sh"
     with open(sh_path, "w", encoding="utf-8") as f:

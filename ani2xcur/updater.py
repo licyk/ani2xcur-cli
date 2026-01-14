@@ -1,3 +1,5 @@
+"""Ani2xcur 更新工具"""
+
 import sys
 import importlib.metadata
 from pathlib import Path
@@ -7,14 +9,7 @@ import requests
 
 from ani2xcur.cmd import run_cmd
 from ani2xcur.logger import get_logger
-from ani2xcur.config import (
-    LOGGER_COLOR,
-    LOGGER_LEVEL,
-    LOGGER_NAME,
-    ANI2XCUR_REPOSITORY_URL,
-    WIN2XCUR_REPOSITORY_URL,
-    ANI2XCUR_CONFIG_PATH
-)
+from ani2xcur.config import LOGGER_COLOR, LOGGER_LEVEL, LOGGER_NAME, ANI2XCUR_REPOSITORY_URL, WIN2XCUR_REPOSITORY_URL, ANI2XCUR_CONFIG_PATH
 from ani2xcur.file_operations.file_manager import remove_files
 
 
@@ -67,21 +62,18 @@ def auto_check_update() -> None:
 
     if not check_update_time():
         return
-    
+
     logger.debug("检查 Ani2xcur 更新中")
     current = importlib.metadata.version("ani2xcur")
 
     try:
-        response = requests.get(
-            url="https://pypi.org/pypi/ani2xcur/json",
-            timeout=2
-        )
+        response = requests.get(url="https://pypi.org/pypi/ani2xcur/json", timeout=2)
         json_data = response.json()
         latest = json_data["info"]["version"]
     except requests.exceptions.ConnectTimeout as e:
         logger.error("获取 Ani2xcur 版本信息时发生错误: %s", e)
         return
-    except (requests.exceptions.JSONDecodeError) as e:
+    except requests.exceptions.JSONDecodeError as e:
         logger.error("解析 Ani2xcur 版本信息时发生错误: %s", e)
         return
 
@@ -130,4 +122,3 @@ def check_update_time() -> bool:
         return True
 
     return False
-

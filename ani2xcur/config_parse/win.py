@@ -1,3 +1,5 @@
+"""Windows 鼠标指针配置解析"""
+
 from pathlib import Path
 from typing import Any, Literal, Protocol, TypedDict, cast
 
@@ -34,9 +36,7 @@ INFSectionName = Literal[
 class INFSectionDict(Protocol):
     """INF 选项结构字典"""
 
-    def get(
-        self, key: Literal["var", "constant"], default: Any = ...
-    ) -> str | dict[str, str | list[str]] | Any: ...
+    def get(self, key: Literal["var", "constant"], default: Any = ...) -> str | dict[str, str | list[str]] | Any: ...
 
 
 class KnownINFSections(Protocol):
@@ -126,9 +126,7 @@ def parse_inf_file_content(
         raise e
 
 
-def dict_to_inf_strings_format(
-    data_dict: dict[str, str], indent_width: int | None = 12
-) -> str:
+def dict_to_inf_strings_format(data_dict: dict[str, str], indent_width: int | None = 12) -> str:
     """
     将字典转换为 INF 文件 [Strings] 部分的格式
 

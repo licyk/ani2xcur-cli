@@ -1,4 +1,7 @@
+"""Xfce 桌面环境配置工具"""
+
 import shutil
+
 from ani2xcur.cmd import run_cmd
 from ani2xcur.utils import safe_convert_to_int
 
@@ -66,19 +69,10 @@ def set_xfce_cursor_theme(cursor_name: str) -> str | None:
         return None
 
     run_cmd(
-        [
-            "xfconf-query",
-            "--channel",
-            "xsettings",
-            "--property",
-            "/Gtk/CursorThemeName",
-            "--set",
-            cursor_name
-        ],
+        ["xfconf-query", "--channel", "xsettings", "--property", "/Gtk/CursorThemeName", "--set", cursor_name],
         live=False,
         check=False,
     )
-
 
 
 def set_xfce_cursor_size(cursor_size: int) -> int | None:
@@ -91,16 +85,7 @@ def set_xfce_cursor_size(cursor_size: int) -> int | None:
         return None
 
     run_cmd(
-        [
-            "xfconf-query",
-            "--channel",
-            "xsettings",
-            "--property",
-            "/Gtk/CursorThemeSize",
-            "--set",
-            str(cursor_size)
-        ],
+        ["xfconf-query", "--channel", "xsettings", "--property", "/Gtk/CursorThemeSize", "--set", str(cursor_size)],
         live=False,
         check=False,
     )
-

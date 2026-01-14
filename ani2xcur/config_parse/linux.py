@@ -1,3 +1,5 @@
+"""Linux 鼠标指针配置文件解析"""
+
 from pathlib import Path
 from typing import Any, Literal, Protocol, TypedDict, cast
 
@@ -21,9 +23,7 @@ DesktopEntrySectionName = Literal[
 class DesktopEntrySectionDict(Protocol):
     """DesktopEntry 选项结构字典"""
 
-    def get(
-        self, key: Literal["var", "constant"], default: Any = ...
-    ) -> str | dict[str, str | list[str]] | Any: ...
+    def get(self, key: Literal["var", "constant"], default: Any = ...) -> str | dict[str, str | list[str]] | Any: ...
 
 
 class KnownDesktopEntrySections(Protocol):
@@ -46,7 +46,6 @@ def preprocess_desktop_entry_to_cursor_scheme(parsed: ParsedINF) -> CursorShemeD
     Raises:
         ValueError: 当鼠标指针配置文件不完整时
     """
-
 
     out: CursorShemeDesktopEntry = {}
     parsed_known = cast(KnownDesktopEntrySections, parsed)
@@ -78,9 +77,8 @@ def parse_desktop_entry_content(
     except ValueError as e:
         raise e
 
-def dict_to_desktop_entry_strings_format(
-    data_dict: dict[str, str]
-) -> str:
+
+def dict_to_desktop_entry_strings_format(data_dict: dict[str, str]) -> str:
     """
     将字典转换为 Desktop Entry 文件 [<Var>] 部分的格式
 
@@ -93,7 +91,7 @@ def dict_to_desktop_entry_strings_format(
     lines = []
     for key, value in data_dict.items():
         # 使用制表符或空格对齐，保持与原格式一致
-        line = f'{key}={value}'
+        line = f"{key}={value}"
         lines.append(line)
 
     return "\n".join(lines)

@@ -1,9 +1,13 @@
+"""GTK xsettings 环境配置工具"""
+
 from pathlib import Path
+
 from ani2xcur.utils import safe_convert_to_int
 
 
 GTK_XSETTINGS_PATH = Path("~/.config/xsettingsd/xsettingsd.conf").expanduser()
 """GTK xsettings 配置文件路径"""
+
 
 def read_gtk_xsettings_config(config_path: Path) -> dict[str, str | int]:
     """读取 GTK xsettings 配置文件并返回配置字典
@@ -19,7 +23,7 @@ def read_gtk_xsettings_config(config_path: Path) -> dict[str, str | int]:
         for line in file:
             line = line.strip()
             # 跳过注释行和空行
-            if line.startswith('#') or not line:
+            if line.startswith("#") or not line:
                 continue
 
             # 分割键和值
@@ -54,7 +58,7 @@ def write_gtk_xsettings_config(config_path: Path, config: dict[str, str | int]) 
             if isinstance(value, str):
                 file.write(f'{key} "{value}"\n')
             else:
-                file.write(f'{key} {value}\n')
+                file.write(f"{key} {value}\n")
 
 
 def get_gtk_xsettings_cursor_theme() -> str | None:

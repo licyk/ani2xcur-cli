@@ -1,3 +1,5 @@
+"""鼠标指针转换工具"""
+
 import sys
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -47,26 +49,14 @@ def win2xcur(
         ),
     ] = None,
     shadow: Annotated[bool, typer.Option(help="是否模拟 Windows 的阴影效果")] = False,
-    shadow_opacity: Annotated[
-        int, typer.Option(help="阴影的不透明度 (0 到 255)", min=0, max=255)
-    ] = 50,
-    shadow_radius: Annotated[
-        float, typer.Option(help="阴影模糊效果的半径 (宽度的分数值)")
-    ] = 0.1,
-    shadow_sigma: Annotated[
-        float, typer.Option(help="阴影模糊效果的西格玛值 (宽度的分数值)")
-    ] = 0.1,
-    shadow_x: Annotated[
-        float, typer.Option(help="阴影的 x 偏移量 (宽度的分数值)")
-    ] = 0.05,
-    shadow_y: Annotated[
-        float, typer.Option(help="阴影的 y 偏移量 (高度的分数值)")
-    ] = 0.05,
+    shadow_opacity: Annotated[int, typer.Option(help="阴影的不透明度 (0 到 255)", min=0, max=255)] = 50,
+    shadow_radius: Annotated[float, typer.Option(help="阴影模糊效果的半径 (宽度的分数值)")] = 0.1,
+    shadow_sigma: Annotated[float, typer.Option(help="阴影模糊效果的西格玛值 (宽度的分数值)")] = 0.1,
+    shadow_x: Annotated[float, typer.Option(help="阴影的 x 偏移量 (宽度的分数值)")] = 0.05,
+    shadow_y: Annotated[float, typer.Option(help="阴影的 y 偏移量 (高度的分数值)")] = 0.05,
     shadow_color: Annotated[str, typer.Option(help="阴影的颜色")] = "#000000",
     scale: Annotated[float | None, typer.Option(help="按指定倍数缩放光标")] = None,
-    compress: Annotated[
-        bool, typer.Option(help="转换完成后将鼠标指针打包成压缩包")
-    ] = False,
+    compress: Annotated[bool, typer.Option(help="转换完成后将鼠标指针打包成压缩包")] = False,
     compress_format: Annotated[
         str,
         typer.Option(
@@ -121,18 +111,11 @@ def win2xcur(
 def x2wincur(
     input_path: Annotated[
         Path,
-        typer.Argument(
-            help="Windows 鼠标指针文件的路径, 可以为 inf / ani / cur 文件路径, 或者鼠标指针压缩包文件路径",
-            resolve_path=True
-        ),
+        typer.Argument(help="Windows 鼠标指针文件的路径, 可以为 inf / ani / cur 文件路径, 或者鼠标指针压缩包文件路径", resolve_path=True),
     ],
-    output_path: Annotated[
-        Path | None, typer.Option(help="保存转换后的鼠标指针路径")
-    ] = None,
+    output_path: Annotated[Path | None, typer.Option(help="保存转换后的鼠标指针路径")] = None,
     scale: Annotated[float | None, typer.Option(help="按指定倍数缩放光标")] = None,
-    compress: Annotated[
-        bool, typer.Option(help="转换完成后将鼠标指针打包成压缩包")
-    ] = False,
+    compress: Annotated[bool, typer.Option(help="转换完成后将鼠标指针打包成压缩包")] = False,
     compress_format: Annotated[
         str,
         typer.Option(

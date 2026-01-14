@@ -1,3 +1,5 @@
+"""鼠标指针配置文件智能搜索"""
+
 from pathlib import Path
 
 from ani2xcur.config_parse.win import parse_inf_file_content
@@ -20,11 +22,11 @@ logger = get_logger(
 
 
 def find_desktop_entry_file(
-    input_file: Path, 
-    temp_dir: Path, 
+    input_file: Path,
+    temp_dir: Path,
     depth: int | None = 0,
     visited: set[Path] | None = None,
-    is_toplevel: bool = True # pylint: disable=unused-argument
+    is_toplevel: bool = True,  # pylint: disable=unused-argument
 ) -> Path | None:
     """搜索 DesktopEntry 文件路径
 
@@ -57,11 +59,11 @@ def find_desktop_entry_file(
     if abs_path in visited:
         return None
     visited.add(abs_path)
-    
+
     # 递归搜索深度控制
     if depth < 0:
         return None
-    
+
     # 验证 DesktopEntry 文件完整性
     if abs_path.is_file() and abs_path.name.lower().endswith(".theme"):
         try:
@@ -95,7 +97,7 @@ def find_desktop_entry_file(
         paths = get_file_list(
             path=abs_path,
             max_depth=0,
-            include_dirs=True, 
+            include_dirs=True,
         )
         for path in paths:
             file = find_desktop_entry_file(
@@ -111,14 +113,7 @@ def find_desktop_entry_file(
     return None
 
 
-
-def find_inf_file(
-    input_file: Path, 
-    temp_dir: Path, 
-    depth: int | None = 0, 
-    visited: set[Path] | None = None,
-    is_toplevel: bool = True
-) -> Path | None:
+def find_inf_file(input_file: Path, temp_dir: Path, depth: int | None = 0, visited: set[Path] | None = None, is_toplevel: bool = True) -> Path | None:
     """搜索 INF 文件路径
 
     Args:
@@ -138,7 +133,7 @@ def find_inf_file(
     # 智能路径修正 (仅在首次调用且输入为光标文件时触发)
     # 该目录可能为鼠标指针路径, 则尝试定位到其父文件夹
     if is_toplevel and input_file.is_file():
-        if input_file.name.lower().endswith(('.ani', '.cur')):
+        if input_file.name.lower().endswith((".ani", ".cur")):
             input_file = input_file.parent
 
     # 获取绝对路径并验证存在性
@@ -154,11 +149,11 @@ def find_inf_file(
     if abs_path in visited:
         return None
     visited.add(abs_path)
-    
+
     # 递归搜索深度控制
     if depth < 0:
         return None
-    
+
     # 验证 INF 文件完整性
     if abs_path.is_file() and abs_path.name.lower().endswith(".inf"):
         try:
@@ -167,7 +162,7 @@ def find_inf_file(
             return abs_path
         except ValueError:
             return None
-        
+
     # 文件为压缩包时则尝试解压并遍历解压的文件夹
     if is_supported_archive_format(abs_path):
         logger.debug("从 %s 搜索文件中", abs_path)
@@ -180,7 +175,7 @@ def find_inf_file(
         return find_inf_file(
             input_file=extract_path,
             temp_dir=temp_dir,
-            depth=depth, # 解压内容通常可视作当前层级或下一层级, 这里维持原逻辑
+            depth=depth,  # 解压内容通常可视作当前层级或下一层级, 这里维持原逻辑
             visited=visited,
             is_toplevel=False,
         )

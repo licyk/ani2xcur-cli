@@ -1,3 +1,5 @@
+"""入口文件"""
+
 import typer
 
 from ani2xcur.cli.cli import typer_factory

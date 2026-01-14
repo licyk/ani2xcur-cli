@@ -1,3 +1,5 @@
+"""压缩 / 解压工具"""
+
 import io
 import os
 import zipfile
@@ -11,7 +13,7 @@ import zstandard as zstd
 import py7zr
 import lzo
 
-from ani2xcur.config import  LOGGER_NAME, LOGGER_LEVEL, LOGGER_COLOR
+from ani2xcur.config import LOGGER_NAME, LOGGER_LEVEL, LOGGER_COLOR
 from ani2xcur.logger import get_logger
 
 logger = get_logger(
@@ -138,13 +140,11 @@ def create_archive(sources: Iterable[Path], archive_path: Path) -> None:
         ValueError: 不支持的压缩或不能写入的格式
     """
 
-    def _add_to_tar(
-        tar_ref: tarfile.TarFile, src: Path, arcname: str | None = None
-    ) -> None:
+    def _add_to_tar(tar_ref: tarfile.TarFile, src: Path, arcname: str | None = None) -> None:
         if arcname is None:
             arcname = src.name
         tar_ref.add(str(src), arcname=arcname)
-    
+
     if not is_supported_archive_format(archive_path):
         raise ValueError(f"不支持的压缩格式: {archive_path}")
 
@@ -230,4 +230,3 @@ def create_archive(sources: Iterable[Path], archive_path: Path) -> None:
         compressed = lzo.compress(data)
         archive_path.write_bytes(compressed)
         return
-

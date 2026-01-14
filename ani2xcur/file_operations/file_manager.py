@@ -40,7 +40,7 @@ def remove_files(path: Path) -> None:
             # 处理文件或符号链接
             os.chmod(path, stat.S_IWRITE)
             path.unlink()
-            
+
         elif path.is_dir():
             # 处理文件夹
             shutil.rmtree(path, onerror=_handle_remove_readonly)
@@ -124,12 +124,8 @@ def get_file_list(
     base_depth = len(path.resolve().parts)
 
     file_list: list[Path] = []
-    with tqdm(
-        desc=f"扫描目录 {path}", position=0, leave=True, disable=not show_progress
-    ) as dir_pbar:
-        with tqdm(
-            desc="发现条目数", position=1, leave=True, disable=not show_progress
-        ) as file_pbar:
+    with tqdm(desc=f"扫描目录 {path}", position=0, leave=True, disable=not show_progress) as dir_pbar:
+        with tqdm(desc="发现条目数", position=1, leave=True, disable=not show_progress) as file_pbar:
             for root, dirs, files in os.walk(path):
                 root_path = Path(root)
                 current_depth = len(root_path.resolve().parts) - base_depth
@@ -140,9 +136,7 @@ def get_file_list(
                     if include_dirs:
                         for d in dirs:
                             dir_path = root_path / d
-                            file_list.append(
-                                dir_path.resolve() if resolve else dir_path.absolute()
-                            )
+                            file_list.append(dir_path.resolve() if resolve else dir_path.absolute())
                             file_pbar.update(1)
                     dirs.clear()
                 else:
@@ -150,16 +144,12 @@ def get_file_list(
                     if include_dirs:
                         for d in dirs:
                             dir_path = root_path / d
-                            file_list.append(
-                                dir_path.resolve() if resolve else dir_path.absolute()
-                            )
+                            file_list.append(dir_path.resolve() if resolve else dir_path.absolute())
                             file_pbar.update(1)
 
                 for file in files:
                     file_path = root_path / file
-                    file_list.append(
-                        file_path.resolve() if resolve else file_path.absolute()
-                    )
+                    file_list.append(file_path.resolve() if resolve else file_path.absolute())
                     file_pbar.update(1)
 
                 dir_pbar.update(1)

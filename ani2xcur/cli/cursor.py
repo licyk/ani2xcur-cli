@@ -1,3 +1,5 @@
+"""系统鼠标指针管理工具"""
+
 import sys
 from typing import Annotated
 from pathlib import Path
@@ -68,9 +70,7 @@ def install_cursor(
                 depth=SMART_FINDER_SEARCH_DEPTH,
             )
             if inf_file is None:
-                logger.error(
-                    "未找到鼠标指针的 INF 配置文件路径, 该鼠标指针文件无法安装"
-                )
+                logger.error("未找到鼠标指针的 INF 配置文件路径, 该鼠标指针文件无法安装")
                 sys.exit(1)
 
             install_windows_cursor(
@@ -103,9 +103,7 @@ def install_cursor(
         sys.exit(1)
 
 
-def uninstall_cursor(
-    cursor_name: Annotated[str, typer.Argument(help="要删除的鼠标指针名称")]
-) -> None:
+def uninstall_cursor(cursor_name: Annotated[str, typer.Argument(help="要删除的鼠标指针名称")]) -> None:
     """删除系统中指定的鼠标指针"""
     if sys.platform == "win32":
         delete_windows_cursor(cursor_name)
@@ -114,6 +112,7 @@ def uninstall_cursor(
     else:
         logger.error("不支持的系统: %s", sys.platform)
         sys.exit(1)
+
 
 def export_cursor(
     cursor_name: Annotated[str, typer.Argument(help="要导出的鼠标指针名称")],
@@ -135,21 +134,22 @@ def export_cursor(
     """将鼠标指针从系统中导出"""
     if sys.platform == "win32":
         path = export_windows_cursor(
-                cursor_name=cursor_name,
-                output_path=output_path,
-                custom_install_path=custom_install_path,
+            cursor_name=cursor_name,
+            output_path=output_path,
+            custom_install_path=custom_install_path,
         )
         logger.info("Windows 鼠标指针导出完成, 导出路径: %s", path)
     elif sys.platform == "linux":
         path = export_linux_cursor(
-                cursor_name=cursor_name,
-                output_path=output_path,
-                custom_install_path=custom_install_path,
-            )
+            cursor_name=cursor_name,
+            output_path=output_path,
+            custom_install_path=custom_install_path,
+        )
         logger.info("Windows 鼠标指针导出完成, 导出路径: %s", path)
     else:
         logger.error("不支持的系统: %s", sys.platform)
         sys.exit(1)
+
 
 def set_cursor_theme(
     cursor_name: Annotated[str, typer.Argument(help="要指定的鼠标指针名称")],
@@ -164,9 +164,7 @@ def set_cursor_theme(
         sys.exit(1)
 
 
-def set_cursor_size(
-    cursor_size: Annotated[int, typer.Argument(help="要指定的鼠标指针大小")]
-)-> None:
+def set_cursor_size(cursor_size: Annotated[int, typer.Argument(help="要指定的鼠标指针大小")]) -> None:
     """设置系统要使用的鼠标指针大小"""
     if sys.platform == "win32":
         set_windows_cursor_size(cursor_size)
@@ -176,19 +174,20 @@ def set_cursor_size(
         logger.error("不支持的系统: %s", sys.platform)
         sys.exit(1)
 
+
 def list_cursor() -> None:
     """列出当前系统中已安装的鼠标指针"""
 
     def _display_frame(items) -> None:
         console = Console()
-        
+
         # 设置表格整体样式
         table = Table(
             header_style="bright_yellow",
             border_style="bright_black",
             box=box.ROUNDED,
         )
-        
+
         # 设置列样式
         # style 参数控制该列所有单元格的默认样式
         table.add_column("鼠标指针名称", style="bold white", no_wrap=True)
@@ -200,11 +199,7 @@ def list_cursor() -> None:
             count = len(item["cursor_files"])
             count_str = str(count)
 
-            table.add_row(
-                item["name"],
-                count_str,
-                path
-            )
+            table.add_row(item["name"], count_str, path)
 
         console.print(table)
 
@@ -223,16 +218,17 @@ def list_cursor() -> None:
 
 def get_current_cursor() -> None:
     """显示当前系统中设置的鼠标指针名称和大小"""
+
     def _display_frame(items) -> None:
         console = Console()
-        
+
         # 设置表格整体样式
         table = Table(
             header_style="bright_yellow",
             border_style="bright_black",
             box=box.ROUNDED,
         )
-        
+
         # 设置列样式
         # style 参数控制该列所有单元格的默认样式
         table.add_column("平台", style="bold white", no_wrap=True)
@@ -244,11 +240,7 @@ def get_current_cursor() -> None:
             cursor_name = item["cursor_name"]
             cursor_size = item["cursor_size"]
 
-            table.add_row(
-                platform,
-                cursor_name,
-                str(cursor_size)
-            )
+            table.add_row(platform, cursor_name, str(cursor_size))
 
         console.print(table)
 
@@ -261,5 +253,3 @@ def get_current_cursor() -> None:
         sys.exit(1)
 
     _display_frame(info)
-
-    

@@ -1,3 +1,5 @@
+"""其他工具"""
+
 import importlib.metadata
 import re
 from typing import Annotated
@@ -7,15 +9,7 @@ from rich.console import Console
 from rich.table import Table
 from rich import box
 
-from ani2xcur.config import (
-    LOGGER_NAME,
-    LOGGER_LEVEL,
-    LOGGER_COLOR,
-    IMAGE_MAGICK_WINDOWS_DOWNLOAD_URL,
-    ANI2XCUR_REPOSITORY_URL,
-    WIN2XCUR_REPOSITORY_URL,
-    SMART_FINDER_SEARCH_DEPTH
-)
+from ani2xcur.config import LOGGER_NAME, LOGGER_LEVEL, LOGGER_COLOR, IMAGE_MAGICK_WINDOWS_DOWNLOAD_URL, ANI2XCUR_REPOSITORY_URL, WIN2XCUR_REPOSITORY_URL, SMART_FINDER_SEARCH_DEPTH
 from ani2xcur.logger import get_logger
 from ani2xcur.updater import self_update
 
@@ -28,15 +22,9 @@ logger = get_logger(
 
 
 def update(
-    install_from_source: Annotated[
-        bool, typer.Option(help="更新时是否从源码进行安装")
-    ] = False,
-    ani2xcur_source: Annotated[
-        str | None, typer.Option(help="Ani2xcur 源仓库的 Git 链接")
-    ] = None,
-    win2xcur_source: Annotated[
-        str | None, typer.Option(help="Win2xcur 源仓库的 Git 链接")
-    ] = None,
+    install_from_source: Annotated[bool, typer.Option(help="更新时是否从源码进行安装")] = False,
+    ani2xcur_source: Annotated[str | None, typer.Option(help="Ani2xcur 源仓库的 Git 链接")] = None,
+    win2xcur_source: Annotated[str | None, typer.Option(help="Win2xcur 源仓库的 Git 链接")] = None,
 ) -> None:
     """更新 Ani2xcur"""
     self_update(
@@ -48,16 +36,17 @@ def update(
 
 def version() -> None:
     """显示 Ani2xcur 和其他组件的当前版本"""
+
     def _display_frame(items) -> None:
         console = Console()
-        
+
         # 设置表格整体样式
         table = Table(
             header_style="bright_yellow",
             border_style="bright_black",
             box=box.ROUNDED,
         )
-        
+
         # 设置列样式
         # style 参数控制该列所有单元格的默认样式
         table.add_column("组件名", style="bold white", no_wrap=True)
@@ -73,12 +62,7 @@ def version() -> None:
 
     requires = importlib.metadata.requires("ani2xcur")
     info = []
-    pkgs = [
-        remove_optional_dependence_from_package(get_package_name(x))
-        .split(";")[0]
-        .strip()
-        for x in requires
-    ]
+    pkgs = [remove_optional_dependence_from_package(get_package_name(x)).split(";")[0].strip() for x in requires]
     for pkg in pkgs:
         try:
             ver = importlib.metadata.version(pkg)
@@ -97,17 +81,7 @@ def get_package_name(package: str) -> str:
     Returns:
         str: 返回去除版本声明后的 Python 软件包名
     """
-    return (
-        package.split("===")[0]
-        .split("~=")[0]
-        .split("!=")[0]
-        .split("<=")[0]
-        .split(">=")[0]
-        .split("<")[0]
-        .split(">")[0]
-        .split("==")[0]
-        .strip()
-    )
+    return package.split("===")[0].split("~=")[0].split("!=")[0].split("<=")[0].split(">=")[0].split("<")[0].split(">")[0].split("==")[0].strip()
 
 
 def remove_optional_dependence_from_package(filename: str) -> str:
@@ -123,16 +97,17 @@ def remove_optional_dependence_from_package(filename: str) -> str:
 
 def env() -> None:
     """列出 Ani2xcur 使用的环境变量"""
+
     def _display_frame(items) -> None:
         console = Console()
-        
+
         # 设置表格整体样式
         table = Table(
             header_style="bright_yellow",
             border_style="bright_black",
             box=box.ROUNDED,
         )
-        
+
         # 设置列样式
         # style 参数控制该列所有单元格的默认样式
         table.add_column("环境变量", style="bold white", no_wrap=True)

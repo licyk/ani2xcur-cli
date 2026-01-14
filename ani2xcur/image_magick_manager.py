@@ -1,3 +1,5 @@
+"""ImageMagick 管理工具"""
+
 import os
 import re
 import getpass
@@ -9,6 +11,7 @@ from typing import Generator
 from tempfile import TemporaryDirectory
 from pathlib import Path
 from datetime import datetime
+
 try:
     import winreg
 except ImportError:
@@ -31,7 +34,7 @@ from ani2xcur.manager.win_env_val_manager import (
     delete_val_from_env,
     delete_path_from_env_path,
 )
-from ani2xcur.utils import (is_admin_on_windows, is_root_on_linux)
+from ani2xcur.utils import is_admin_on_windows, is_root_on_linux
 from ani2xcur.manager.regedit import (
     RegistryAccess,
     RegistryRootKey,
@@ -57,14 +60,7 @@ IMAGE_MAGICK_WINDOWS_REGISTRY_CONFIG_PATH = r"SOFTWARE\ImageMagick\Current"
 IMAGE_MAGICK_WINDOWS_REGISTRY_UNINSTALL_CONFIG_PATH = r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\ImageMagick 7.1.2 Q16-HDRI (64-bit)_is1"
 """ImageMagick 注册表卸载面板信息"""
 
-IMAGE_MAGICK_WINDOWS_ICON_PATH = (
-        Path(os.getenv("ProgramData", "C:/ProgramData"))
-        / "Microsoft"
-        / "Windows"
-        / "Start Menu"
-        / "Programs"
-        / "ImageMagick 7.1.2 Q16-HDRI (64-bit)"
-    )
+IMAGE_MAGICK_WINDOWS_ICON_PATH = Path(os.getenv("ProgramData", "C:/ProgramData")) / "Microsoft" / "Windows" / "Start Menu" / "Programs" / "ImageMagick 7.1.2 Q16-HDRI (64-bit)"
 """ImageMagick 快捷方式路径"""
 
 
@@ -83,9 +79,7 @@ def install_image_magick_windows(
         return
 
     if not is_admin_on_windows():
-        raise PermissionError(
-            "当前未使用管理员权限运行 Ani2xcur, 无法安装 ImageMagick, 请使用管理员权限进行重试"
-        )
+        raise PermissionError("当前未使用管理员权限运行 Ani2xcur, 无法安装 ImageMagick, 请使用管理员权限进行重试")
 
     if install_path is None:
         install_path = IMAGE_MAGICK_WINDOWS_INSTALL_PATH
@@ -184,12 +178,7 @@ def install_image_magick_windows(
     # 创建快捷方式
     shortcut_path = IMAGE_MAGICK_WINDOWS_ICON_PATH / "ImageMagick Web Pages.lnk"
     IMAGE_MAGICK_WINDOWS_ICON_PATH.mkdir(parents=True, exist_ok=True)
-    create_windows_shortcut(
-        target_path=install_path / "index.html",
-        shortcut_path=shortcut_path,
-        description='ImageMagick Web Pages',
-        working_dir=install_path
-    )
+    create_windows_shortcut(target_path=install_path / "index.html", shortcut_path=shortcut_path, description="ImageMagick Web Pages", working_dir=install_path)
 
     # 获取 ImageMagick 版本信息
     magick_bin = install_path / "magick.exe"
@@ -199,13 +188,13 @@ def install_image_magick_windows(
     else:
         version_number = "7.1.2"
     if quality_setting is not None:
-        quality_setting =         re.sub(r'([A-Z]+)(\d+)', r'\1:\2', quality_setting.split("-")[0])
+        quality_setting = re.sub(r"([A-Z]+)(\d+)", r"\1:\2", quality_setting.split("-")[0])
     else:
         quality_setting = "Q:16"
 
     # ImageMagick 注册表配置信息 (子表路径)
     image_magick_windows_registry_sub_config_path = rf"SOFTWARE\ImageMagick\{version_number}\{quality_setting}"
-    
+
     # ImageMagick 配置信息
     registry_create_path(
         sub_key=IMAGE_MAGICK_WINDOWS_REGISTRY_CONFIG_PATH,
@@ -267,22 +256,23 @@ def get_image_magick_version(magick_bin: Path) -> tuple[str, str, str]:
         (tuple[str | None, str | None, str | None]): ImageMagick 的版本号, 质量设置, 架构
     """
     try:
-        result = run_cmd([magick_bin.as_posix(), "-version"] ,live=False)
+        result = run_cmd([magick_bin.as_posix(), "-version"], live=False)
     except RuntimeError:
         return None, None, None
-    
-    pattern = r'ImageMagick\s+([0-9.-]+)\s+([A-Z0-9-]+)\s+([a-zA-Z0-9]+)'
+
+    pattern = r"ImageMagick\s+([0-9.-]+)\s+([A-Z0-9-]+)\s+([a-zA-Z0-9]+)"
     match = re.search(pattern, result)
     if match:
-        version_number = match.group(1)   # 版本号
+        version_number = match.group(1)  # 版本号
         quality_setting = match.group(2)  # 质量设置
-        architecture = match.group(3)     # 架构
+        architecture = match.group(3)  # 架构
     else:
         version_number = None
         quality_setting = None
         architecture = None
 
     return version_number, quality_setting, architecture
+
 
 def add_image_magick_to_path(
     install_path: Path,
@@ -316,14 +306,8 @@ def delete_image_magick_to_path(
     Args:
         install_path (Path): ImageMagick 安装路径
     """
-    delete_path_from_env_path(
-        key_path=str(install_path),
-        dtype="system"
-    )
-    delete_path_from_env_path(
-        key_path=str(install_path),
-        dtype="user"
-    )
+    delete_path_from_env_path(key_path=str(install_path), dtype="system")
+    delete_path_from_env_path(key_path=str(install_path), dtype="user")
     delete_val_from_env(name="MAGICK_HOME", dtype="system")
     delete_val_from_env(name="MAGICK_HOME", dtype="user")
 
@@ -342,9 +326,7 @@ def uninstall_image_magick_windows() -> None:
         return
 
     if not is_admin_on_windows():
-        raise PermissionError(
-            "当前未使用管理员权限运行 Ani2xcur, 卸载安装 ImageMagick, 请使用管理员权限进行重试"
-        )
+        raise PermissionError("当前未使用管理员权限运行 Ani2xcur, 卸载安装 ImageMagick, 请使用管理员权限进行重试")
 
     # 查找 ImageMagick 安装路径
     install_path = find_image_magick_install_path_windows()
@@ -358,12 +340,8 @@ def uninstall_image_magick_windows() -> None:
         try:
             remove_files(install_path)
         except OSError as e:
-            logger.error(
-                "尝试删除 ImageMagick 时发生错误: %s\n可尝试手动卸载 ImageMagick", e
-            )
-            raise RuntimeError(
-                f"尝试删除 ImageMagick 时发生错误: {e}\n可尝试手动卸载 ImageMagick"
-            ) from e
+            logger.error("尝试删除 ImageMagick 时发生错误: %s\n可尝试手动卸载 ImageMagick", e)
+            raise RuntimeError(f"尝试删除 ImageMagick 时发生错误: {e}\n可尝试手动卸载 ImageMagick") from e
 
     # 删除 ImageMagick 启动图标
     if IMAGE_MAGICK_WINDOWS_ICON_PATH.exists():
@@ -437,11 +415,9 @@ def install_image_magick_linux() -> None:
     if check_image_magick_is_installed():
         logger.info("ImageMagick 已安装在 Linux 系统中")
         return
-    
+
     if not is_root_on_linux():
-        raise PermissionError(
-            "当前未使用管理员权限运行 Ani2xcur, 卸载安装 ImageMagick, 请使用管理员权限进行重试"
-        )
+        raise PermissionError("当前未使用管理员权限运行 Ani2xcur, 卸载安装 ImageMagick, 请使用管理员权限进行重试")
 
     logger.info("安装 ImageMagick 到 Linux 系统中")
 
@@ -462,26 +438,25 @@ def install_image_magick_linux() -> None:
         run_cmd(["apk", "update"])
         run_cmd(["apk", "add", "imagemagick"])
         return
-    
+
     # Arch Linux
     if shutil.which("pacman"):
         run_cmd(["pacman", "-Syyu", "imagemagick", "--noconfirm"])
         return
-    
+
     # openSUSE
     if shutil.which("zypper"):
         run_cmd(["zypper", "refresh"])
-        run_cmd(["zypper", "install","ImageMagick", "-y"])
+        run_cmd(["zypper", "install", "ImageMagick", "-y"])
         return
-    
+
     # NixOS / Nix
     if shutil.which("nix-env"):
         run_cmd(["nix-channel", "--update"])
         run_cmd(["nix-env", "-iA", "nixos.imagemagick"])
         return
-    
-    raise RuntimeError("不支持的 Linux 系统, 无法自动安装 ImageMagick, 请尝试手动安装 ImageMagick")
 
+    raise RuntimeError("不支持的 Linux 系统, 无法自动安装 ImageMagick, 请尝试手动安装 ImageMagick")
 
 
 def uninstall_image_magick_linux() -> None:
@@ -493,12 +468,10 @@ def uninstall_image_magick_linux() -> None:
     if not check_image_magick_is_installed():
         logger.info("ImageMagick 未安装在 Linux 系统中")
         return
-    
+
     if not is_root_on_linux():
-        raise PermissionError(
-            "当前未使用管理员权限运行 Ani2xcur, 卸载安装 ImageMagick, 请使用管理员权限进行重试"
-        )
-    
+        raise PermissionError("当前未使用管理员权限运行 Ani2xcur, 卸载安装 ImageMagick, 请使用管理员权限进行重试")
+
     logger.info("从 Linux 系统中卸载 ImageMagick 中")
 
     # Debian / Ubuntu
@@ -517,29 +490,29 @@ def uninstall_image_magick_linux() -> None:
     if shutil.which("apk"):
         run_cmd(["apk", "del", "imagemagick"])
         return
-    
+
     # Arch Linux
     if shutil.which("pacman"):
         # -Rs 会同时删除该软件及其不再被需要的依赖
         run_cmd(["pacman", "-Rs", "imagemagick", "--noconfirm"])
         return
-    
+
     # openSUSE
     if shutil.which("zypper"):
         run_cmd(["zypper", "remove", "ImageMagick", "-y"])
         return
-    
+
     # NixOS / Nix
     if shutil.which("nix-env"):
         # 注意：nix-env 卸载时使用的是安装时的包名（非属性路径 A）
         run_cmd(["nix-env", "-e", "imagemagick"])
         return
-    
+
     raise RuntimeError("不支持的 Linux 系统, 无法自动卸载 ImageMagick, 请尝试手动卸载")
 
 
 def find_wand_library_paths() -> Generator[tuple[str | None, str | None], None, None]:
-    """迭代尝试加载的库路径对 (Wand 库路径, Core 库路径). 
+    """迭代尝试加载的库路径对 (Wand 库路径, Core 库路径).
 
     结果路径是基于启发式搜索生成的, 不一定在磁盘上真实存在.
 
@@ -551,127 +524,143 @@ def find_wand_library_paths() -> Generator[tuple[str | None, str | None], None, 
     # 初始化库路径变量
     libwand = None
     libmagick = None
-    
+
     # 定义可能的版本后缀, 用于匹配不同版本的 ImageMagick 库
-    versions = '', '-7', '-7.Q8', '-7.Q16', '-6', '-Q16', '-Q8', '-6.Q16'
-    
+    versions = "", "-7", "-7.Q8", "-7.Q16", "-6", "-Q16", "-Q8", "-6.Q16"
+
     # 定义可能的选项后缀, 如高动态范围 (HDRI) 支持
-    options = '', 'HDRI', 'HDRI-2'
-    
+    options = "", "HDRI", "HDRI-2"
+
     # 获取当前操作系统类型 (Windows、Darwin/MacOS、Linux 等)
     system = platform.system()
-    
-    # 获取 MAGICK_HOME 环境变量的值, 这是 ImageMagick 的安装根目录
-    magick_home = os.environ.get('MAGICK_HOME')
-    
-    # 获取自定义的库文件后缀
-    magick_suffix = os.environ.get('WAND_MAGICK_LIBRARY_SUFFIX')
 
-    if system == 'Windows':
-        # Windows 版的 ImageMagick 安装程序通常将编解码器和滤镜 DLL 安装在子文件夹中, 
+    # 获取 MAGICK_HOME 环境变量的值, 这是 ImageMagick 的安装根目录
+    magick_home = os.environ.get("MAGICK_HOME")
+
+    # 获取自定义的库文件后缀
+    magick_suffix = os.environ.get("WAND_MAGICK_LIBRARY_SUFFIX")
+
+    if system == "Windows":
+        # Windows 版的 ImageMagick 安装程序通常将编解码器和滤镜 DLL 安装在子文件夹中,
         # 我们需要将这些文件夹添加到 PATH 环境变量中, 否则稍后加载 DLL 时会失败.
         try:
             # 打开 Windows 注册表中 ImageMagick 的配置项
-            with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
-                                r"SOFTWARE\ImageMagick\Current") as reg_key:
-                
+            with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\ImageMagick\Current") as reg_key:
                 # 从注册表中查询库路径、编解码器模块路径和滤镜模块路径
                 libPath = winreg.QueryValueEx(reg_key, "LibPath")
                 coderPath = winreg.QueryValueEx(reg_key, "CoderModulesPath")
                 filterPath = winreg.QueryValueEx(reg_key, "FilterModulesPath")
-                
+
                 # 设置 magick_home 为库路径
                 magick_home = libPath[0]
-                
+
                 # 将库路径、编解码器路径和滤镜路径添加到系统 PATH 环境变量中
-                os.environ['PATH'] += str((';' + libPath[0] + ";" +
-                                          coderPath[0] + ";" + filterPath[0]))
+                os.environ["PATH"] += str((";" + libPath[0] + ";" + coderPath[0] + ";" + filterPath[0]))
         except OSError:
-            # 如果无法从注册表读取, 则使用 MAGICK_HOME 环境变量, 
+            # 如果无法从注册表读取, 则使用 MAGICK_HOME 环境变量,
             # 并假设编解码器和滤镜 DLL 在相同的目录中
             pass
 
     # 辅助函数: 构建 ImageMagick 路径
     def magick_path(path):
         return os.path.join(magick_home, *path)
-        
+
     # 生成版本和选项的所有组合
     combinations = itertools.product(versions, options)
     suffixes = []
-    
+
     # 如果存在自定义后缀, 将其分割为列表
     if magick_suffix:
-        suffixes = str(magick_suffix).split(';')
+        suffixes = str(magick_suffix).split(";")
 
     # 我们需要将 combinations 生成器转换为列表, 以便可以遍历两次
     suffixes.extend(list(version + option for version, option in combinations))
-    
+
     if magick_home:
         # 在调用 find_library 之前, 在 magick_home 中彻底搜索库文件
         for suffix in suffixes:
             # 在 Windows 上, API 被分成两个库. 在其他平台上, 它们全部包含在一个库中.
-            if system == 'Windows':
+            if system == "Windows":
                 # 尝试第一种 DLL 命名约定
-                libwand = 'CORE_RL_wand_{0}.dll'.format(suffix), # pylint: disable=consider-using-f-string
-                libmagick = 'CORE_RL_magick_{0}.dll'.format(suffix), # pylint: disable=consider-using-f-string
+                libwand = ("CORE_RL_wand_{0}.dll".format(suffix),)  # pylint: disable=consider-using-f-string
+                libmagick = ("CORE_RL_magick_{0}.dll".format(suffix),)  # pylint: disable=consider-using-f-string
                 yield magick_path(libwand), magick_path(libmagick)
-                
+
                 # 尝试第二种 DLL 命名约定
-                libwand = 'CORE_RL_MagickWand_{0}.dll'.format(suffix), # pylint: disable=consider-using-f-string
-                libmagick = 'CORE_RL_MagickCore_{0}.dll'.format(suffix), # pylint: disable=consider-using-f-string
+                libwand = ("CORE_RL_MagickWand_{0}.dll".format(suffix),)  # pylint: disable=consider-using-f-string
+                libmagick = ("CORE_RL_MagickCore_{0}.dll".format(suffix),)  # pylint: disable=consider-using-f-string
                 yield magick_path(libwand), magick_path(libmagick)
-                
+
                 # 尝试第三种 DLL 命名约定
-                libwand = 'libMagickWand{0}.dll'.format(suffix), # pylint: disable=consider-using-f-string
-                libmagick = 'libMagickCore{0}.dll'.format(suffix), # pylint: disable=consider-using-f-string
+                libwand = ("libMagickWand{0}.dll".format(suffix),)  # pylint: disable=consider-using-f-string
+                libmagick = ("libMagickCore{0}.dll".format(suffix),)  # pylint: disable=consider-using-f-string
                 yield magick_path(libwand), magick_path(libmagick)
-                
-            elif system == 'Darwin':  # MacOS
+
+            elif system == "Darwin":  # MacOS
                 # 在 MacOS上, MagickWand 库通常也是 MagickCore 库
-                libwand = 'lib', 'libMagickWand{0}.dylib'.format(suffix), # pylint: disable=consider-using-f-string
+                libwand = (
+                    "lib",
+                    "libMagickWand{0}.dylib".format(suffix),
+                )  # pylint: disable=consider-using-f-string
                 yield magick_path(libwand), magick_path(libwand)
             else:  # Linux 和其他 Unix-like 系统
                 # 尝试标准的 .so 库文件命名
-                libwand = 'lib', 'libMagickWand{0}.so'.format(suffix), # pylint: disable=consider-using-f-string
-                libmagick = 'lib', 'libMagickCore{0}.so'.format(suffix), # pylint: disable=consider-using-f-string
+                libwand = (
+                    "lib",
+                    "libMagickWand{0}.so".format(suffix),
+                )  # pylint: disable=consider-using-f-string
+                libmagick = (
+                    "lib",
+                    "libMagickCore{0}.so".format(suffix),
+                )  # pylint: disable=consider-using-f-string
                 yield magick_path(libwand), magick_path(libmagick)
-                
+
                 # 尝试带版本号的 .so 库文件命名 (版本 9)
-                libwand = 'lib', 'libMagickWand{0}.so.9'.format(suffix), # pylint: disable=consider-using-f-string
-                libmagick = 'lib', 'libMagickCore{0}.so.9'.format(suffix), # pylint: disable=consider-using-f-string
+                libwand = (
+                    "lib",
+                    "libMagickWand{0}.so.9".format(suffix),
+                )  # pylint: disable=consider-using-f-string
+                libmagick = (
+                    "lib",
+                    "libMagickCore{0}.so.9".format(suffix),
+                )  # pylint: disable=consider-using-f-string
                 yield magick_path(libwand), magick_path(libmagick)
-                
+
                 # 尝试带版本号的 .so 库文件命名 (版本6)
-                libwand = 'lib', 'libMagickWand{0}.so.6'.format(suffix), # pylint: disable=consider-using-f-string
-                libmagick = 'lib', 'libMagickCore{0}.so.6'.format(suffix), # pylint: disable=consider-using-f-string
+                libwand = (
+                    "lib",
+                    "libMagickWand{0}.so.6".format(suffix),
+                )  # pylint: disable=consider-using-f-string
+                libmagick = (
+                    "lib",
+                    "libMagickCore{0}.so.6".format(suffix),
+                )  # pylint: disable=consider-using-f-string
                 yield magick_path(libwand), magick_path(libmagick)
-                
+
     # 如果在 magick_home 中未找到库文件, 使用系统默认路径搜索
     for suffix in suffixes:
-        if system == 'Windows':
+        if system == "Windows":
             # 在 Windows 上分别查找 wand 和 magick 库
-            libwand = ctypes.util.find_library('CORE_RL_wand_' + suffix)
-            libmagick = ctypes.util.find_library('CORE_RL_magick_' + suffix)
+            libwand = ctypes.util.find_library("CORE_RL_wand_" + suffix)
+            libmagick = ctypes.util.find_library("CORE_RL_magick_" + suffix)
             yield libwand, libmagick
-            
-            libwand = ctypes.util.find_library('CORE_RL_MagickWand_' + suffix)
-            libmagick = ctypes.util.find_library(
-                'CORE_RL_MagickCore_' + suffix
-            )
+
+            libwand = ctypes.util.find_library("CORE_RL_MagickWand_" + suffix)
+            libmagick = ctypes.util.find_library("CORE_RL_MagickCore_" + suffix)
             yield libwand, libmagick
-            
-            libwand = ctypes.util.find_library('libMagickWand' + suffix)
-            libmagick = ctypes.util.find_library('libMagickCore' + suffix)
+
+            libwand = ctypes.util.find_library("libMagickWand" + suffix)
+            libmagick = ctypes.util.find_library("libMagickCore" + suffix)
             yield libwand, libmagick
         else:
             # 在非 Windows 系统上查找 MagickCore 和 MagickWand 库
-            libmagick = ctypes.util.find_library('MagickCore' + suffix)
-            libwand = ctypes.util.find_library('MagickWand' + suffix)
-            
+            libmagick = ctypes.util.find_library("MagickCore" + suffix)
+            libwand = ctypes.util.find_library("MagickWand" + suffix)
+
             # 如果 MagickCore 库存在, 则返回 wand 和 magick 路径对
             if libmagick is not None:
                 yield libwand, libmagick
-            
+
             # 也返回 wand 库路径, 它可能与 magick 库相同
             yield libwand, libwand
 

@@ -1,3 +1,5 @@
+"""下载工具"""
+
 import hashlib
 from pathlib import Path
 from urllib.parse import urlparse
@@ -21,7 +23,6 @@ def download_file_from_url(
     save_path: Path | None = None,
     file_name: str | None = None,
     progress: bool | None = True,
-    
     hash_prefix: str | None = None,
     re_download: bool | None = False,
 ) -> Path:

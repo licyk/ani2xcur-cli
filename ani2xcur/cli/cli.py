@@ -1,3 +1,5 @@
+"""CLI 构建工具"""
+
 import typer
 import click
 
@@ -16,7 +18,7 @@ class AlphabeticalMixedGroup(typer.core.TyperGroup):
         return sorted(self.commands.keys())
 
 
-def typer_factory(help: str) -> typer.Typer: # pylint: disable=redefined-builtin
+def typer_factory(help: str) -> typer.Typer:  # pylint: disable=redefined-builtin
     """生成 typer 装饰器
 
     Args:

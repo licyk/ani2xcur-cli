@@ -1,10 +1,13 @@
+"""X.Org 环境配置工具"""
 
 import re
 from pathlib import Path
+
 from ani2xcur.utils import safe_convert_to_int
 
 X_RESOURCES_PATH = Path("~/.Xresources").expanduser()
 """X resources 配置文件路径"""
+
 
 def read_x_resources_config(config_path: Path) -> dict[str, str]:
     """读取 X resources 配置文件并返回配置字典
@@ -34,6 +37,7 @@ def read_x_resources_config(config_path: Path) -> dict[str, str]:
 
     return config
 
+
 def write_x_resources_config(config_path: Path, updates: dict[str, str]) -> None:
     """修改 X resources 配置文件
 
@@ -48,7 +52,7 @@ def write_x_resources_config(config_path: Path, updates: dict[str, str]) -> None
 
     new_lines = []
     found_keys = set()
-    
+
     # 遍历现有行进行更新
     for line in lines:
         stripped = line.strip()
@@ -64,7 +68,7 @@ def write_x_resources_config(config_path: Path, updates: dict[str, str]) -> None
                 new_lines.append(f"{key}: {updates[key]}\n")
                 found_keys.add(key)
                 continue
-        
+
         new_lines.append(line)
 
     # 追加新配置项
@@ -101,6 +105,7 @@ def get_x_resources_cursor_size() -> int | None:
     config = read_x_resources_config(X_RESOURCES_PATH)
     return safe_convert_to_int(config.get("Xcursor.size"))
 
+
 def set_x_resources_cursor_theme(cursor_name: str) -> None:
     """设置 X11 标准方案的当前使用的鼠标指针配置名称
 
@@ -108,10 +113,8 @@ def set_x_resources_cursor_theme(cursor_name: str) -> None:
         cursor_name (str): 要设置的鼠标指针配置名称
     """
     X_RESOURCES_PATH.parent.mkdir(parents=True, exist_ok=True)
-    write_x_resources_config(
-        config_path=X_RESOURCES_PATH, 
-        updates={"Xcursor.theme": cursor_name}
-        )
+    write_x_resources_config(config_path=X_RESOURCES_PATH, updates={"Xcursor.theme": cursor_name})
+
 
 def set_x_resources_cursor_size(cursor_size: int) -> None:
     """设置 X11 标准方案的当前使用的鼠标指针大小
@@ -120,7 +123,4 @@ def set_x_resources_cursor_size(cursor_size: int) -> None:
         cursor_size (int): 要设置的鼠标指针大小
     """
     X_RESOURCES_PATH.parent.mkdir(parents=True, exist_ok=True)
-    write_x_resources_config(
-        config_path=X_RESOURCES_PATH,
-        updates={"Xcursor.size": str(cursor_size)}
-    )
+    write_x_resources_config(config_path=X_RESOURCES_PATH, updates={"Xcursor.size": str(cursor_size)})

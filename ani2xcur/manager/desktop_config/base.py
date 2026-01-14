@@ -1,3 +1,5 @@
+"""桌面环境配置"""
+
 from typing import NamedTuple
 
 
@@ -29,14 +31,10 @@ def check_windows_cursor_size_value(value: int) -> int:
     """
     rng = WINDOWS_CURSOR_SIZE_RANGE
     if not isinstance(value, int):
-        raise TypeError(
-            f"Windows 鼠标指针大小值应为 int 类型, 但得到 {type(value).__name__} 类型"
-        )
+        raise TypeError(f"Windows 鼠标指针大小值应为 int 类型, 但得到 {type(value).__name__} 类型")
     if rng.min <= value <= rng.max:
         return value
-    raise ValueError(
-        f"Windows 鼠标指针大小的值 {value} 超过有效范围 [{rng.min}, {rng.max}]"
-    )
+    raise ValueError(f"Windows 鼠标指针大小的值 {value} 超过有效范围 [{rng.min}, {rng.max}]")
 
 
 def check_linux_cursor_size_value(value: int) -> int:
@@ -50,11 +48,7 @@ def check_linux_cursor_size_value(value: int) -> int:
     """
     rng = LINUX_CURSOR_SIZE_RANGE
     if not isinstance(value, int):
-        raise TypeError(
-            f"Linux 鼠标指针大小值应为 int 类型, 但得到 {type(value).__name__} 类型"
-        )
+        raise TypeError(f"Linux 鼠标指针大小值应为 int 类型, 但得到 {type(value).__name__} 类型")
     if rng.min <= value <= rng.max:
         return value
-    raise ValueError(
-        f"Linux 鼠标指针大小的值 {value} 超过有效范围 [{rng.min}, {rng.max}]"
-    )
+    raise ValueError(f"Linux 鼠标指针大小的值 {value} 超过有效范围 [{rng.min}, {rng.max}]")

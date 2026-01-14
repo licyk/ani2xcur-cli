@@ -124,6 +124,8 @@ def run_cmd(
     if not live:
         kwargs["stdout"] = kwargs["stderr"] = subprocess.PIPE
 
+    logger.debug("执行命令的参数: %s", kwargs)
+
     result: subprocess.CompletedProcess[str] = subprocess.run(**kwargs)  # pylint: disable=subprocess-run-check
 
     if check and result.returncode != 0:

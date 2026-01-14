@@ -1,6 +1,9 @@
 import os
 from pathlib import Path
 from tempfile import TemporaryDirectory
+
+from tqdm import tqdm
+
 from ani2xcur.config_parse.win import dict_to_inf_strings_format
 from ani2xcur.manager.base import LINUX_CURSOR_LINKS
 from ani2xcur.manager.win_cur_manager import (
@@ -9,7 +12,8 @@ from ani2xcur.manager.win_cur_manager import (
 )
 from ani2xcur.manager.base import CURSOR_KEYS
 from ani2xcur.manager.linux_cur_manager import extract_scheme_info_from_desktop_entry
-from ani2xcur.config import LINUX_CURSOR_SOURCE_PATH
+from ani2xcur.config import LINUX_CURSOR_SOURCE_PATH, LOGGER_NAME, LOGGER_LEVEL, LOGGER_COLOR
+from ani2xcur.logger import get_logger
 from ani2xcur.cursor_conversion.win2xcur_warp import (
     win2xcur_process,
     x2wincur_process,
@@ -17,6 +21,12 @@ from ani2xcur.cursor_conversion.win2xcur_warp import (
     X2wincurArgs,
 )
 from ani2xcur.file_operations.file_manager import copy_files, create_symlink
+
+logger = get_logger(
+    name=LOGGER_NAME,
+    level=LOGGER_LEVEL,
+    color=LOGGER_COLOR,
+)
 
 
 def win_cursor_to_x11(
@@ -36,9 +46,9 @@ def win_cursor_to_x11(
     win_scheme = extract_scheme_info_from_inf(inf_file)
     cursor_map = win_scheme["cursor_map"]
     cursor_name = win_scheme["scheme_name"]
-    win2x_path_list: list[list[str, Path]] = []
-    completed_cursor_list: list[list[str, Path]] = []
-    link_file_list: list[list[Path, Path]] = []
+    win2x_path_list: list[tuple[str, Path, Path]] = []
+    completed_cursor_list: list[tuple[str, Path]] = []
+    link_file_list: list[tuple[Path, Path]] = []
 
     with TemporaryDirectory() as tmp_dir:
         tmp_dir = Path(tmp_dir)
@@ -47,6 +57,8 @@ def win_cursor_to_x11(
         cursors_dir = tmp_dir / cursor_name / "cursors"
         cursors_dir.mkdir(parents=True, exist_ok=True)
 
+        logger.info("配置 %s 鼠标指针的转换参数", cursor_name)
+
         # 生成要进行鼠标指针的转换列表
         for win, linux in zip(CURSOR_KEYS["win"], CURSOR_KEYS["linux"]):
             src = cursor_map[win]["src_path"]
@@ -54,47 +66,51 @@ def win_cursor_to_x11(
             if src is None:
                 # 使用补全文件
                 src = LINUX_CURSOR_SOURCE_PATH / linux
-                completed_cursor_list.append([src, dst])
+                completed_cursor_list.append((src, dst))
                 continue
 
-            win2x_path_list.append([linux, src, dst])
+            win2x_path_list.append((linux, src, dst))
 
         # 补全文件列表
         completed_cursor_list.append(
-            [LINUX_CURSOR_SOURCE_PATH / "vertical-text", cursors_dir / "vertical-text"]
+            (LINUX_CURSOR_SOURCE_PATH / "vertical-text", cursors_dir / "vertical-text")
         )
         completed_cursor_list.append(
-            [
+            (
                 LINUX_CURSOR_SOURCE_PATH / "wayland-cursor",
                 cursors_dir / "wayland-cursor",
-            ]
+            )
         )
         completed_cursor_list.append(
-            [LINUX_CURSOR_SOURCE_PATH / "zoom-out", cursors_dir / "zoom-out"]
+            (LINUX_CURSOR_SOURCE_PATH / "zoom-out", cursors_dir / "zoom-out")
         )
         completed_cursor_list.append(
-            [LINUX_CURSOR_SOURCE_PATH / "zoom-in", cursors_dir / "zoom-in"]
+            (LINUX_CURSOR_SOURCE_PATH / "zoom-in", cursors_dir / "zoom-in")
         )
 
         # 链接文件列表
-        link_file_list = [[Path(s), Path(v)] for s, v in LINUX_CURSOR_LINKS]
+        link_file_list = [(Path(s), Path(v)) for s, v in LINUX_CURSOR_LINKS]
 
         # 转换鼠标指针文件
-        for name, src, dst in win2x_path_list:
+        logger.debug("要进行转换的鼠标指针列表: %s", win2x_path_list)
+        for name, src, dst in tqdm(win2x_path_list, desc="转换鼠标指针文件"):
             win2x_args["input_file"] = src
             win2x_args["output_path"] = cursors_dir
             win2x_args["save_name"] = name
             win2xcur_process(**win2x_args)
 
         # 补全鼠标指针文件
-        for src, dst in completed_cursor_list:
+        logger.debug("要进行补全的鼠标指针列表: %s", completed_cursor_list)
+        for src, dst in tqdm(completed_cursor_list, desc="补全鼠标指针文件"):
             copy_files(src, dst)
 
         # 创建链接文件
         current_path = Path().absolute()
         os.chdir(cursors_dir)
-        for s, v in link_file_list:
+        logger.debug("要进行链接的鼠标指针别名: %s", link_file_list)
+        for s, v in tqdm(link_file_list, desc="链接鼠标指针别名"):
             create_symlink(s, v)
+
         os.chdir(current_path)
 
         # 创建配置文件
@@ -130,6 +146,8 @@ Name={cursor_name}
 Comment={cursor_name} cursor for Linux
 Inherits={cursor_name}
 """.strip()
+    
+    logger.debug("鼠标指针配置文件内容:\n\n- cursor.theme:\n%s\n\n- index.theme:\n%s", cursor_config, index_config)
     with open((cursor_path / "cursor.theme"), "w", encoding="utf-8") as file:
         file.write(cursor_config)
     with open((cursor_path / "index.theme"), "w", encoding="utf-8") as file:
@@ -153,7 +171,7 @@ def x11_cursor_to_win(
     linux_scheme = extract_scheme_info_from_desktop_entry(desktop_entry_file)
     cursor_map = linux_scheme["cursor_map"]
     cursor_name = linux_scheme["scheme_name"]
-    x2win_path_list: list[list[str, Path]] = []
+    x2win_path_list: list[tuple[str, Path, Path]] = []
     cursor_save_paths: list[tuple[str, Path | None]] = []
 
     with TemporaryDirectory() as tmp_dir:
@@ -163,6 +181,8 @@ def x11_cursor_to_win(
         cursors_dir = tmp_dir / cursor_name
         cursors_dir.mkdir(parents=True, exist_ok=True)
 
+        logger.info("配置 %s 鼠标指针的转换参数", cursor_name)
+
         # 生成要进行鼠标指针的转换列表
         for win, linux in zip(CURSOR_KEYS["win"], CURSOR_KEYS["linux"]):
             src = cursor_map[win]["src_path"]
@@ -171,10 +191,11 @@ def x11_cursor_to_win(
                 # 使用补全文件
                 src = LINUX_CURSOR_SOURCE_PATH / linux
 
-            x2win_path_list.append([win, src, dst])
+            x2win_path_list.append((win, src, dst))
 
         # 转换鼠标指针文件
-        for name, src, dst in x2win_path_list:
+        logger.debug("要进行转换的鼠标指针列表: %s", x2win_path_list)
+        for name, src, dst in tqdm(x2win_path_list, desc="转换鼠标指针文件"):
             x2win_args["input_file"] = src
             x2win_args["output_path"] = cursors_dir
             x2win_args["save_name"] = name
@@ -253,5 +274,6 @@ def generate_win_cursor_config(
         strings=dict_to_inf_strings_format(strings),
     )
 
+    logger.debug("鼠标指针配置文件内容:\n%s", inf)
     with open(cursor_path / "AutoSetup.inf", "w", encoding="gbk") as f:
         f.write(inf)

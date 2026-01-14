@@ -276,7 +276,9 @@ def set_windows_cursor_theme(cursor_name: str) -> None:
     if cursor_name not in cursors:
         raise ValueError(f"鼠标指针 {cursor_name} 不存在")
 
+    logger.info("将 Windows 系统中使用的鼠标指针主题设置为 %s", cursor_name)
     apply_windows_cursor_theme(cursor_name)
+    logger.info("鼠标指针主题已设置为 %s", cursor_name)
 
 
 def set_windows_cursor_size(cursor_size: int) -> None:
@@ -286,7 +288,9 @@ def set_windows_cursor_size(cursor_size: int) -> None:
         cursor_size (int): 要设置的鼠标指针大小
     """
     check_windows_cursor_size_value(cursor_size)
+    logger.info("将 Windows 系统中使用的鼠标指针大小设置为 %s", cursor_size)
     apply_windows_cursor_size(cursor_size)
+    logger.info("鼠标指针大小已设置为 %s", cursor_size)
 
 
 def get_windows_cursor_info() -> CurrentCursorInfoList:
@@ -295,6 +299,7 @@ def get_windows_cursor_info() -> CurrentCursorInfoList:
     Returns:
         CurrentCursorInfoList: 桌面平台的当前鼠标指针信息列表
     """
+    logger.info("获取 Windows 系统的鼠标指针状态")
     info: CurrentCursorInfo = {}
     info_list: CurrentCursorInfoList = []
     info["platform"] = "Windows"
@@ -320,6 +325,7 @@ def delete_windows_cursor(cursor_name: str) -> None:
     if cursor_name == get_windows_cursor_theme():
         raise ValueError(f"鼠标指针 {cursor_name} 正在被使用, 无法删除")
 
+    logger.info("从 Windows 系统删除 %s 鼠标指针中", cursor_name)
     for scheme in cursors:
         if cursor_name == scheme["name"]:
             # 清理鼠标指针文件
@@ -369,6 +375,8 @@ def delete_windows_cursor(cursor_name: str) -> None:
         access=RegistryAccess.SET_VALUE,
     )
 
+    logger.info("从 Windows 系统删除 %s 鼠标指针完成", cursor_name)
+
 
 def install_windows_cursor(
     inf_file: Path,
@@ -409,6 +417,8 @@ def install_windows_cursor(
         # 生成需要写入注册表的方案对应值, 使用原始值
         reg_scheme_value = parse_scheme_reg_string(scheme_info["default_reg"])[4]
 
+    logger.info("将 %s 鼠标指针安装到 %s 中", cursor_name, dst)
+
     # 复制鼠标指针文件
     for src, dst in copy_paths:
         try:
@@ -439,6 +449,7 @@ def install_windows_cursor(
         key=RegistryRootKey.CURRENT_USER,
         access=RegistryAccess.SET_VALUE,
     )
+    logger.info("%s 鼠标指针已安装到 %s", cursor_name, dst)
 
 
 def export_windows_cursor(
@@ -482,6 +493,7 @@ def export_windows_cursor(
     save_dir = output_path / cursor_name
     save_dir.mkdir(parents=True, exist_ok=True)
     inf_file_path = save_dir / "AutoSetup.inf"
+    logger.info("将 %s 鼠标指针导出到 %s 中", cursor_name, save_dir)
     for cursor in config_dict["cursor_src_file"]:
         copy_files(cursor, save_dir)
 
@@ -489,6 +501,7 @@ def export_windows_cursor(
     with open(inf_file_path, "w", encoding="gbk") as file:
         file.write(reg_content)
 
+    logger.info("%s 鼠标指针导出到 %s 完成", cursor_name, save_dir)
     return save_dir
 
 

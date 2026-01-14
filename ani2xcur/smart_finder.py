@@ -5,6 +5,18 @@ from ani2xcur.config_parse.linux import parse_desktop_entry_content
 from ani2xcur.file_operations.archive_manager import is_supported_archive_format, extract_archive
 from ani2xcur.file_operations.file_manager import get_file_list
 from ani2xcur.utils import generate_random_string
+from ani2xcur.logger import get_logger
+from ani2xcur.config import (
+    LOGGER_COLOR,
+    LOGGER_LEVEL,
+    LOGGER_NAME,
+)
+
+logger = get_logger(
+    name=LOGGER_NAME,
+    level=LOGGER_LEVEL,
+    color=LOGGER_COLOR,
+)
 
 
 def find_desktop_entry_file(
@@ -30,6 +42,8 @@ def find_desktop_entry_file(
     if visited is None:
         visited = set()
 
+    logger.debug("已搜索路径: %s", visited)
+
     # 获取绝对路径并验证存在性
     try:
         abs_path = input_file.resolve()
@@ -52,12 +66,14 @@ def find_desktop_entry_file(
     if abs_path.is_file() and abs_path.name.lower().endswith(".theme"):
         try:
             _ = parse_desktop_entry_content(abs_path)
+            logger.debug("搜索到 DesktopEntry 文件路径: %s", abs_path)
             return abs_path
         except ValueError:
             return None
 
     # 文件为压缩包时则尝试解压并遍历解压的文件夹
     if is_supported_archive_format(abs_path):
+        logger.debug("从 %s 搜索文件中", abs_path)
         extract_path = temp_dir / generate_random_string()
         extract_archive(
             archive_path=abs_path,
@@ -74,6 +90,7 @@ def find_desktop_entry_file(
 
     # 如果是文件夹则尝试遍历文件夹中的文件
     if abs_path.is_dir():
+        logger.debug("搜索 %s 文件夹", abs_path)
         # 获取下级文件列表
         paths = get_file_list(
             path=abs_path,
@@ -146,12 +163,14 @@ def find_inf_file(
     if abs_path.is_file() and abs_path.name.lower().endswith(".inf"):
         try:
             _ = parse_inf_file_content(abs_path)
+            logger.debug("搜索到 INF 文件路径: %s", abs_path)
             return abs_path
         except ValueError:
             return None
         
     # 文件为压缩包时则尝试解压并遍历解压的文件夹
     if is_supported_archive_format(abs_path):
+        logger.debug("从 %s 搜索文件中", abs_path)
         extract_path = temp_dir / generate_random_string()
         extract_archive(
             archive_path=abs_path,
@@ -168,6 +187,7 @@ def find_inf_file(
 
     # 如果是文件夹则尝试遍历文件夹中的文件
     if abs_path.is_dir():
+        logger.debug("搜索 %s 文件夹", abs_path)
         # 获取下级文件列表
         paths = get_file_list(
             path=abs_path,

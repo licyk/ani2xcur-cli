@@ -63,6 +63,9 @@ def get_gtk_xsettings_cursor_theme() -> str | None:
     Returns:
         (str | None): 当前使用的鼠标指针主题名称
     """
+    if not GTK_XSETTINGS_PATH.is_file():
+        return None
+
     config = read_gtk_xsettings_config(GTK_XSETTINGS_PATH)
     return config.get("Gtk/CursorThemeName")
 
@@ -73,6 +76,9 @@ def get_gtk_xsettings_cursor_size() -> int | None:
     Returns:
         (int | None): 当前使用的鼠标指针大小
     """
+    if not GTK_XSETTINGS_PATH.is_file():
+        return None
+
     config = read_gtk_xsettings_config(GTK_XSETTINGS_PATH)
     size = config.get("Gtk/CursorThemeSize")
     return safe_convert_to_int(size)
@@ -84,6 +90,7 @@ def set_gtk_xsettings_cursor_theme(theme_name: str) -> None:
     Args:
         theme_name (str): 鼠标指针主题名称
     """
+    GTK_XSETTINGS_PATH.parent.mkdir(parents=True, exist_ok=True)
     config = read_gtk_xsettings_config(GTK_XSETTINGS_PATH)
     config["Gtk/CursorThemeName"] = theme_name
     write_gtk_xsettings_config(GTK_XSETTINGS_PATH, config)
@@ -95,6 +102,7 @@ def set_gtk_xsettings_cursor_size(size: int) -> None:
     Args:
         size (int): 鼠标指针大小
     """
+    GTK_XSETTINGS_PATH.parent.mkdir(parents=True, exist_ok=True)
     config = read_gtk_xsettings_config(GTK_XSETTINGS_PATH)
     config["Gtk/CursorThemeSize"] = size
     write_gtk_xsettings_config(GTK_XSETTINGS_PATH, config)

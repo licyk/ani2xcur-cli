@@ -11,6 +11,15 @@ import zstandard as zstd
 import py7zr
 import lzo
 
+from ani2xcur.config import  LOGGER_NAME, LOGGER_LEVEL, LOGGER_COLOR
+from ani2xcur.logger import get_logger
+
+logger = get_logger(
+    name=LOGGER_NAME,
+    level=LOGGER_LEVEL,
+    color=LOGGER_COLOR,
+)
+
 
 SUPPORTED_ARCHIVE_FORMAT = [
     ".zip",
@@ -27,6 +36,7 @@ SUPPORTED_ARCHIVE_FORMAT = [
     ".tar.xz",
     ".tar.zst",
 ]
+"""支持的压缩包格式列表"""
 
 
 def is_supported_archive_format(archive_path: Path) -> bool:
@@ -53,58 +63,69 @@ def extract_archive(archive_path: Path, extract_to: Path) -> None:
     Raises:
         ValueError: 不支持解压时
     """
+    if not is_supported_archive_format(archive_path):
+        raise ValueError(f"不支持的压缩格式: {archive_path}")
+
     name = archive_path.name.lower()
     extract_to.mkdir(parents=True, exist_ok=True)
+
+    logger.info("将 %s 解压到 %s 中", archive_path, extract_to)
 
     if name.endswith(".zip"):
         with zipfile.ZipFile(archive_path, "r") as zip_ref:
             zip_ref.extractall(extract_to)
 
-    elif name.endswith(".tar"):
+    if name.endswith(".tar"):
         with tarfile.open(archive_path, "r") as tar_ref:
             tar_ref.extractall(extract_to)
+        return
 
-    elif name.endswith(".tar.gz"):
+    if name.endswith(".tar.gz"):
         with tarfile.open(archive_path, "r:gz") as tar_ref:
             tar_ref.extractall(extract_to)
+            return
 
-    elif name.endswith(".tar.bz2"):
+    if name.endswith(".tar.bz2"):
         with tarfile.open(archive_path, "r:bz2") as tar_ref:
             tar_ref.extractall(extract_to)
+        return
 
-    elif name.endswith(".tar.xz"):
+    if name.endswith(".tar.xz"):
         with tarfile.open(archive_path, "r:xz") as tar_ref:
             tar_ref.extractall(extract_to)
+        return
 
-    elif name.endswith(".tar.lzma") or name.endswith(".tlz"):
+    if name.endswith(".tar.lzma") or name.endswith(".tlz"):
         with lzma.open(archive_path, "rb") as f:
             with tarfile.open(fileobj=f) as tar_ref:
                 tar_ref.extractall(extract_to)
+        return
 
-    elif name.endswith(".tar.zst") or name.endswith(".tar..zst"):
+    if name.endswith(".tar.zst") or name.endswith(".tar..zst"):
         with open(archive_path, "rb") as fh:
             dctx = zstd.ZstdDecompressor()
             with dctx.stream_reader(fh) as reader:
                 with tarfile.open(fileobj=reader) as tar_ref:
                     tar_ref.extractall(extract_to)
+        return
 
-    elif name.endswith(".tar.lzo"):
+    if name.endswith(".tar.lzo"):
         with open(archive_path, "rb") as fh:
             decompressed = lzo.decompress(fh.read())
             bio = io.BytesIO(decompressed)
             with tarfile.open(fileobj=bio) as tar_ref:
                 tar_ref.extractall(extract_to)
+        return
 
-    elif name.endswith(".7z"):
+    if name.endswith(".7z"):
         with py7zr.SevenZipFile(archive_path, mode="r") as archive:
             archive.extractall(path=extract_to)
+        return
 
-    elif name.endswith(".rar"):
+    if name.endswith(".rar"):
         with rarfile.RarFile(archive_path, mode="r") as archive:
             archive.extractall(path=extract_to)
-
-    else:
-        raise ValueError(f"不支持的压缩格式: {archive_path}")
+        return
 
 
 def create_archive(sources: Iterable[Path], archive_path: Path) -> None:
@@ -123,10 +144,15 @@ def create_archive(sources: Iterable[Path], archive_path: Path) -> None:
         if arcname is None:
             arcname = src.name
         tar_ref.add(str(src), arcname=arcname)
+    
+    if not is_supported_archive_format(archive_path):
+        raise ValueError(f"不支持的压缩格式: {archive_path}")
 
     name = archive_path.name.lower()
     sources = list(sources)
     archive_path.parent.mkdir(parents=True, exist_ok=True)
+
+    logger.info("将 %s 压缩并保存到 %s 中", sources, archive_path)
 
     # zip
     if name.endswith(".zip"):
@@ -205,5 +231,3 @@ def create_archive(sources: Iterable[Path], archive_path: Path) -> None:
         archive_path.write_bytes(compressed)
         return
 
-    # 其他未支持格式
-    raise ValueError(f"不支持的压缩格式: {archive_path}")

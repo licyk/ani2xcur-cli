@@ -173,6 +173,7 @@ def set_gtk4_cursor_theme(cursor_name: str) -> None:
     Args:
         cursor_name (str): 要设置的鼠标指针配置名称
     """
+    GTK4_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
     config = configparser.ConfigParser()
     config.read(GTK4_CONFIG_PATH)
     if "Settings" not in config:
@@ -188,6 +189,7 @@ def set_gtk3_cursor_theme(cursor_name: str) -> None:
     Args:
         cursor_name (str): 要设置的鼠标指针配置名称
     """
+    GTK3_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
     config = configparser.ConfigParser()
     config.read(GTK3_CONFIG_PATH)
     if "Settings" not in config:
@@ -206,6 +208,7 @@ def set_gtk2_cursor_theme(cursor_name: str) -> None:
     Args:
         cursor_name (str): 要设置的鼠标指针配置名称
     """
+    GTK2_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
     write_gtk2_config(
         config_path=GTK2_CONFIG_PATH, 
         updates={"gtk-cursor-theme-name": cursor_name}
@@ -220,6 +223,7 @@ def set_gtk4_cursor_size(cursor_size: int) -> None:
     Args:
         cursor_size (int): 要设置的鼠标指针大小
     """
+    GTK4_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
     config = configparser.ConfigParser()
     config.read(GTK4_CONFIG_PATH)
     if "Settings" not in config:
@@ -235,6 +239,7 @@ def set_gtk3_cursor_size(cursor_size: int) -> None:
     Args:
         cursor_size (str): 要设置的鼠标指针大小
     """
+    GTK3_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
     config = configparser.ConfigParser()
     config.read(GTK3_CONFIG_PATH)
     if "Settings" not in config:
@@ -251,6 +256,7 @@ def set_gtk2_cursor_size(cursor_size: int) -> None:
     Args:
         cursor_size (str): 要设置的鼠标指针大小
     """
+    GTK2_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
     write_gtk2_config(
         config_path=GTK2_CONFIG_PATH, 
         updates={"gtk-cursor-theme-size": str(cursor_size)}

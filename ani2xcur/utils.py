@@ -139,6 +139,7 @@ def detect_encoding(file_path: Path) -> str:
         str: 检测到的编码格式, 如 'utf-8' 或 'gbk'
     """
     if is_utf8_bom_encoding_file(file_path):
+        logger.debug("%s 文件编码格式为 UTF8 BOM", file_path)
         return "utf-8-sig"
 
     with open(file_path, "rb") as f:
@@ -146,8 +147,10 @@ def detect_encoding(file_path: Path) -> str:
 
     try:
         raw_data.decode("utf-8")
+        logger.debug("%s 文件编码格式为 UTF8", file_path)
         return "utf-8"
     except UnicodeDecodeError:
+        logger.debug("%s 文件编码格式为 GBK", file_path)
         return "gbk"
 
 

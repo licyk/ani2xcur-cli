@@ -191,6 +191,7 @@ def set_linux_cursor_theme(cursor_name: str) -> None:
     if cursor_name not in cursors:
         raise ValueError(f"鼠标指针 {cursor_name} 不存在")
 
+    logger.info("将 Linux 系统中使用的鼠标指针主题设置为 %s", cursor_name)
     set_cinnamon_cursor_theme(cursor_name)
     set_gnome_cursor_theme(cursor_name)
     set_gtk2_cursor_theme(cursor_name)
@@ -203,6 +204,7 @@ def set_linux_cursor_theme(cursor_name: str) -> None:
     set_xdg_cursor_theme(cursor_name)
     set_xfce_cursor_theme(cursor_name)
     set_gtk_xsettings_cursor_theme(cursor_name)
+    logger.info("鼠标指针主题已设置为 %s", cursor_name)
 
 
 def set_linux_cursor_size(cursor_size: int) -> None:
@@ -213,6 +215,7 @@ def set_linux_cursor_size(cursor_size: int) -> None:
     """
     check_linux_cursor_size_value(cursor_size)
 
+    logger.info("将 Linux 系统中使用的鼠标指针大小设置为 %s", cursor_size)
     set_cinnamon_cursor_size(cursor_size)
     set_gnome_cursor_size(cursor_size)
     set_gtk2_cursor_size(cursor_size)
@@ -224,6 +227,7 @@ def set_linux_cursor_size(cursor_size: int) -> None:
     set_x_resources_cursor_size(cursor_size)
     set_xfce_cursor_size(cursor_size)
     set_gtk_xsettings_cursor_size(cursor_size)
+    logger.info("鼠标指针大小已设置为 %s", cursor_size)
 
 
 def get_linux_cursor_info() -> CurrentCursorInfoList:
@@ -232,6 +236,7 @@ def get_linux_cursor_info() -> CurrentCursorInfoList:
     Returns:
         CurrentCursorInfoList: 桌面平台的当前鼠标指针信息列表
     """
+    logger.info("获取 Linux 系统的鼠标指针状态")
     info_list: CurrentCursorInfoList = []
 
     # Cinnamon
@@ -334,6 +339,7 @@ def delete_linux_cursor(cursor_name: str) -> None:
     if cursor_name not in [x["name"] for x in cursors]:
         raise ValueError(f"鼠标指针 {cursor_name} 不存在")
     
+    logger.info("从 Linux 系统删除 %s 鼠标指针中", cursor_name)
     for scheme in cursors:
         if cursor_name == scheme["name"]:
             # 清理鼠标指针文件
@@ -360,7 +366,8 @@ def delete_linux_cursor(cursor_name: str) -> None:
                 except OSError as e:
                     logger.error("清理 %s 鼠标指针文件的残留文件夹 %s 发生错误: %s\n可尝试使用管理员权限运行 Ani2xcur 进行删除, 或者尝试手动删除文件", cursor_name, file, e)
                     raise RuntimeError(f"清理 {cursor_name} 鼠标指针文件的残留文件夹 {file} 发生错误: {e}\n可尝试使用管理员权限运行 Ani2xcur 进行删除, 或者尝试手动删除文件") from e
-                
+
+    logger.info("从 Linux 系统删除 %s 鼠标指针完成", cursor_name)
 
 
 def install_linux_cursor(
@@ -388,11 +395,15 @@ def install_linux_cursor(
     else:
         dst = LINUX_USER_ICONS_PATH / cursor_name
 
+    logger.info("将 %s 鼠标指针安装到 %s 中", cursor_name, dst)
+
     try:
         copy_files(src, dst)
     except OSError as e:
         logger.error("复制鼠标指针 %s 到 %s 时发生错误: %s\n可尝试使用 root 权限运行 Ani2xcur 进行鼠标指针安装操作", src, dst, e)
         raise RuntimeError(f"复制鼠标指针 {src} 到 {dst} 时发生错误: {e}\n可尝试使用 root 权限运行 Ani2xcur 进行鼠标指针安装操作") from e
+    
+    logger.info("%s 鼠标指针已安装到 %s", cursor_name, dst)
 
 
 def export_linux_cursor(
@@ -424,6 +435,8 @@ def export_linux_cursor(
     src = cursor_data["install_paths"]
     save_dir = output_path / cursor_name
 
+    logger.info("将 %s 鼠标指针导出到 %s 中", cursor_name, save_dir)
+
     try:
         copy_files(src, save_dir)
     except OSError as e:
@@ -436,6 +449,7 @@ def export_linux_cursor(
         custom_install_path=custom_install_path,
     )
 
+    logger.info("%s 鼠标指针导出到 %s 完成", cursor_name, save_dir)
     return save_dir
 
 

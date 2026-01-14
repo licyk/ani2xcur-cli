@@ -1,7 +1,5 @@
 import sys
 import importlib.metadata
-import asyncio
-from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from datetime import datetime, timedelta
 
@@ -57,6 +55,7 @@ def self_update(
         cmd += ["ani2xcur"]
 
     try:
+        logger.info("更新 Ani2xcur 中")
         run_cmd(cmd, live=enable_log)
     except RuntimeError as e:
         logger.error("更新 Ani2xcur 时发生错误: %s", e)
@@ -69,6 +68,7 @@ def auto_check_update() -> None:
     if not check_update_time():
         return
     
+    logger.debug("检查 Ani2xcur 更新中")
     current = importlib.metadata.version("ani2xcur")
 
     try:
@@ -87,13 +87,6 @@ def auto_check_update() -> None:
 
     if current != latest:
         logger.info("新版 Ani2xcur (%s) 可用, 当前使用的版本为 %s\n更新 Ani2xcur 请使用命令: ani2xcur update", latest, current)
-
-async def auto_check_update_async() -> None:
-    """异步版本的自动检查更新函数
-    """
-    loop = asyncio.get_event_loop()
-    with ThreadPoolExecutor() as executor:
-        await loop.run_in_executor(executor, auto_check_update)
 
 
 def check_update_time() -> bool:

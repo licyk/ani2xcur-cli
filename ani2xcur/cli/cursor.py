@@ -4,7 +4,9 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import typer
-import pandas as pd
+from rich.console import Console
+from rich.table import Table
+from rich import box
 
 from ani2xcur.manager.win_cur_manager import (
     install_windows_cursor,
@@ -176,18 +178,35 @@ def set_cursor_size(
 
 def list_cursor() -> None:
     """列出当前系统中已安装的鼠标指针"""
-    def _display_frame(cursors) -> None:
-        formatted_data = []
-        for item in cursors:
-            formatted_item = {
-                "鼠标指针名称": item["name"],
-                "文件列表": ", ".join(item["cursor_files"]),
-                "安装路径": ", ".join(item["install_paths"])
-            }
-            formatted_data.append(formatted_item)
 
-        df = pd.DataFrame(formatted_data)
-        print(df)
+    def _display_frame(items) -> None:
+        console = Console()
+        
+        # 设置表格整体样式
+        table = Table(
+            header_style="bright_yellow",
+            border_style="bright_black",
+            box=box.ROUNDED,
+        )
+        
+        # 设置列样式
+        # style 参数控制该列所有单元格的默认样式
+        table.add_column("鼠标指针名称", style="bold white", no_wrap=True)
+        table.add_column("数量", justify="right", style="white")
+        table.add_column("安装路径", style="cyan")
+
+        for item in items:
+            path = ", ".join([str(x) for x in item["install_paths"]])
+            count = len(item["cursor_files"])
+            count_str = str(count)
+
+            table.add_row(
+                item["name"],
+                count_str,
+                path
+            )
+
+        console.print(table)
 
     if sys.platform == "win32":
         logger.info("获取 Windows 系统中已安装的鼠标指针列表")
@@ -204,24 +223,38 @@ def list_cursor() -> None:
 
 def get_current_cursor() -> None:
     """显示当前系统中设置的鼠标指针名称和大小"""
-    def _display_frame(cursors) -> None:
-        formatted_data = []
-        for item in cursors:
-            formatted_item = {
-                "桌面平台": item["platform"],
-                "鼠标指针名称": item["cursor_name"],
-                "鼠标指针大小": item["cursor_size"]
-            }
-            formatted_data.append(formatted_item)
+    def _display_frame(items) -> None:
+        console = Console()
+        
+        # 设置表格整体样式
+        table = Table(
+            header_style="bright_yellow",
+            border_style="bright_black",
+            box=box.ROUNDED,
+        )
+        
+        # 设置列样式
+        # style 参数控制该列所有单元格的默认样式
+        table.add_column("鼠标指针名称", style="bold white", no_wrap=True)
+        table.add_column("数量", justify="right", style="white")
+        table.add_column("安装路径", style="cyan")
 
-        df = pd.DataFrame(formatted_data)
-        print(df)
+        for item in items:
+            platform = item["platform"]
+            cursor_name = item["cursor_name"]
+            cursor_size = item["cursor_size"]
+
+            table.add_row(
+                platform,
+                cursor_name,
+                cursor_size
+            )
+
+        console.print(table)
 
     if sys.platform == "win32":
-        logger.info("获取 Windows 系统的鼠标指针状态")
         info = get_windows_cursor_info()
     elif sys.platform == "linux":
-        logger.info("获取 Linux 系统的鼠标指针状态")
         info = get_linux_cursor_info()
     else:
         logger.error("不支持的系统: %s", sys.platform)

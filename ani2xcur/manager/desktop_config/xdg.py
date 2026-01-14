@@ -35,6 +35,8 @@ def set_xdg_cursor_theme(cursor_name: str) -> None:
     Args:
         cursor_name (str): 要设置的鼠标指针配置名称
     """
+    XDG_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    XDG_CONFIG_SHARE_PATH.parent.mkdir(parents=True, exist_ok=True)
     config = configparser.ConfigParser()
     config_share = configparser.ConfigParser()
     config.read(XDG_CONFIG_PATH)

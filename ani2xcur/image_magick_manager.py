@@ -168,6 +168,7 @@ def install_image_magick_windows(
         ("VersionMinor", 1, RegistryValueType.DWORD),
     ]
 
+    logger.info("将 ImageMagick 安装到 Windows 系统中, 安装路径: %s", install_path)
     # 下载并解压 ImageMagick
     with TemporaryDirectory() as tmp_dir:
         tmp_dir = Path(tmp_dir)
@@ -254,6 +255,7 @@ def install_image_magick_windows(
 
     # 配置环境变量
     add_image_magick_to_path(install_path)
+    logger.info("ImageMagick 已安装到 Windows 系统中")
 
 
 def get_image_magick_version(magick_bin: Path) -> tuple[str, str, str]:
@@ -350,6 +352,7 @@ def uninstall_image_magick_windows() -> None:
     if install_path is None:
         raise FileNotFoundError("未找到 ImageMagick 安装路径, 无法卸载 ImageMagick")
 
+    logger.info("从 Windows 系统中卸载 ImageMagick 中, ImagwMagick 路径: %s", install_path)
     # 删除 ImageMagick 文件
     if install_path.exists():
         try:
@@ -384,6 +387,7 @@ def uninstall_image_magick_windows() -> None:
 
     # 将 ImageMagick 从环境变量中移除
     delete_image_magick_to_path(install_path)
+    logger.info("从 Windows 系统卸载 ImageMagick 完成")
 
 
 def find_image_magick_install_path_windows() -> Path | None:
@@ -439,6 +443,8 @@ def install_image_magick_linux() -> None:
             "当前未使用管理员权限运行 Ani2xcur, 卸载安装 ImageMagick, 请使用管理员权限进行重试"
         )
 
+    logger.info("安装 ImageMagick 到 Linux 系统中")
+
     # Debian / Ubuntu
     if shutil.which("apt"):
         run_cmd(["apt", "update"])
@@ -493,6 +499,8 @@ def uninstall_image_magick_linux() -> None:
             "当前未使用管理员权限运行 Ani2xcur, 卸载安装 ImageMagick, 请使用管理员权限进行重试"
         )
     
+    logger.info("从 Linux 系统中卸载 ImageMagick 中")
+
     # Debian / Ubuntu
     if shutil.which("apt"):
         # 使用 purge 可以同时删除配置文件，如果只需删除程序可用 remove
@@ -681,5 +689,7 @@ def check_image_magick_is_installed() -> bool:
     # Linux 中是通过 ctypes.util.find_library() 查找
     for libwand_path, libmagick_path in find_wand_library_paths():
         if (libwand_path is not None and Path(libwand_path).exists()) or (libmagick_path is not None and Path(libmagick_path).exists()):
+            logger.debug("找到 ImageMagick 库路径: (%s, %s)", libwand_path, libmagick_path)
             return True
+        logger.debug("未找到 ImageMagick 库路径")
     return False

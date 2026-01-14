@@ -3,7 +3,9 @@ import re
 from typing import Annotated
 
 import typer
-import pandas as pd
+from rich.console import Console
+from rich.table import Table
+from rich import box
 
 from ani2xcur.config import (
     LOGGER_NAME,
@@ -42,6 +44,29 @@ def update(
 
 def version() -> None:
     """显示 Ani2xcur 和其他组件的当前版本"""
+    def _display_frame(items) -> None:
+        console = Console()
+        
+        # 设置表格整体样式
+        table = Table(
+            header_style="bright_yellow",
+            border_style="bright_black",
+            box=box.ROUNDED,
+        )
+        
+        # 设置列样式
+        # style 参数控制该列所有单元格的默认样式
+        table.add_column("组件名", style="bold white", no_wrap=True)
+        table.add_column("版本", justify="right", style="white")
+
+        for item in items:
+            table.add_row(
+                item["require"],
+                item["version"],
+            )
+
+        console.print(table)
+
     requires = importlib.metadata.requires("ani2xcur")
     info = []
     pkgs = [
@@ -55,10 +80,9 @@ def version() -> None:
             ver = importlib.metadata.version(pkg)
         except importlib.metadata.PackageNotFoundError:
             ver = None
-        info.append({"组件名": pkg, "版本": ver})
+        info.append({"require": pkg, "version": ver})
 
-    df = pd.DataFrame(info)
-    print(df)
+    _display_frame(info)
 
 
 def get_package_name(package: str) -> str:

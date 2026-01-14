@@ -82,6 +82,9 @@ def get_x_resources_cursor_theme() -> str | None:
     Returns:
         (str | None): 当前使用的鼠标指针名称
     """
+    if not X_RESOURCES_PATH.is_file():
+        return None
+
     config = read_x_resources_config(X_RESOURCES_PATH)
     return config.get("Xcursor.theme")
 
@@ -92,6 +95,9 @@ def get_x_resources_cursor_size() -> int | None:
     Returns:
         (int | None): 当前使用的鼠标指针大小
     """
+    if not X_RESOURCES_PATH.is_file():
+        return None
+
     config = read_x_resources_config(X_RESOURCES_PATH)
     return safe_convert_to_int(config.get("Xcursor.size"))
 
@@ -101,6 +107,7 @@ def set_x_resources_cursor_theme(cursor_name: str) -> None:
     Args:
         cursor_name (str): 要设置的鼠标指针配置名称
     """
+    X_RESOURCES_PATH.parent.mkdir(parents=True, exist_ok=True)
     write_x_resources_config(
         config_path=X_RESOURCES_PATH, 
         updates={"Xcursor.theme": cursor_name}
@@ -112,6 +119,7 @@ def set_x_resources_cursor_size(cursor_size: int) -> None:
     Args:
         cursor_size (int): 要设置的鼠标指针大小
     """
+    X_RESOURCES_PATH.parent.mkdir(parents=True, exist_ok=True)
     write_x_resources_config(
         config_path=X_RESOURCES_PATH,
         updates={"Xcursor.size": str(cursor_size)}

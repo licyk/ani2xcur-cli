@@ -14,7 +14,7 @@ from ani2xcur.config import (
     IMAGE_MAGICK_WINDOWS_INSTALL_PATH,
 )
 from ani2xcur.logger import get_logger
-from ani2xcur.image_magick_manager import (
+from ani2xcur.manager.image_magick_manager import (
     install_image_magick_windows,
     install_image_magick_linux,
     uninstall_image_magick_windows,

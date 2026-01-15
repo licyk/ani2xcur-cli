@@ -28,7 +28,7 @@ from ani2xcur.file_operations.archive_manager import (
     create_archive,
     SUPPORTED_ARCHIVE_FORMAT,
 )
-from ani2xcur.image_magick_manager import check_image_magick_is_installed
+from ani2xcur.manager.image_magick_manager import check_image_magick_is_installed
 
 logger = get_logger(
     name=LOGGER_NAME,

@@ -58,7 +58,7 @@ def version() -> None:
         # 设置列样式
         # style 参数控制该列所有单元格的默认样式
         table.add_column("组件名", style="bold white", no_wrap=True)
-        table.add_column("版本", justify="right", style="white")
+        table.add_column("版本", justify="left", style="white")
 
         for item in items:
             table.add_row(
@@ -69,6 +69,7 @@ def version() -> None:
         console.print(table)
 
     requires = importlib.metadata.requires("ani2xcur")
+    requires.insert(0, "ani2xcur")
     info = []
     pkgs = [remove_optional_dependence_from_package(get_package_name(x)).split(";")[0].strip() for x in requires]
     for pkg in pkgs:

@@ -28,6 +28,7 @@ from ani2xcur.file_operations.archive_manager import (
     create_archive,
     SUPPORTED_ARCHIVE_FORMAT,
 )
+from ani2xcur.image_magick_manager import check_image_magick_is_installed
 
 logger = get_logger(
     name=LOGGER_NAME,
@@ -69,6 +70,10 @@ def win2xcur(
     ] = ".zip",
 ) -> None:
     """将 Windows 鼠标指针文件包转换为 Linux 鼠标指针文件包"""
+    if not check_image_magick_is_installed():
+        logger.error("未安装 ImageMagick, 无法进行鼠标指针转换, 请使用 ani2xcur imagemagick install 命令进行安装")
+        sys.exit(1)
+
     logger.info("将 %s 的 Windows 鼠标指针主题包转换为 Linux 鼠标指针主题包中", input_path)
     win2x_args: Win2xcurArgs = {}
     win2x_args["shadow"] = shadow
@@ -129,6 +134,10 @@ def x2wincur(
     ] = ".zip",
 ) -> None:
     """将 Linux 鼠标指针文件包转换为 Windows 鼠标指针文件包"""
+    if not check_image_magick_is_installed():
+        logger.error("未安装 ImageMagick, 无法进行鼠标指针转换, 请使用 ani2xcur imagemagick install 命令进行安装")
+        sys.exit(1)
+
     logger.info("将 %s 的 Linux 鼠标指针主题包转换为 Windows 鼠标指针主题包中", input_path)
     x2win_args: X2wincurArgs = {}
     x2win_args["scale"] = scale

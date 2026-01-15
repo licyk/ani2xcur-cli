@@ -81,11 +81,11 @@ def install_cursor(
                 logger.info("使用 INF 配置文件中的鼠标指针安装路径")
             else:
                 install_path = WINDOWS_USER_CURSOR_PATH
-                logger.info("未指定鼠标指针安装路径, 使用默认鼠标指针安装路径: %s", install_path)
+                logger.info("未指定鼠标指针安装路径, 使用默认鼠标指针安装路径: '%s'", install_path)
         else:
-            logger.info("使用自定义鼠标指针安装路径: %s", install_path)
+            logger.info("使用自定义鼠标指针安装路径: '%s'", install_path)
 
-        logger.info("安装的 Windows 鼠标指针: %s", input_path)
+        logger.info("安装的 Windows 鼠标指针: '%s'", input_path)
         with TemporaryDirectory() as temp_dir:
             temp_dir = Path(temp_dir)
             inf_file = find_inf_file(
@@ -105,17 +105,17 @@ def install_cursor(
             except PermissionError as e:
                 traceback.print_exc()
                 logger.error(
-                    "在 Windows 系统上安装鼠标指针时发生错误: %s\n请检查是否使用管理员权限运行 Ani2xcur 运行, 或者尝试使用 --install-path 参数指定其他鼠标指针的安装路径", e
+                    "在 Windows 系统上安装鼠标指针时发生错误: '%s'\n请检查是否使用管理员权限运行 Ani2xcur 运行, 或者尝试使用 --install-path 参数指定其他鼠标指针的安装路径", e
                 )
                 sys.exit(1)
     elif sys.platform == "linux":
         if install_path is None:
             install_path = LINUX_USER_ICONS_PATH
-            logger.info("未指定鼠标指针安装路径, 使用默认鼠标指针安装路径: %s", install_path)
+            logger.info("未指定鼠标指针安装路径, 使用默认鼠标指针安装路径: '%s'", install_path)
         else:
-            logger.info("使用自定义鼠标指针安装路径: %s", install_path)
+            logger.info("使用自定义鼠标指针安装路径: '%s'", install_path)
 
-        logger.info("安装的 Windows 鼠标指针: %s", input_path)
+        logger.info("安装的 Windows 鼠标指针: '%s'", input_path)
         with TemporaryDirectory() as temp_dir:
             temp_dir = Path(temp_dir)
             desktop_entry_file = find_desktop_entry_file(
@@ -203,7 +203,7 @@ def export_cursor(
                 output_path=output_path,
                 custom_install_path=custom_install_path,
             )
-            logger.info("Windows 鼠标指针导出完成, 导出路径: %s", path)
+            logger.info("Windows 鼠标指针导出完成, 导出路径: '%s'", path)
         except ValueError as e:
             traceback.print_exc()
             logger.error("导出鼠标指针发生错误: %s\n请检查导出的鼠标指针是否存在于系统中", e)
@@ -215,7 +215,7 @@ def export_cursor(
                 output_path=output_path,
                 custom_install_path=custom_install_path,
             )
-            logger.info("Windows 鼠标指针导出完成, 导出路径: %s", path)
+            logger.info("Windows 鼠标指针导出完成, 导出路径: '%s'", path)
         except ValueError as e:
             traceback.print_exc()
             logger.error("导出鼠标指针发生错误: %s\n请检查导出的鼠标指针是否存在于系统中", e)

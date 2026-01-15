@@ -30,7 +30,7 @@ def remove_files(path: Path) -> None:
     """
 
     if not path.exists():
-        logger.error("路径不存在: %s", path)
+        logger.error("路径不存在: '%s'", path)
         raise ValueError(f"要删除的 {path} 路径不存在")
 
     def _handle_remove_readonly(func, path_str, _):
@@ -50,7 +50,7 @@ def remove_files(path: Path) -> None:
             shutil.rmtree(path, onerror=_handle_remove_readonly)
 
     except OSError as e:
-        logger.error("删除失败: %s - 原因: %s", path, e)
+        logger.error("删除失败: '%s' - 原因: %s", path, e)
         raise e
 
 
@@ -73,12 +73,12 @@ def copy_files(src: Path | str, dst: Path | str) -> None:
 
         # 检查源是否存在
         if not src_path.exists():
-            logger.error("源路径不存在: %s", src)
+            logger.error("源路径不存在: '%s'", src)
             raise FileNotFoundError(f"源路径不存在: {src}")
 
         # 防止递归复制（例如将目录复制到其自身的子目录中）
         if src_path.is_dir() and dst_path.is_relative_to(src_path):
-            logger.error("不能将目录复制到自身或其子目录中: %s", src)
+            logger.error("不能将目录复制到自身或其子目录中: '%s'", src)
             raise ValueError(f"不能将目录复制到自身或其子目录中: {src}")
 
         # 如果目标是已存在的目录, 则在其下创建同名项
@@ -180,7 +180,7 @@ def create_symlink(target: Path, link: Path) -> None:
     """
     try:
         link.symlink_to(target)
-        logger.debug("创建软链接: %s -> %s", target, link)
+        logger.debug("创建软链接: '%s' -> '%s'", target, link)
     except OSError:
-        logger.debug("尝试创建软链接失败, 尝试复制文件: %s -> %s", target, link)
+        logger.debug("尝试创建软链接失败, 尝试复制文件: '%s' -> '%s'", target, link)
         copy_files(target, link)

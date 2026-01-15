@@ -72,19 +72,19 @@ def open_file_as_bytes(
         with input_file.open("rb") as binary_file:
             return binary_file.read()
     except FileNotFoundError as e:
-        logger.error("文件未找到: %s", input_file)
+        logger.error("文件未找到: '%s'", input_file)
         raise e
     except PermissionError as e:
-        logger.error("权限不足, 无法读取文件: %s", input_file)
+        logger.error("权限不足, 无法读取文件: '%s'", input_file)
         raise e
     except IsADirectoryError as e:
-        logger.error("路径是一个目录, 不是文件: %s", input_file)
+        logger.error("路径是一个目录, 不是文件: '%s'", input_file)
         raise e
     except OSError as e:
-        logger.error("操作系统错误, 无法读取文件: %s, 错误信息: %s", input_file, e)
+        logger.error("操作系统错误, 无法读取文件: '%s', 错误信息: %s", input_file, e)
         raise e
     except Exception as e:
-        logger.error("读取文件时发生未知错误: %s", input_file)
+        logger.error("读取文件时发生未知错误: '%s'", input_file)
         raise e
 
 
@@ -105,19 +105,19 @@ def save_bytes_to_file(bytes_file: bytes, output_path: Path) -> None:
         with output_path.open("wb") as f:
             f.write(bytes_file)
     except FileNotFoundError as e:
-        logger.error("输出目录不存在: %s", output_path)
+        logger.error("输出目录不存在: '%s'", output_path)
         raise e
     except PermissionError as e:
-        logger.error("权限不足, 无法读取文件: %s", output_path)
+        logger.error("权限不足, 无法读取文件: '%s'", output_path)
         raise e
     except IsADirectoryError as e:
-        logger.error("输出路径是一个目录, 不是文件: %s", output_path)
+        logger.error("输出路径是一个目录, 不是文件: '%s'", output_path)
         raise e
     except OSError as e:
-        logger.error("操作系统错误, 无法写入文件: %s, 错误信息: %s", output_path, e)
+        logger.error("操作系统错误, 无法写入文件: '%s', 错误信息: %s", output_path, e)
         raise e
     except Exception as e:
-        logger.error("写入输出文件时发生未知错误: %s", output_path)
+        logger.error("写入输出文件时发生未知错误: '%s'", output_path)
         raise e
 
 
@@ -146,7 +146,7 @@ def detect_encoding(file_path: Path) -> str:
         str: 检测到的编码格式, 如 'utf-8' 或 'gbk'
     """
     if is_utf8_bom_encoding_file(file_path):
-        logger.debug("%s 文件编码格式为 UTF8 BOM", file_path)
+        logger.debug("'%s' 文件编码格式为 UTF8 BOM", file_path)
         return "utf-8-sig"
 
     with open(file_path, "rb") as f:
@@ -154,10 +154,10 @@ def detect_encoding(file_path: Path) -> str:
 
     try:
         raw_data.decode("utf-8")
-        logger.debug("%s 文件编码格式为 UTF8", file_path)
+        logger.debug("'%s' 文件编码格式为 UTF8", file_path)
         return "utf-8"
     except UnicodeDecodeError:
-        logger.debug("%s 文件编码格式为 GBK", file_path)
+        logger.debug("'%s' 文件编码格式为 GBK", file_path)
         return "gbk"
 
 
@@ -257,10 +257,10 @@ def unload_specific_module(module_name: str) -> None:
         module_name (str): 要卸载的模块名称
     """
     if module_name not in sys.modules:
-        logger.info("%s 模块未被加载", module_name)
+        logger.info("'%s' 模块未被加载", module_name)
         return
 
-    logger.info("卸载 %s 模块中", module_name)
+    logger.info("卸载 '%s' 模块中", module_name)
     # 尝试调用模块的清理函数
     if hasattr(module_name, "cleanup") and callable(getattr(module_name, "cleanup")):
         try:
@@ -278,7 +278,7 @@ def unload_specific_module(module_name: str) -> None:
 
     # 删除 sys.modules 中的条目
     del sys.modules[module_name]
-    logger.info("卸载模块: %s", module_name)
+    logger.info("卸载模块: '%s'", module_name)
 
     # 如果有子模块, 也要删除
     module_keys_to_remove = []
@@ -288,14 +288,14 @@ def unload_specific_module(module_name: str) -> None:
 
     for key in module_keys_to_remove:
         del sys.modules[key]
-        logger.info("卸载 %s 子模块: %s", module_name, key)
+        logger.info("卸载 '%s' 子模块: '%s'", module_name, key)
 
     # 从局部命名空间删除模块引用 (如果在全局命名空间中)
     if module_name in globals():
         del globals()[module_name]
 
     gc.collect()
-    logger.info("模块 %s 已彻底卸载", module_name)
+    logger.info("模块 '%s' 已彻底卸载", module_name)
 
 
 def generate_random_string(
@@ -350,5 +350,5 @@ def normalized_filepath(filepath: str | Path) -> Path:
     if filepath is not None:
         filepath = Path(filepath).absolute()
 
-    logger.debug("解析成绝对路径后的路径: %s", filepath)
+    logger.debug("解析成绝对路径后的路径: '%s'", filepath)
     return filepath

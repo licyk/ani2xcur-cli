@@ -47,8 +47,8 @@ def find_desktop_entry_file(
     if visited is None:
         visited = set()
 
-    logger.debug("已搜索路径: %s", visited)
-    logger.debug("查找路径: %s", input_file)
+    logger.debug("已搜索路径: '%s'", visited)
+    logger.debug("查找路径: '%s'", input_file)
 
     # 获取绝对路径并验证存在性
     try:
@@ -72,14 +72,14 @@ def find_desktop_entry_file(
     if abs_path.is_file() and abs_path.name.lower().endswith(".theme"):
         try:
             _ = parse_desktop_entry_content(abs_path)
-            logger.debug("搜索到 DesktopEntry 文件路径: %s", abs_path)
+            logger.debug("搜索到 DesktopEntry 文件路径: '%s'", abs_path)
             return abs_path
         except ValueError:
             return None
 
     # 文件为压缩包时则尝试解压并遍历解压的文件夹
     if is_supported_archive_format(abs_path):
-        logger.debug("从 %s 搜索文件中", abs_path)
+        logger.debug("从 '%s' 搜索文件中", abs_path)
         extract_path = temp_dir / generate_random_string()
         extract_archive(
             archive_path=abs_path,
@@ -96,7 +96,7 @@ def find_desktop_entry_file(
 
     # 如果是文件夹则尝试遍历文件夹中的文件
     if abs_path.is_dir():
-        logger.debug("搜索 %s 文件夹", abs_path)
+        logger.debug("搜索 '%s' 文件夹", abs_path)
         # 获取下级文件列表
         paths = get_file_list(
             path=abs_path,
@@ -134,8 +134,8 @@ def find_inf_file(input_file: Path, temp_dir: Path, depth: int | None = 0, visit
     if visited is None:
         visited = set()
 
-    logger.debug("已搜索路径: %s", visited)
-    logger.debug("查找路径: %s", input_file)
+    logger.debug("已搜索路径: '%s'", visited)
+    logger.debug("查找路径: '%s'", input_file)
 
     # 智能路径修正 (仅在首次调用且输入为光标文件时触发)
     # 该目录可能为鼠标指针路径, 则尝试定位到其父文件夹
@@ -165,14 +165,14 @@ def find_inf_file(input_file: Path, temp_dir: Path, depth: int | None = 0, visit
     if abs_path.is_file() and abs_path.name.lower().endswith(".inf"):
         try:
             _ = parse_inf_file_content(abs_path)
-            logger.debug("搜索到 INF 文件路径: %s", abs_path)
+            logger.debug("搜索到 INF 文件路径: '%s'", abs_path)
             return abs_path
         except ValueError:
             return None
 
     # 文件为压缩包时则尝试解压并遍历解压的文件夹
     if is_supported_archive_format(abs_path):
-        logger.debug("从 %s 搜索文件中", abs_path)
+        logger.debug("从 '%s' 搜索文件中", abs_path)
         extract_path = temp_dir / generate_random_string()
         extract_archive(
             archive_path=abs_path,
@@ -189,7 +189,7 @@ def find_inf_file(input_file: Path, temp_dir: Path, depth: int | None = 0, visit
 
     # 如果是文件夹则尝试遍历文件夹中的文件
     if abs_path.is_dir():
-        logger.debug("搜索 %s 文件夹", abs_path)
+        logger.debug("搜索 '%s' 文件夹", abs_path)
         # 获取下级文件列表
         paths = get_file_list(
             path=abs_path,

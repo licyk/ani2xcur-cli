@@ -57,7 +57,7 @@ def download_file_from_url(
     if re_download or not cached_file.exists():
         save_path.mkdir(parents=True, exist_ok=True)
         temp_file = save_path / f"{file_name}.tmp"
-        logger.info("下载 %s 到 %s 中", file_name, cached_file)
+        logger.info("下载 '%s' 到 '%s' 中", file_name, cached_file)
         response = requests.get(url, stream=True, timeout=60)
         response.raise_for_status()
         total_size = int(response.headers.get("content-length", 0))
@@ -75,14 +75,14 @@ def download_file_from_url(
                         progress_bar.update(len(chunk))
 
         if hash_prefix and not compare_sha256(temp_file, hash_prefix):
-            logger.error("%s 的哈希值不匹配, 正在删除临时文件", temp_file)
+            logger.error("'%s' 的哈希值不匹配, 正在删除临时文件", temp_file)
             temp_file.unlink()
             raise ValueError(f"文件哈希值与预期的哈希前缀不匹配: {hash_prefix}")
 
         temp_file.rename(cached_file)
-        logger.info("%s 下载完成", file_name)
+        logger.info("'%s' 下载完成", file_name)
     else:
-        logger.info("%s 已存在于 %s 中", file_name, cached_file)
+        logger.info("'%s' 已存在于 '%s' 中", file_name, cached_file)
     return cached_file
 
 

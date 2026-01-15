@@ -75,7 +75,7 @@ def extract_archive(archive_path: Path, extract_to: Path) -> None:
     name = archive_path.name.lower()
     extract_to.mkdir(parents=True, exist_ok=True)
 
-    logger.info("将 %s 解压到 %s 中", archive_path, extract_to)
+    logger.info("将 '%s' 解压到 '%s' 中", archive_path, extract_to)
 
     if name.endswith(".zip"):
         with zipfile.ZipFile(archive_path, "r") as zip_ref:
@@ -156,7 +156,7 @@ def create_archive(sources: Iterable[Path], archive_path: Path) -> None:
     sources = list(sources)
     archive_path.parent.mkdir(parents=True, exist_ok=True)
 
-    logger.info("将 %s 压缩并保存到 %s 中", sources, archive_path)
+    logger.info("将 '%s' 压缩并保存到 '%s' 中", sources, archive_path)
 
     # zip
     if name.endswith(".zip"):

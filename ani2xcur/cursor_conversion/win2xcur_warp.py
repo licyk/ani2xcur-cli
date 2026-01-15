@@ -111,7 +111,7 @@ def win2xcur_process(
     try:
         cursor = open_blob(blob)
     except ValueError as e:
-        logger.error("不支持的光标文件格式: %s", input_file.suffix)
+        logger.error("不支持的光标文件格式: '%s'", input_file.suffix)
         raise e
     except Exception as e:
         logger.error("打开光标文件时发生未知错误: %s", e)
@@ -189,7 +189,7 @@ def x2wincur_process(
     try:
         cursor = open_blob(blob)
     except ValueError as e:
-        logger.error("不支持的光标文件格式: %s", input_file.suffix)
+        logger.error("不支持的光标文件格式: '%s'", input_file.suffix)
         raise e
     except Exception as e:
         logger.error("打开光标文件时发生未知错误: %s", e)

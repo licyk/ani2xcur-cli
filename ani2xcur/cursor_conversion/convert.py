@@ -68,7 +68,7 @@ def win_cursor_to_x11(
         cursors_dir = tmp_dir / cursor_name / "cursors"
         cursors_dir.mkdir(parents=True, exist_ok=True)
 
-        logger.info("配置 %s 鼠标指针的转换参数", cursor_name)
+        logger.info("配置 '%s' 鼠标指针的转换参数", cursor_name)
 
         # 生成要进行鼠标指针的转换列表
         for win, linux in zip(CURSOR_KEYS["win"], CURSOR_KEYS["linux"]):
@@ -188,7 +188,7 @@ def x11_cursor_to_win(
         cursors_dir = tmp_dir / cursor_name
         cursors_dir.mkdir(parents=True, exist_ok=True)
 
-        logger.info("配置 %s 鼠标指针的转换参数", cursor_name)
+        logger.info("配置 '%s' 鼠标指针的转换参数", cursor_name)
 
         # 生成要进行鼠标指针的转换列表
         for win, linux in zip(CURSOR_KEYS["win"], CURSOR_KEYS["linux"]):

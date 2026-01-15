@@ -74,7 +74,7 @@ def win2xcur(
         logger.error("未安装 ImageMagick, 无法进行鼠标指针转换, 请使用 ani2xcur imagemagick install 命令进行安装")
         sys.exit(1)
 
-    logger.info("将 %s 的 Windows 鼠标指针主题包转换为 Linux 鼠标指针主题包中", input_path)
+    logger.info("将 '%s' 的 Windows 鼠标指针主题包转换为 Linux 鼠标指针主题包中", input_path)
     win2x_args: Win2xcurArgs = {}
     win2x_args["shadow"] = shadow
     win2x_args["shadow_opacity"] = shadow_opacity
@@ -106,7 +106,7 @@ def win2xcur(
             win2x_args=win2x_args,
         )
 
-    logger.info("鼠标指针转换完成, 保存路径: %s", save_path)
+    logger.info("鼠标指针转换完成, 保存路径: '%s'", save_path)
     if compress:
         logger.info("将鼠标指针进行打包")
         archive_path = output_path / f"{save_path.name}{compress_format}"
@@ -114,7 +114,7 @@ def win2xcur(
             sources=save_path,
             archive_path=archive_path,
         )
-        logger.info("鼠标指针打包完成, 保存路径: %s", archive_path)
+        logger.info("鼠标指针打包完成, 保存路径: '%s'", archive_path)
 
 
 def x2wincur(
@@ -138,7 +138,7 @@ def x2wincur(
         logger.error("未安装 ImageMagick, 无法进行鼠标指针转换, 请使用 ani2xcur imagemagick install 命令进行安装")
         sys.exit(1)
 
-    logger.info("将 %s 的 Linux 鼠标指针主题包转换为 Windows 鼠标指针主题包中", input_path)
+    logger.info("将 '%s' 的 Linux 鼠标指针主题包转换为 Windows 鼠标指针主题包中", input_path)
     x2win_args: X2wincurArgs = {}
     x2win_args["scale"] = scale
 
@@ -167,7 +167,7 @@ def x2wincur(
             x2win_args=x2win_args,
         )
 
-    logger.info("鼠标指针转换完成, 保存路径: %s", save_path)
+    logger.info("鼠标指针转换完成, 保存路径: '%s'", save_path)
     if compress:
         logger.info("将鼠标指针进行打包")
         archive_path = output_path / f"{save_path.name}{compress_format}"
@@ -175,4 +175,4 @@ def x2wincur(
             sources=save_path,
             archive_path=archive_path,
         )
-        logger.info("鼠标指针打包完成, 保存路径: %s", archive_path)
+        logger.info("鼠标指针打包完成, 保存路径: '%s'", archive_path)

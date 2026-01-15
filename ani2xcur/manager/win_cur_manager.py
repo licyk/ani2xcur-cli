@@ -259,12 +259,12 @@ def set_windows_cursor_theme(cursor_name: str) -> None:
     """
     cursors = [x["name"] for x in list_windows_cursors()]
     if cursor_name not in cursors:
-        logger.error("鼠标指针 %s 不存在", cursor_name)
+        logger.error("鼠标指针 '%s 不存在", cursor_name)
         raise ValueError(f"鼠标指针 {cursor_name} 不存在")
 
-    logger.info("将 Windows 系统中使用的鼠标指针主题设置为 %s", cursor_name)
+    logger.info("将 Windows 系统中使用的鼠标指针主题设置为 '%s'", cursor_name)
     apply_windows_cursor_theme(cursor_name)
-    logger.info("Windows 鼠标指针主题已设置为 %s", cursor_name)
+    logger.info("Windows 鼠标指针主题已设置为 '%s'", cursor_name)
 
 
 def set_windows_cursor_size(cursor_size: int) -> None:
@@ -319,7 +319,7 @@ def delete_windows_cursor(cursor_name: str) -> None:
     if cursor_name == get_windows_cursor_theme():
         raise ValueError(f"鼠标指针 {cursor_name} 正在被使用, 无法删除")
 
-    logger.info("从 Windows 系统删除 %s 鼠标指针中", cursor_name)
+    logger.info("从 Windows 系统删除 '%s' 鼠标指针中", cursor_name)
     for scheme in cursors:
         if cursor_name == scheme["name"]:
             # 清理鼠标指针文件
@@ -331,7 +331,7 @@ def delete_windows_cursor(cursor_name: str) -> None:
                     remove_files(file)
                 except OSError as e:
                     logger.error(
-                        "删除 %s 鼠标指针所使用的指针文件 %s 发生错误: %s\n可尝试使用管理员权限运行 Ani2xcur 进行删除, 或者尝试手动删除文件",
+                        "删除 '%s' 鼠标指针所使用的指针文件 '%s' 发生错误: %s\n可尝试使用管理员权限运行 Ani2xcur 进行删除, 或者尝试手动删除文件",
                         cursor_name,
                         file,
                         e,
@@ -350,7 +350,7 @@ def delete_windows_cursor(cursor_name: str) -> None:
                     remove_files(file)
                 except OSError as e:
                     logger.error(
-                        "清理 %s 鼠标指针文件的残留文件夹 %s 发生错误: %s\n可尝试使用管理员权限运行 Ani2xcur 进行删除, 或者尝试手动删除文件",
+                        "清理 '%s' 鼠标指针文件的残留文件夹 '%s' 发生错误: %s\n可尝试使用管理员权限运行 Ani2xcur 进行删除, 或者尝试手动删除文件",
                         cursor_name,
                         file,
                         e,
@@ -365,7 +365,7 @@ def delete_windows_cursor(cursor_name: str) -> None:
         access=RegistryAccess.SET_VALUE,
     )
 
-    logger.info("从 Windows 系统删除 %s 鼠标指针完成", cursor_name)
+    logger.info("从 Windows 系统删除 '%s' 鼠标指针完成", cursor_name)
 
 
 def install_windows_cursor(
@@ -412,7 +412,7 @@ def install_windows_cursor(
         # 生成需要写入注册表的方案对应值, 使用原始值
         reg_scheme_value = parse_scheme_reg_string(scheme_info["default_reg"])[4]
 
-    logger.info("将 %s 鼠标指针安装到 %s 中", cursor_name, install_path)
+    logger.info("将 '%s' 鼠标指针安装到 '%s' 中", cursor_name, install_path)
 
     # 复制鼠标指针文件
     for src, dst in copy_paths:
@@ -421,7 +421,7 @@ def install_windows_cursor(
             copy_files(src, dst)
         except OSError as e:
             logger.error(
-                "复制 %s 到 %s 时发送错误: %s\n可尝试使用管理员权限运行 Ani2xcur",
+                "复制 '%s' 到 '%s' 时发送错误: %s\n可尝试使用管理员权限运行 Ani2xcur",
                 src,
                 dst,
                 e,
@@ -438,7 +438,7 @@ def install_windows_cursor(
         key=RegistryRootKey.CURRENT_USER,
         access=RegistryAccess.SET_VALUE,
     )
-    logger.info("%s 鼠标指针已安装到 Windows 系统中", cursor_name)
+    logger.info("'%s' 鼠标指针已安装到 Windows 系统中", cursor_name)
 
 
 def export_windows_cursor(
@@ -482,7 +482,7 @@ def export_windows_cursor(
     save_dir = output_path / cursor_name
     save_dir.mkdir(parents=True, exist_ok=True)
     inf_file_path = save_dir / "AutoSetup.inf"
-    logger.info("将 %s 鼠标指针导出到 %s 中", cursor_name, save_dir)
+    logger.info("将 '%s' 鼠标指针导出到 '%s' 中", cursor_name, save_dir)
     for cursor in config_dict["cursor_src_file"]:
         copy_files(cursor, save_dir)
 
@@ -490,7 +490,7 @@ def export_windows_cursor(
     with open(inf_file_path, "w", encoding="gbk") as file:
         file.write(reg_content)
 
-    logger.info("%s 鼠标指针导出到 %s 完成", cursor_name, save_dir)
+    logger.info("'%s' 鼠标指针导出到 '%s' 完成", cursor_name, save_dir)
     return save_dir
 
 

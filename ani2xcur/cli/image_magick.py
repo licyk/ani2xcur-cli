@@ -44,9 +44,9 @@ def install_image_magick(
 
         if install_path is None:
             install_path = IMAGE_MAGICK_WINDOWS_INSTALL_PATH
-            logger.info("未使用 --install-path 参数指定 ImageMagick 安装路径, 使用默认安装路径: %s", install_path)
+            logger.info("未使用 --install-path 参数指定 ImageMagick 安装路径, 使用默认安装路径: '%s'", install_path)
         else:
-            logger.info("安装 ImageMagick 的路径: %s", install_path)
+            logger.info("安装 ImageMagick 的路径: '%s'", install_path)
 
         if not force:
             typer.confirm("确认安装 ImageMagick 吗?", abort=True)

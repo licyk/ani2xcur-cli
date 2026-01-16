@@ -432,49 +432,44 @@ def install_image_magick_linux() -> None:
         raise PermissionError("当前未使用管理员权限运行 Ani2xcur, 卸载安装 ImageMagick, 请使用管理员权限进行重试")
 
     logger.info("安装 ImageMagick 到 Linux 系统中")
+    cmd: list[list[str]] = []
 
-    # Debian / Ubuntu
     if shutil.which("apt"):
+        # Debian / Ubuntu
         logger.debug("匹配到 apt 包管理器")
-        run_cmd(["apt", "update"])
-        run_cmd(["apt", "install", "libmagickwand-dev", "-y"])
-        return
-
-    # CentOS / RHEL / Fedora
-    if shutil.which("yum"):
+        cmd.append(["apt", "update"])
+        cmd.append(["apt", "install", "libmagickwand-dev", "-y"])
+    elif shutil.which("yum"):
+        # CentOS / RHEL / Fedora
         logger.debug("匹配到 yum 包管理器")
-        run_cmd(["yum", "update"])
-        run_cmd(["yum", "install", "ImageMagick-devel", "-y"])
-        return
-
-    # Alpine Linux
-    if shutil.which("apk"):
+        cmd.append(["yum", "update"])
+        cmd.append(["yum", "install", "ImageMagick-devel", "-y"])
+    elif shutil.which("apk"):
+        # Alpine Linux
         logger.debug("匹配到 apk 包管理器")
-        run_cmd(["apk", "update"])
-        run_cmd(["apk", "add", "imagemagick"])
-        return
-
-    # Arch Linux
-    if shutil.which("pacman"):
+        cmd.append(["apk", "update"])
+        cmd.append(["apk", "add", "imagemagick"])
+    elif shutil.which("pacman"):
+        # Arch Linux
         logger.debug("匹配到 pacman 包管理器")
-        run_cmd(["pacman", "-Syyu", "imagemagick", "--noconfirm"])
-        return
-
-    # openSUSE
-    if shutil.which("zypper"):
+        cmd.append(["pacman", "-Syyu", "imagemagick", "--noconfirm"])
+    elif shutil.which("zypper"):
+        # openSUSE
         logger.debug("匹配到 zypper 包管理器")
-        run_cmd(["zypper", "refresh"])
-        run_cmd(["zypper", "install", "ImageMagick", "-y"])
-        return
-
-    # NixOS / Nix
-    if shutil.which("nix-env"):
+        cmd.append(["zypper", "refresh"])
+        cmd.append(["zypper", "install", "ImageMagick", "-y"])
+    elif shutil.which("nix-env"):
+        # NixOS / Nix
         logger.debug("匹配到 nix 包管理器")
-        run_cmd(["nix-channel", "--update"])
-        run_cmd(["nix-env", "-iA", "nixos.imagemagick"])
-        return
+        cmd.append(["nix-channel", "--update"])
+        cmd.append(["nix-env", "-iA", "nixos.imagemagick"])
+    else:
+        raise RuntimeError("不支持的 Linux 系统, 无法自动安装 ImageMagick, 请尝试手动安装 ImageMagick")
 
-    raise RuntimeError("不支持的 Linux 系统, 无法自动安装 ImageMagick, 请尝试手动安装 ImageMagick")
+    for c in cmd:
+        run_cmd(c)
+
+    logger.info("安装 ImageMagick 到 Linux 系统中成功")
 
 
 def uninstall_image_magick_linux() -> None:
@@ -491,48 +486,43 @@ def uninstall_image_magick_linux() -> None:
         raise PermissionError("当前未使用管理员权限运行 Ani2xcur, 卸载安装 ImageMagick, 请使用管理员权限进行重试")
 
     logger.info("从 Linux 系统中卸载 ImageMagick 中")
+    cmd: list[list[str]] = []
 
-    # Debian / Ubuntu
     if shutil.which("apt"):
+        # Debian / Ubuntu
         logger.debug("匹配到 apt 包管理器")
         # 使用 purge 可以同时删除配置文件，如果只需删除程序可用 remove
-        run_cmd(["apt", "purge", "libmagickwand-dev", "-y"])
-        run_cmd(["apt", "autoremove", "-y"])
-        return
-
-    # CentOS / RHEL / Fedora
-    if shutil.which("yum"):
+        cmd.append(["apt", "purge", "libmagickwand-dev", "-y"])
+        cmd.append(["apt", "autoremove", "-y"])
+    elif shutil.which("yum"):
+        # CentOS / RHEL / Fedora
         logger.debug("匹配到 yum 包管理器")
-        run_cmd(["yum", "remove", "ImageMagick-devel", "-y"])
-        return
-
-    # Alpine Linux
-    if shutil.which("apk"):
+        cmd.append(["yum", "remove", "ImageMagick-devel", "-y"])
+    elif shutil.which("apk"):
+        # Alpine Linux
         logger.debug("匹配到 apk 包管理器")
-        run_cmd(["apk", "del", "imagemagick"])
-        return
-
-    # Arch Linux
-    if shutil.which("pacman"):
+        cmd.append(["apk", "del", "imagemagick"])
+    elif shutil.which("pacman"):
+        # Arch Linux
         logger.debug("匹配到 pacman 包管理器")
         # -Rs 会同时删除该软件及其不再被需要的依赖
-        run_cmd(["pacman", "-Rs", "imagemagick", "--noconfirm"])
-        return
-
-    # openSUSE
-    if shutil.which("zypper"):
+        cmd.append(["pacman", "-Rs", "imagemagick", "--noconfirm"])
+    elif shutil.which("zypper"):
+        # openSUSE
         logger.debug("匹配到 zypper 包管理器")
-        run_cmd(["zypper", "remove", "ImageMagick", "-y"])
-        return
-
-    # NixOS / Nix
-    if shutil.which("nix-env"):
+        cmd.append(["zypper", "remove", "ImageMagick", "-y"])
+    elif shutil.which("nix-env"):
+        # NixOS / Nix
         logger.debug("匹配到 nix 包管理器")
-        # 注意：nix-env 卸载时使用的是安装时的包名（非属性路径 A）
-        run_cmd(["nix-env", "-e", "imagemagick"])
-        return
+        # 注意: nix-env 卸载时使用的是安装时的包名 (非属性路径 A)
+        cmd.append(["nix-env", "-e", "imagemagick"])
+    else:
+        raise RuntimeError("不支持的 Linux 系统, 无法自动卸载 ImageMagick, 请尝试手动卸载")
 
-    raise RuntimeError("不支持的 Linux 系统, 无法自动卸载 ImageMagick, 请尝试手动卸载")
+    for c in cmd:
+        run_cmd(c)
+
+    logger.info("将 ImageMagick 从 Linux 系统中卸载成功")
 
 
 def find_wand_library_paths() -> Generator[tuple[str | None, str | None], None, None]:
@@ -701,7 +691,7 @@ def check_image_magick_is_installed() -> bool:
     # 或者注册表中`计算机\HKEY_LOCAL_MACHINE\SOFTWARE\ImageMagick\Current`的 LibPath, CoderModulesPath, FilterModulesPath
     # Linux 中是通过 ctypes.util.find_library() 查找
     for libwand_path, libmagick_path in find_wand_library_paths():
-        if (libwand_path is not None and Path(libwand_path).exists()) or (libmagick_path is not None and Path(libmagick_path).exists()):
+        if libwand_path is not None or libmagick_path is not None:
             logger.debug("找到 ImageMagick 库路径: ('%s', '%s')", libwand_path, libmagick_path)
             return True
         logger.debug("未找到 ImageMagick 库路径")

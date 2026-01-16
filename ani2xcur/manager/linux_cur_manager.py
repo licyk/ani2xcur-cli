@@ -326,7 +326,7 @@ def get_linux_cursor_info() -> CurrentCursorInfoList:
     # XDG
     xdg: CurrentCursorInfo = {}
     xdg["platform"] = "XDG"
-    xdg["cursor_name"] = get_xdg_cursor_theme()
+    xdg["cursor_name"] = ",".join([str(x) for x in get_xdg_cursor_theme()])
     xdg["cursor_size"] = None
     info_list.append(xdg)
 

@@ -303,9 +303,8 @@ def list_cursor() -> None:
         for item in items:
             path = ", ".join([str(x) for x in item["install_paths"]])
             count = len(item["cursor_files"])
-            count_str = str(count)
 
-            table.add_row(item["name"], count_str, path)
+            table.add_row(item["name"], str(count), path)
 
         console.print(table)
 
@@ -346,7 +345,7 @@ def get_current_cursor() -> None:
             cursor_name = item["cursor_name"]
             cursor_size = item["cursor_size"]
 
-            table.add_row(platform, cursor_name, str(cursor_size))
+            table.add_row(platform, str(cursor_name), str(cursor_size))
 
         console.print(table)
 

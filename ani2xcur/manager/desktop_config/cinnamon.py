@@ -23,6 +23,9 @@ def get_cinnamon_cursor_theme() -> str | None:
     if isinstance(result, str):
         result = result.strip()
 
+    if result != "":
+        result = None
+
     return result
 
 
@@ -42,6 +45,9 @@ def get_cinnamon_cursor_size() -> int | None:
     )
     if isinstance(result, str):
         result = result.strip()
+
+    if result != "":
+        result = None
 
     return safe_convert_to_int(result)
 

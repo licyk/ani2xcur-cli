@@ -45,7 +45,7 @@ def set_lxqt_cursor_theme(cursor_name: str) -> None:
     if "General" not in config:
         config["General"] = {}
 
-    config["General"]["cursor_name"] = cursor_name
+    config["General"]["cursor_theme"] = cursor_name
     with open(LXQT_CONFIG_PATH, "w", encoding="utf-8") as f:
         config.write(f, space_around_delimiters=False)
 

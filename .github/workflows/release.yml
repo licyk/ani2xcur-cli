@@ -1,0 +1,47 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ani2xcur/version.py
+  workflow_dispatch:
+
+jobs:
+  Release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      
+      - name: Install Dependences
+        shell: bash
+        env:
+          PIP_BREAK_SYSTEM_PACKAGES: 1
+          PIP_DISABLE_PIP_VERSION_CHECK: 1
+          PIP_NO_WARN_SCRIPT_LOCATION: 0
+        run: |
+          python3 -m pip install build twine --upgrade
+
+      - name: Build Wheel
+        shell: bash
+        run: |
+          python3 -m build "${{ github.workspace }}" --outdir "${{ github.workspace }}/dist"
+
+      - name: Upload to PyPI
+        shell: bash
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+        run: |
+          python3 -m twine upload "${{ github.workspace }}/dist"/*
+
+      - name: Create Github release
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          ani2xcur_version=$(python3 -c "from ani2xcur.version import VERSION; print(VERSION)")
+          gh release create "v${ani2xcur_version}" "${{ github.workspace }}/dist"/* --target main --generate-notes

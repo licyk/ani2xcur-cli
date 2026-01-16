@@ -99,7 +99,7 @@ ani2xcur convert win2x <Windows 指针路径>
   - `--shadow-color`: 阴影的颜色 (十六进制颜色格式)。
   - `--scale <倍数>`: 按指定倍数缩放光标。
   - `--compress`: 转换完成后将鼠标指针打包成压缩包。
-  - `--compress-format <压缩包格式>`: 打包成压缩包时使用的压缩包格式 (`.zip`|`.7z`|`.rar`|`.tar`|`.tar.Z`|`.tar.lz`|`.tar.lzma`|`.tar.bz2`|`.tar.7z`|·|`.tar.xz`|`.tar.zst`)。
+  - `--compress-format <压缩包格式>`: 打包成压缩包时使用的压缩包格式 (`.zip`|`.7z`|`.rar`|`.tar`|`.tar.Z`|`.tar.lz`|`.tar.lzma`|`.tar.bz2`|`.tar.7z`|`.tar.gz`|`.tar.xz`|`.tar.zst`)。
 
 
 ### Linux 转 Windows
@@ -113,7 +113,7 @@ ani2xcur convert x2win <Linux 指针路径>
   - `--output-path <路径>`: 保存转换后的鼠标指针路径。
   - `--scale <倍数>`: 按指定倍数缩放光标。
   - `--compress`: 转换完成后将鼠标指针打包成压缩包。
-  - `--compress-format <压缩包格式>`: 打包成压缩包时使用的压缩包格式 (`.zip`|`.7z`|`.rar`|`.tar`|`.tar.Z`|`.tar.lz`|`.tar.lzma`|`.tar.bz2`|`.tar.7z`|·|`.tar.xz`|`.tar.zst`)。
+  - `--compress-format <压缩包格式>`: 打包成压缩包时使用的压缩包格式 (`.zip`|`.7z`|`.rar`|`.tar`|`.tar.Z`|`.tar.lz`|`.tar.lzma`|`.tar.bz2`|`.tar.7z`|`.tar.gz`|`.tar.xz`|`.tar.zst`)。
 
 
 ## 鼠标指针管理

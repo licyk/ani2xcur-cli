@@ -566,9 +566,9 @@ def find_wand_library_paths() -> Generator[tuple[str | None, str | None], None, 
             # 打开 Windows 注册表中 ImageMagick 的配置项
             with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\ImageMagick\Current") as reg_key:
                 # 从注册表中查询库路径、编解码器模块路径和滤镜模块路径
-                libPath = winreg.QueryValueEx(reg_key, "LibPath")
-                coderPath = winreg.QueryValueEx(reg_key, "CoderModulesPath")
-                filterPath = winreg.QueryValueEx(reg_key, "FilterModulesPath")
+                libPath = winreg.QueryValueEx(reg_key, "LibPath")  # pylint: disable=invalid-name
+                coderPath = winreg.QueryValueEx(reg_key, "CoderModulesPath")  # pylint: disable=invalid-name
+                filterPath = winreg.QueryValueEx(reg_key, "FilterModulesPath")  # pylint: disable=invalid-name
 
                 # 设置 magick_home 为库路径
                 magick_home = libPath[0]
@@ -619,41 +619,41 @@ def find_wand_library_paths() -> Generator[tuple[str | None, str | None], None, 
                 # 在 MacOS上, MagickWand 库通常也是 MagickCore 库
                 libwand = (
                     "lib",
-                    "libMagickWand{0}.dylib".format(suffix),
-                )  # pylint: disable=consider-using-f-string
+                    "libMagickWand{0}.dylib".format(suffix),  # pylint: disable=consider-using-f-string
+                )
                 yield magick_path(libwand), magick_path(libwand)
             else:  # Linux 和其他 Unix-like 系统
                 # 尝试标准的 .so 库文件命名
                 libwand = (
                     "lib",
-                    "libMagickWand{0}.so".format(suffix),
-                )  # pylint: disable=consider-using-f-string
+                    "libMagickWand{0}.so".format(suffix),  # pylint: disable=consider-using-f-string
+                )
                 libmagick = (
                     "lib",
-                    "libMagickCore{0}.so".format(suffix),
-                )  # pylint: disable=consider-using-f-string
+                    "libMagickCore{0}.so".format(suffix),  # pylint: disable=consider-using-f-string
+                )
                 yield magick_path(libwand), magick_path(libmagick)
 
                 # 尝试带版本号的 .so 库文件命名 (版本 9)
                 libwand = (
                     "lib",
-                    "libMagickWand{0}.so.9".format(suffix),
-                )  # pylint: disable=consider-using-f-string
+                    "libMagickWand{0}.so.9".format(suffix),  # pylint: disable=consider-using-f-string
+                )
                 libmagick = (
                     "lib",
-                    "libMagickCore{0}.so.9".format(suffix),
-                )  # pylint: disable=consider-using-f-string
+                    "libMagickCore{0}.so.9".format(suffix),  # pylint: disable=consider-using-f-string
+                )
                 yield magick_path(libwand), magick_path(libmagick)
 
                 # 尝试带版本号的 .so 库文件命名 (版本6)
                 libwand = (
                     "lib",
-                    "libMagickWand{0}.so.6".format(suffix),
-                )  # pylint: disable=consider-using-f-string
+                    "libMagickWand{0}.so.6".format(suffix),  # pylint: disable=consider-using-f-string
+                )
                 libmagick = (
                     "lib",
-                    "libMagickCore{0}.so.6".format(suffix),
-                )  # pylint: disable=consider-using-f-string
+                    "libMagickCore{0}.so.6".format(suffix),  # pylint: disable=consider-using-f-string
+                )
                 yield magick_path(libwand), magick_path(libmagick)
 
     # 如果在 magick_home 中未找到库文件, 使用系统默认路径搜索

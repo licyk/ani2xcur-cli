@@ -301,7 +301,7 @@ def unload_specific_module(
 
     # 如果有子模块, 也要删除
     module_keys_to_remove = []
-    for key in sys.modules.keys():
+    for key in sys.modules:
         if key.startswith(module_name + "."):
             module_keys_to_remove.append(key)
 

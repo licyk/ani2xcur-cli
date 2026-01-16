@@ -13,7 +13,7 @@ try:
 except ImportError:
     win32gui = NotImplemented
     win32con = NotImplemented
-    win32com = NotImplemented
+    win32com = NotImplemented  # pylint: disable=invalid-name
 
 from ani2xcur.manager.regedit import (
     registry_query_value,

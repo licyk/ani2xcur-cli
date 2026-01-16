@@ -31,7 +31,7 @@ class INFSection(TypedDict, total=False):
     constant: list[str]
 
 
-ParsedINF: TypeAlias = dict[str, INFSection]
+ParsedINF: TypeAlias = dict[str, INFSection]  # pylint: disable=invalid-name
 """parsed INF 的类型"""
 
 

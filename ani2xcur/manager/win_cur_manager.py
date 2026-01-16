@@ -123,6 +123,9 @@ def extract_scheme_info_from_inf(
         value=",".join(cursor_reg_paths),
     )
 
+    # 统一路径分隔符 (Linux 中无法处理正确 `\` 路径分隔符字符串)
+    cursor_reg_paths = [x.replace(r'\\', '/').replace('\\', '/') for x in cursor_reg_paths]
+
     # 获取鼠标指针配置中指针文件的实际安装路径列表
     default_dst_cursor_paths = [_get_real_path(x) for x in cursor_reg_paths if _get_real_path(x).is_file()]
 

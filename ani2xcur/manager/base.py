@@ -407,7 +407,7 @@ CursorSchemesList: TypeAlias = list[LocalCursor]
 LINUX_ICONS_PATH = Path("/usr/share/icons")
 """Linux 图标目录"""
 
-LINUX_USER_ICONS_PATH = Path("~/.local/share/icons").expanduser()
+LINUX_USER_ICONS_PATH = Path("~/.icons").expanduser()
 """Linux 用户图标目录"""
 
 

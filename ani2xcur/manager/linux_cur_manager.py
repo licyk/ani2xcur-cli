@@ -169,12 +169,18 @@ def list_linux_cursors() -> CursorSchemesList:
         CursorSchemesList: 本地已安装的鼠标指针列表
     """
     cursors_list: CursorSchemesList = []
-    icon_paths = get_file_list(LINUX_ICONS_PATH, max_depth=0, include_dirs=True) + get_file_list(LINUX_USER_ICONS_PATH, max_depth=0, include_dirs=True)
+    icon_user_paths = get_file_list(LINUX_USER_ICONS_PATH, max_depth=0, include_dirs=True)
+    icon_system_paths = get_file_list(LINUX_ICONS_PATH, max_depth=0, include_dirs=True)
+    logger.debug("用户图标目录文件列表: %s", icon_user_paths)
+    logger.debug("系统图标目录文件列表: %s", icon_system_paths)
+    icon_paths = icon_user_paths + icon_system_paths
     for path in icon_paths:
         cursors_dir = path / "cursors"
         if not cursors_dir.is_dir():
+            logger.debug("'%s' 缺少鼠标指针文件夹", path)
             continue
 
+        logger.debug("获取 '%s' 鼠标指针的文件列表", path)
         cursor_files = get_file_list(cursors_dir)
         cursors: LocalCursor = {}
         cursors["name"] = path.name
@@ -403,8 +409,9 @@ def install_linux_cursor(
         raise FileNotFoundError(f"在 {cursors_path} 中缺少 cursors 文件夹, 鼠标指针已损坏")
 
     scheme_info = extract_scheme_info_from_desktop_entry(desktop_entry_file)
+    logger.debug("解析到的 DesktopEntry 配置: %s", scheme_info)
     cursor_name = scheme_info["scheme_name"]
-    src = desktop_entry_file.parent.parent
+    src = desktop_entry_file.parent
     if cursor_install_path is not None:
         dst = cursor_install_path / cursor_name
     else:

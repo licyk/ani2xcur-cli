@@ -37,10 +37,10 @@ def set_xdg_cursor_theme(cursor_name: str) -> None:
     config_share = configparser.ConfigParser()
     config.read(XDG_CONFIG_PATH)
     config_share.read(XDG_CONFIG_SHARE_PATH)
-    if "Icon Theme" in config:
+    if "Icon Theme" not in config:
         config["Icon Theme"] = {}
 
-    if "Icon Theme" in config_share:
+    if "Icon Theme" not in config_share:
         config_share["Icon Theme"] = {}
 
     config["Icon Theme"]["Inherits"] = cursor_name

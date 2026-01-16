@@ -77,9 +77,11 @@ def win_cursor_to_x11(
             if src is None:
                 # 使用补全文件
                 src = LINUX_CURSOR_SOURCE_PATH / linux
+                logger.debug("添加补全列表: Windows 鼠标指针 `%s` -> Linux 鼠标指针 '%s'", src, dst)
                 completed_cursor_list.append((src, dst))
                 continue
 
+            logger.debug("添加转换列表: Windows 鼠标指针 `%s` -> Linux 鼠标指针 '%s'", src, dst)
             win2x_path_list.append((linux, src, dst))
 
         # 补全文件列表
@@ -212,6 +214,7 @@ def x11_cursor_to_win(
             else:
                 cursor_save_path = None
 
+            logger.debug("添加转换列表: Linux 鼠标指针 `%s` -> Windows 鼠标指针 '%s'", src, dst)
             cursor_save_paths.append((name, cursor_save_path))
 
         # 创建配置文件

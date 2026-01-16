@@ -39,6 +39,7 @@ def set_lxqt_cursor_theme(cursor_name: str) -> None:
     Args:
         cursor_name (str): 要设置的鼠标指针配置名称
     """
+    LXQT_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
     config = configparser.ConfigParser()
     config.read(LXQT_CONFIG_PATH)
     if "General" not in config:
@@ -55,6 +56,7 @@ def set_lxqt_cursor_size(cursor_size: int) -> None:
     Args:
         cursor_size (int): 要设置的鼠标指针大小
     """
+    LXQT_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
     config = configparser.ConfigParser()
     config.read(LXQT_CONFIG_PATH)
     if "General" not in config:

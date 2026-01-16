@@ -454,7 +454,7 @@ def export_linux_cursor(
     if cursor_data is None:
         raise ValueError(f"鼠标指针 {cursor_name} 不存在")
 
-    src = cursor_data["install_paths"]
+    src = cursor_data["install_paths"][0]
     save_dir = output_path / cursor_name
 
     logger.info("将 '%s' 鼠标指针导出到 '%s' 中", cursor_name, save_dir)

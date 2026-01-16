@@ -153,7 +153,12 @@ def install_cursor(
 
 
 def uninstall_cursor(
-    cursor_name: Annotated[str, typer.Argument(help="要删除的鼠标指针名称")],
+    cursor_name: Annotated[
+        str,
+        typer.Argument(
+            help="要删除的鼠标指针名称",
+        ),
+    ],
 ) -> None:
     """删除系统中指定的鼠标指针"""
     if sys.platform == "win32":
@@ -184,7 +189,12 @@ def uninstall_cursor(
 
 
 def export_cursor(
-    cursor_name: Annotated[str, typer.Argument(help="要导出的鼠标指针名称")],
+    cursor_name: Annotated[
+        str,
+        typer.Argument(
+            help="要导出的鼠标指针名称",
+        ),
+    ],
     output_path: Annotated[
         Path,
         typer.Argument(
@@ -235,7 +245,12 @@ def export_cursor(
 
 
 def set_cursor_theme(
-    cursor_name: Annotated[str, typer.Argument(help="要指定的鼠标指针名称")],
+    cursor_name: Annotated[
+        str,
+        typer.Argument(
+            help="要指定的鼠标指针名称",
+        ),
+    ],
 ) -> None:
     """设置系统要使用的鼠标指针主题"""
     if sys.platform == "win32":
@@ -258,7 +273,12 @@ def set_cursor_theme(
 
 
 def set_cursor_size(
-    cursor_size: Annotated[int, typer.Argument(help="要指定的鼠标指针大小")],
+    cursor_size: Annotated[
+        int,
+        typer.Argument(
+            help="要指定的鼠标指针大小",
+        ),
+    ],
 ) -> None:
     """设置系统要使用的鼠标指针大小"""
     if sys.platform == "win32":

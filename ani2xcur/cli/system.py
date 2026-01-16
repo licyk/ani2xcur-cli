@@ -33,9 +33,24 @@ logger = get_logger(
 
 
 def update(
-    install_from_source: Annotated[bool, typer.Option(help="更新时是否从源码进行安装")] = False,
-    ani2xcur_source: Annotated[str | None, typer.Option(help="Ani2xcur 源仓库的 Git 链接")] = None,
-    win2xcur_source: Annotated[str | None, typer.Option(help="Win2xcur 源仓库的 Git 链接")] = None,
+    install_from_source: Annotated[
+        bool,
+        typer.Option(
+            help="更新时是否从源码进行安装",
+        ),
+    ] = False,
+    ani2xcur_source: Annotated[
+        str | None,
+        typer.Option(
+            help="Ani2xcur 源仓库的 Git 链接",
+        ),
+    ] = None,
+    win2xcur_source: Annotated[
+        str | None,
+        typer.Option(
+            help="Win2xcur 源仓库的 Git 链接",
+        ),
+    ] = None,
 ) -> None:
     """更新 Ani2xcur"""
     self_update(

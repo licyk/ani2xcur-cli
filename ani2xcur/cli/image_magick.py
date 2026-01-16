@@ -33,8 +33,21 @@ logger = get_logger(
 
 
 def install_image_magick(
-    install_path: Annotated[Path | None, typer.Option(help="(仅 Windows 平台) 自定义安装 ImageMagick 的目录", resolve_path=True)] = None,
-    force: Annotated[bool, typer.Option("--yes", "-y", help="直接确认安装")] = False,
+    install_path: Annotated[
+        Path | None,
+        typer.Option(
+            help="(仅 Windows 平台) 自定义安装 ImageMagick 的目录",
+            resolve_path=True,
+        ),
+    ] = None,
+    force: Annotated[
+        bool,
+        typer.Option(
+            "--yes",
+            "-y",
+            help="直接确认安装",
+        ),
+    ] = False,
 ) -> None:
     """安装 ImageMagick 到系统中"""
     if sys.platform == "win32":
@@ -77,7 +90,14 @@ def install_image_magick(
 
 
 def uninstall_image_magick(
-    force: Annotated[bool, typer.Option("--yes", "-y", help="直接确认安装")] = False,
+    force: Annotated[
+        bool,
+        typer.Option(
+            "--yes",
+            "-y",
+            help="直接确认安装",
+        ),
+    ] = False,
 ) -> None:
     """将 ImageMagick 从系统中卸载"""
     if sys.platform == "win32":

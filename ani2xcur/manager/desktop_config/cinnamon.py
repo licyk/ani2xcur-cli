@@ -1,6 +1,7 @@
 """Cinnamon 桌面环境配置工具"""
 
 import shutil
+
 from ani2xcur.cmd import run_cmd
 from ani2xcur.utils import safe_convert_to_int
 
@@ -52,7 +53,9 @@ def get_cinnamon_cursor_size() -> int | None:
     return safe_convert_to_int(result)
 
 
-def set_cinnamon_cursor_theme(cursor_name: str) -> None:
+def set_cinnamon_cursor_theme(
+    cursor_name: str,
+) -> None:
     """设置 Cinnamon 桌面当前使用的鼠标指针配置名称
 
     Args:
@@ -68,7 +71,9 @@ def set_cinnamon_cursor_theme(cursor_name: str) -> None:
     )
 
 
-def set_cinnamon_cursor_size(cursor_size: int) -> None:
+def set_cinnamon_cursor_size(
+    cursor_size: int,
+) -> None:
     """设置 Cinnamon 桌面当前使用的鼠标指针大小
 
     Args:

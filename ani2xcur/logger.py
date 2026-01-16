@@ -39,7 +39,10 @@ class LoggingColoredFormatter(logging.Formatter):
         super().__init__(fmt, datefmt)
         self.color = color
 
-    def format(self, record: logging.LogRecord) -> str:
+    def format(
+        self,
+        record: logging.LogRecord,
+    ) -> str:
         colored_record = copy.copy(record)
         levelname = colored_record.levelname
 
@@ -50,7 +53,11 @@ class LoggingColoredFormatter(logging.Formatter):
         return super().format(colored_record)
 
 
-def get_logger(name: str | None = None, level: int | None = logging.INFO, color: bool | None = True) -> logging.Logger:
+def get_logger(
+    name: str | None = None,
+    level: int | None = logging.INFO,
+    color: bool | None = True,
+) -> logging.Logger:
     """获取 Loging 对象
 
     Args:
@@ -69,10 +76,10 @@ def get_logger(name: str | None = None, level: int | None = logging.INFO, color:
         logger_name = module.__name__ if module else "root"
         log_format = "[%(name)s:%(funcName)s:%(lineno)d]-|%(asctime)s|-%(levelname)s: %(message)s"
 
-    _logger = logging.getLogger(logger_name)
-    _logger.propagate = False
+    logger = logging.getLogger(logger_name)
+    logger.propagate = False
 
-    if not _logger.handlers:
+    if not logger.handlers:
         handler = logging.StreamHandler(sys.stdout)
         handler.setFormatter(
             LoggingColoredFormatter(
@@ -81,8 +88,9 @@ def get_logger(name: str | None = None, level: int | None = logging.INFO, color:
                 color=color,
             )
         )
-        _logger.addHandler(handler)
+        logger.addHandler(handler)
 
-    _logger.setLevel(level)
-    _logger.debug("Logger 初始化完成")
-    return _logger
+    logger.setLevel(level)
+    fn, lno, func, _ = logger.findCaller(stack_info=False, stacklevel=2)
+    logger.debug("Logger 初始化完成, 位置: %s:%s in %s", fn, lno, func)
+    return logger

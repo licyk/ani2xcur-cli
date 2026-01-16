@@ -14,9 +14,7 @@ from ani2xcur.file_operations.file_manager import (
     remove_files,
     copy_files,
 )
-from ani2xcur.config_parse.win import (
-    dict_to_inf_strings_format,
-)
+from ani2xcur.config_parse.win import dict_to_inf_strings_format
 from ani2xcur.manager.base import (
     CURSOR_KEYS,
     CurrentCursorInfo,
@@ -92,7 +90,9 @@ def extract_scheme_info_from_inf(
         ValueError: 鼠标指针配置文件中的注册表信息不合法时
     """
 
-    def _get_real_path(x: str) -> Path:
+    def _get_real_path(
+        x: str,
+    ) -> Path:
         return Path(expand_var_string(x.replace('"', "").replace("'", ""), vars_dict))
 
     scheme_info: InstallWindowsSchemeInfo = {}
@@ -124,7 +124,7 @@ def extract_scheme_info_from_inf(
     )
 
     # 统一路径分隔符 (Linux 中无法处理正确 `\` 路径分隔符字符串)
-    cursor_reg_paths = [x.replace(r'\\', '/').replace('\\', '/') for x in cursor_reg_paths]
+    cursor_reg_paths = [x.replace(r"\\", "/").replace("\\", "/") for x in cursor_reg_paths]
 
     # 获取鼠标指针配置中指针文件的实际安装路径列表
     default_dst_cursor_paths = [_get_real_path(x) for x in cursor_reg_paths if _get_real_path(x).is_file()]
@@ -158,7 +158,9 @@ def extract_scheme_info_from_inf(
     return scheme_info
 
 
-def parse_scheme_reg_string(scheme_reg_string: str) -> list[str]:
+def parse_scheme_reg_string(
+    scheme_reg_string: str,
+) -> list[str]:
     """解析 INF 字符串中 [Scheme.Reg] 格式的字符串, 将字符串分割成列表
 
     Args:
@@ -213,7 +215,13 @@ def parse_scheme_reg_string(scheme_reg_string: str) -> list[str]:
     return cleaned_result
 
 
-def generate_scheme_reg_string(key: str, sub_key: str, value_name: str, dtype: str, value: str) -> str:
+def generate_scheme_reg_string(
+    key: str,
+    sub_key: str,
+    value_name: str,
+    dtype: str,
+    value: str,
+) -> str:
     """生成 INF 字符串中 [Scheme.Reg] 格式的字符串
 
     [Scheme.Reg] 用于创建 Windows 注册表值, 格式: `<注册表根键>,<注册表子路径>,<键名>,<数据类型>,<值>`
@@ -252,7 +260,9 @@ def list_windows_cursors() -> CursorSchemesList:
     return cursors_list
 
 
-def set_windows_cursor_theme(cursor_name: str) -> None:
+def set_windows_cursor_theme(
+    cursor_name: str,
+) -> None:
     """设置 Windows 桌面当前使用的鼠标指针配置名称
 
     Args:
@@ -270,7 +280,9 @@ def set_windows_cursor_theme(cursor_name: str) -> None:
     logger.info("Windows 鼠标指针主题已设置为 '%s'", cursor_name)
 
 
-def set_windows_cursor_size(cursor_size: int) -> None:
+def set_windows_cursor_size(
+    cursor_size: int,
+) -> None:
     """设置 Windows 桌面当前使用的鼠标指针大小
 
     Args:
@@ -306,7 +318,9 @@ def get_windows_cursor_info() -> CurrentCursorInfoList:
     return info_list
 
 
-def delete_windows_cursor(cursor_name: str) -> None:
+def delete_windows_cursor(
+    cursor_name: str,
+) -> None:
     """删除 Windows 系统上指定的鼠标指针
 
     Args:
@@ -502,7 +516,13 @@ def export_windows_cursor(
     return save_dir
 
 
-def generate_cursor_scheme_inf_string(destination_dirs: str, wreg: str, scheme_reg: str, scheme_cur: str, strings: str) -> str:
+def generate_cursor_scheme_inf_string(
+    destination_dirs: str,
+    wreg: str,
+    scheme_reg: str,
+    scheme_cur: str,
+    strings: str,
+) -> str:
     """生成鼠标指针安装配置文件
 
     Args:

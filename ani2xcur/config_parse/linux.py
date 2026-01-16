@@ -32,17 +32,29 @@ DesktopEntrySectionName = Literal[
 class DesktopEntrySectionDict(Protocol):
     """DesktopEntry 选项结构字典"""
 
-    def get(self, key: Literal["var", "constant"], default: Any = ...) -> str | dict[str, str | list[str]] | Any: ...
+    def get(  # pylint: disable=missing-function-docstring
+        self,
+        key: Literal["var", "constant"],
+        default: Any = ...,
+    ) -> str | dict[str, str | list[str]] | Any: ...
 
 
 class KnownDesktopEntrySections(Protocol):
     """已知的 DesktopEntry 结构"""
 
-    def __getitem__(self, key: DesktopEntrySectionName) -> DesktopEntrySectionDict: ...
-    def __contains__(self, key: object) -> bool: ...
+    def __getitem__(
+        self,
+        key: DesktopEntrySectionName,
+    ) -> DesktopEntrySectionDict: ...
+    def __contains__(
+        self,
+        key: object,
+    ) -> bool: ...
 
 
-def preprocess_desktop_entry_to_cursor_scheme(parsed: ParsedINF) -> CursorShemeDesktopEntry:
+def preprocess_desktop_entry_to_cursor_scheme(
+    parsed: ParsedINF,
+) -> CursorShemeDesktopEntry:
     """将 ParsedDesktopEntry 处理为鼠标指针已知键的扁平结构
 
     返回包含常见节的字典:
@@ -87,7 +99,9 @@ def parse_desktop_entry_content(
         raise e
 
 
-def dict_to_desktop_entry_strings_format(data_dict: dict[str, str]) -> str:
+def dict_to_desktop_entry_strings_format(
+    data_dict: dict[str, str],
+) -> str:
     """
     将字典转换为 Desktop Entry 文件 [<Var>] 部分的格式
 

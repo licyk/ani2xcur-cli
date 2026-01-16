@@ -24,7 +24,9 @@ logger = get_logger(
 )
 
 
-def save_convert_to_float(value: Any) -> float | Any:
+def save_convert_to_float(
+    value: Any,
+) -> float | Any:
     """尝试将值转换为浮点数
 
     Args:
@@ -38,7 +40,9 @@ def save_convert_to_float(value: Any) -> float | Any:
         return value
 
 
-def safe_convert_to_int(value: Any) -> int | Any:
+def safe_convert_to_int(
+    value: Any,
+) -> int | Any:
     """尝试将值转换为整数
 
     Args:
@@ -88,7 +92,10 @@ def open_file_as_bytes(
         raise e
 
 
-def save_bytes_to_file(bytes_file: bytes, output_path: Path) -> None:
+def save_bytes_to_file(
+    bytes_file: bytes,
+    output_path: Path,
+) -> None:
     """将二进制文件保存为文件
 
     Args:
@@ -121,7 +128,9 @@ def save_bytes_to_file(bytes_file: bytes, output_path: Path) -> None:
         raise e
 
 
-def is_utf8_bom_encoding_file(file_path: Path) -> bool:
+def is_utf8_bom_encoding_file(
+    file_path: Path,
+) -> bool:
     """检测文本文件是否为 UTF8 BOM 编码保存
 
     Args:
@@ -135,7 +144,9 @@ def is_utf8_bom_encoding_file(file_path: Path) -> bool:
         return bom == b"\xef\xbb\xbf"
 
 
-def detect_encoding(file_path: Path) -> str:
+def detect_encoding(
+    file_path: Path,
+) -> str:
     """
     检测文件的编码格式
 
@@ -161,7 +172,9 @@ def detect_encoding(file_path: Path) -> str:
         return "gbk"
 
 
-def lowercase_dict_keys(d: dict[str, Any]) -> dict[str, Any]:
+def lowercase_dict_keys(
+    d: dict[str, Any],
+) -> dict[str, Any]:
     """
     递归地将字典中的键转换为小写形式, 但如果转换后会导致键重复, 则保留原键名不变. 同时处理嵌套的字典
 
@@ -214,7 +227,11 @@ def lowercase_dict_keys(d: dict[str, Any]) -> dict[str, Any]:
     return new_dict
 
 
-def extend_list_to_length(lst: list[Any], target_length: int, fill_value: str | None = "") -> list[Any]:
+def extend_list_to_length(
+    lst: list[Any],
+    target_length: int,
+    fill_value: str | None = "",
+) -> list[Any]:
     """将列表扩展到指定长度
 
     Args:
@@ -250,7 +267,9 @@ def is_root_on_linux() -> bool:
     return getpass.getuser() == "root"
 
 
-def unload_specific_module(module_name: str) -> None:
+def unload_specific_module(
+    module_name: str,
+) -> None:
     """从内存卸载指定的 Python 模块
 
     Args:
@@ -339,7 +358,9 @@ def generate_random_string(
     return "".join(random.choice(char_pool) for _ in range(length))
 
 
-def normalized_filepath(filepath: str | Path) -> Path:
+def normalized_filepath(
+    filepath: str | Path,
+) -> Path:
     """将输入的路径转换为绝对路径
 
     Args:

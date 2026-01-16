@@ -42,7 +42,9 @@ SUPPORTED_ARCHIVE_FORMAT = [
 """支持的压缩包格式列表"""
 
 
-def is_supported_archive_format(archive_path: Path) -> bool:
+def is_supported_archive_format(
+    archive_path: Path,
+) -> bool:
     """查看压缩包是否支持解压或是否支持压缩成的格式
 
     Args:
@@ -57,7 +59,10 @@ def is_supported_archive_format(archive_path: Path) -> bool:
     return False
 
 
-def extract_archive(archive_path: Path, extract_to: Path) -> None:
+def extract_archive(
+    archive_path: Path,
+    extract_to: Path,
+) -> None:
     """解压支持的压缩包
 
     Args:
@@ -123,7 +128,10 @@ def extract_archive(archive_path: Path, extract_to: Path) -> None:
         return
 
 
-def create_archive(sources: Iterable[Path], archive_path: Path) -> None:
+def create_archive(
+    sources: Iterable[Path],
+    archive_path: Path,
+) -> None:
     """根据扩展名创建压缩包
 
     Args:
@@ -133,7 +141,11 @@ def create_archive(sources: Iterable[Path], archive_path: Path) -> None:
         ValueError: 不支持的压缩或不能写入的格式
     """
 
-    def _add_to_tar(tar_ref: tarfile.TarFile, src: Path, arcname: str | None = None) -> None:
+    def _add_to_tar(
+        tar_ref: tarfile.TarFile,
+        src: Path,
+        arcname: str | None = None,
+    ) -> None:
         if arcname is None:
             arcname = src.name
         tar_ref.add(str(src), arcname=arcname)
@@ -212,4 +224,3 @@ def create_archive(sources: Iterable[Path], archive_path: Path) -> None:
                     for src in sources:
                         _add_to_tar(tar_ref, src)
         return
-

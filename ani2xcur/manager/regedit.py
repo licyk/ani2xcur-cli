@@ -1,7 +1,10 @@
 """Windows 注册表操作工具"""
 
 import sys
-from enum import IntFlag, Enum
+from enum import (
+    IntFlag,
+    Enum,
+)
 
 
 if sys.platform == "win32":
@@ -25,7 +28,9 @@ if sys.platform == "win32":
         CURRENT_CONFIG = winreg.HKEY_CURRENT_CONFIG
         """HKEY_CURRENT_CONFIG: 当前硬件配置视图"""
 
-        def __int__(self) -> int:
+        def __int__(
+            self,
+        ) -> int:
             return self.value
 
     class RegistryAccess(IntFlag):
@@ -61,7 +66,9 @@ if sys.platform == "win32":
         WOW64_32KEY = winreg.KEY_WOW64_32KEY
         """强制访问 32 位注册表视图"""
 
-        def __int__(self) -> int:
+        def __int__(
+            self,
+        ) -> int:
             return self.value
 
     class RegistryValueType(IntFlag):
@@ -88,7 +95,9 @@ if sys.platform == "win32":
         NONE = winreg.REG_NONE
         """无类型数据 -> `bytes` | `None`"""
 
-        def __int__(self) -> int:
+        def __int__(
+            self,
+        ) -> int:
             return int(self.value)
 else:
 

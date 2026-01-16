@@ -1,8 +1,13 @@
-
+"""鼠标指针缩放工具"""
 
 from win2xcur.cursor import CursorFrame
 
-def apply_to_frames(frames: list[CursorFrame], *, scale: float) -> None:
+
+def apply_to_frames(
+    frames: list[CursorFrame],
+    *,
+    scale: float,
+) -> None:
     """将缩放应用到鼠标指针文件的帧上
 
     Args:
@@ -15,4 +20,3 @@ def apply_to_frames(frames: list[CursorFrame], *, scale: float) -> None:
                 int(round(cursor.image.width * scale)),
                 int(round(cursor.image.height) * scale),
             )
-

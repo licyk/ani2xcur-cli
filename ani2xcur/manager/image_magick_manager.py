@@ -34,7 +34,10 @@ from ani2xcur.manager.win_env_val_manager import (
     delete_val_from_env,
     delete_path_from_env_path,
 )
-from ani2xcur.utils import is_admin_on_windows, is_root_on_linux
+from ani2xcur.utils import (
+    is_admin_on_windows,
+    is_root_on_linux,
+)
 from ani2xcur.manager.regedit import (
     RegistryAccess,
     RegistryRootKey,
@@ -251,7 +254,9 @@ def install_image_magick_windows(
     logger.info("ImageMagick 已安装到 Windows 系统中")
 
 
-def get_image_magick_version(magick_bin: Path) -> tuple[str, str, str]:
+def get_image_magick_version(
+    magick_bin: Path,
+) -> tuple[str, str, str]:
     """获取 ImageMagick 版本号, 质量设置和架构
 
     Args:

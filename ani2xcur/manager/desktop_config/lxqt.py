@@ -33,7 +33,9 @@ def get_lxqt_cursor_size() -> int | None:
     return None
 
 
-def set_lxqt_cursor_theme(cursor_name: str) -> None:
+def set_lxqt_cursor_theme(
+    cursor_name: str,
+) -> None:
     """设置 LXQT 桌面当前使用的鼠标指针配置名称
 
     Args:
@@ -50,7 +52,9 @@ def set_lxqt_cursor_theme(cursor_name: str) -> None:
         config.write(f, space_around_delimiters=False)
 
 
-def set_lxqt_cursor_size(cursor_size: int) -> None:
+def set_lxqt_cursor_size(
+    cursor_size: int,
+) -> None:
     """设置 LXQT 桌面当前使用的鼠标指针大小
 
     Args:

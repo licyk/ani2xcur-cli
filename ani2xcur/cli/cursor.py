@@ -2,7 +2,10 @@
 
 import sys
 import traceback
-from typing import Annotated
+from typing import (
+    Annotated,
+    Any,
+)
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -149,7 +152,9 @@ def install_cursor(
         sys.exit(1)
 
 
-def uninstall_cursor(cursor_name: Annotated[str, typer.Argument(help="要删除的鼠标指针名称")]) -> None:
+def uninstall_cursor(
+    cursor_name: Annotated[str, typer.Argument(help="要删除的鼠标指针名称")],
+) -> None:
     """删除系统中指定的鼠标指针"""
     if sys.platform == "win32":
         try:
@@ -252,7 +257,9 @@ def set_cursor_theme(
         sys.exit(1)
 
 
-def set_cursor_size(cursor_size: Annotated[int, typer.Argument(help="要指定的鼠标指针大小")]) -> None:
+def set_cursor_size(
+    cursor_size: Annotated[int, typer.Argument(help="要指定的鼠标指针大小")],
+) -> None:
     """设置系统要使用的鼠标指针大小"""
     if sys.platform == "win32":
         try:
@@ -284,7 +291,9 @@ def set_cursor_size(cursor_size: Annotated[int, typer.Argument(help="要指定�
 def list_cursor() -> None:
     """列出当前系统中已安装的鼠标指针"""
 
-    def _display_frame(items) -> None:
+    def _display_frame(
+        items: list[dict[str, Any]],
+    ) -> None:
         console = Console()
 
         # 设置表格整体样式
@@ -324,7 +333,9 @@ def list_cursor() -> None:
 def get_current_cursor() -> None:
     """显示当前系统中设置的鼠标指针名称和大小"""
 
-    def _display_frame(items) -> None:
+    def _display_frame(
+        items: list[dict[str, Any]],
+    ) -> None:
         console = Console()
 
         # 设置表格整体样式

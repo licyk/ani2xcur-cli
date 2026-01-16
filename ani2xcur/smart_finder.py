@@ -117,7 +117,13 @@ def find_desktop_entry_file(
     return None
 
 
-def find_inf_file(input_file: Path, temp_dir: Path, depth: int | None = 0, visited: set[Path] | None = None, is_toplevel: bool = True) -> Path | None:
+def find_inf_file(
+    input_file: Path,
+    temp_dir: Path,
+    depth: int | None = 0,
+    visited: set[Path] | None = None,
+    is_toplevel: bool = True,
+) -> Path | None:
     """搜索 INF 文件路径
 
     Args:

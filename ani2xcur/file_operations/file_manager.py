@@ -4,7 +4,9 @@ import os
 import stat
 import shutil
 from pathlib import Path
+
 from tqdm import tqdm
+
 from ani2xcur.logger import get_logger
 from ani2xcur.config import (
     LOGGER_LEVEL,
@@ -19,7 +21,9 @@ logger = get_logger(
 )
 
 
-def remove_files(path: Path) -> None:
+def remove_files(
+    path: Path,
+) -> None:
     """文件删除工具，支持删除只读文件和非空文件夹。
 
     Args:
@@ -33,7 +37,11 @@ def remove_files(path: Path) -> None:
         logger.error("路径不存在: '%s'", path)
         raise ValueError(f"要删除的 {path} 路径不存在")
 
-    def _handle_remove_readonly(func, path_str, _):
+    def _handle_remove_readonly(
+        func,
+        path_str,
+        _,
+    ):
         """处理只读文件的错误处理函数"""
         if os.path.exists(path_str):
             os.chmod(path_str, stat.S_IWRITE)
@@ -54,7 +62,10 @@ def remove_files(path: Path) -> None:
         raise e
 
 
-def copy_files(src: Path | str, dst: Path | str) -> None:
+def copy_files(
+    src: Path | str,
+    dst: Path | str,
+) -> None:
     """复制文件或目录
 
     Args:
@@ -175,7 +186,10 @@ def get_file_list(
     return file_list
 
 
-def save_create_symlink(target: Path, link: Path) -> None:
+def save_create_symlink(
+    target: Path,
+    link: Path,
+) -> None:
     """创建软链接, 当创建软链接失败时则尝试复制文件
 
     Args:

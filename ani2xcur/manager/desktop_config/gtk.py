@@ -14,7 +14,9 @@ GTK2_CONFIG_PATH = Path("~/.gtkrc-2.0").expanduser()
 """GTK 2.0 配置文件路径"""
 
 
-def read_gtk2_config(config_path: Path) -> dict[str, str]:
+def read_gtk2_config(
+    config_path: Path,
+) -> dict[str, str]:
     """读取 GTK 2.0 配置文件并返回配置字典
 
     Args:
@@ -46,7 +48,10 @@ def read_gtk2_config(config_path: Path) -> dict[str, str]:
     return config
 
 
-def write_gtk2_config(config_path: Path, updates: dict[str, str]) -> None:
+def write_gtk2_config(
+    config_path: Path,
+    updates: dict[str, str],
+) -> None:
     """修改 GTK 2.0 配置文件
 
     Args:
@@ -170,7 +175,9 @@ def get_gtk2_cursor_size() -> int | None:
     return int(config.get("gtk-cursor-theme-size"))
 
 
-def set_gtk4_cursor_theme(cursor_name: str) -> None:
+def set_gtk4_cursor_theme(
+    cursor_name: str,
+) -> None:
     """设置 GTK4 标准方案的当前使用的鼠标指针配置名称
 
     Args:
@@ -187,7 +194,9 @@ def set_gtk4_cursor_theme(cursor_name: str) -> None:
         config.write(f, space_around_delimiters=False)
 
 
-def set_gtk3_cursor_theme(cursor_name: str) -> None:
+def set_gtk3_cursor_theme(
+    cursor_name: str,
+) -> None:
     """设置 GTK3 标准方案的当前使用的鼠标指针配置名称
 
     Args:
@@ -204,7 +213,9 @@ def set_gtk3_cursor_theme(cursor_name: str) -> None:
         config.write(f, space_around_delimiters=False)
 
 
-def set_gtk2_cursor_theme(cursor_name: str) -> None:
+def set_gtk2_cursor_theme(
+    cursor_name: str,
+) -> None:
     """设置 GTK2 标准方案的当前使用的鼠标指针配置名称
 
     Args:
@@ -214,7 +225,9 @@ def set_gtk2_cursor_theme(cursor_name: str) -> None:
     write_gtk2_config(config_path=GTK2_CONFIG_PATH, updates={"gtk-cursor-theme-name": cursor_name})
 
 
-def set_gtk4_cursor_size(cursor_size: int) -> None:
+def set_gtk4_cursor_size(
+    cursor_size: int,
+) -> None:
     """设置 GTK4 标准方案的当前使用的鼠标指针大小
 
     Args:
@@ -231,7 +244,9 @@ def set_gtk4_cursor_size(cursor_size: int) -> None:
         config.write(f, space_around_delimiters=False)
 
 
-def set_gtk3_cursor_size(cursor_size: int) -> None:
+def set_gtk3_cursor_size(
+    cursor_size: int,
+) -> None:
     """设置 GTK3 标准方案的当前使用的鼠标指针大小
 
     Args:
@@ -248,7 +263,9 @@ def set_gtk3_cursor_size(cursor_size: int) -> None:
         config.write(f, space_around_delimiters=False)
 
 
-def set_gtk2_cursor_size(cursor_size: int) -> None:
+def set_gtk2_cursor_size(
+    cursor_size: int,
+) -> None:
     """设置 GTK2 标准方案的当前使用的鼠标指针大小
 
     Args:

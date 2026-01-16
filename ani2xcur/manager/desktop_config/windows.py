@@ -39,7 +39,9 @@ WINDOWS_ACCESSIBILITY_PATH = r"Software\Microsoft\Accessibility"
 """Windows 无障碍配置路径"""
 
 
-def has_var_string(text: str) -> bool:
+def has_var_string(
+    text: str,
+) -> bool:
     """检测字符串中是否包含 %var% 格式的变量
 
     Args:
@@ -51,7 +53,10 @@ def has_var_string(text: str) -> bool:
     return bool(re.search(pattern, text))
 
 
-def expand_var_string(text: str, vars_dict: dict[str, str] = None) -> str:
+def expand_var_string(
+    text: str,
+    vars_dict: dict[str, str] = None,
+) -> str:
     """将字符串中的 %var% 变量进行替换, 并优先查找变量表中的值
 
     Args:
@@ -61,7 +66,9 @@ def expand_var_string(text: str, vars_dict: dict[str, str] = None) -> str:
         str: 处理后的字符串
     """
 
-    def _replace_env_var(match: re.Match) -> str:
+    def _replace_env_var(
+        match: re.Match,
+    ) -> str:
         env_var = match.group(1)
         env_var_lower = match.group(1).lower().strip()
         return vars_dict.get(env_var_lower, os.environ.get(env_var, match.group(0)))
@@ -109,7 +116,9 @@ def get_windows_cursor_size() -> int | None:
     )
 
 
-def set_windows_cursor_theme(cursor_name: str) -> None:
+def set_windows_cursor_theme(
+    cursor_name: str,
+) -> None:
     """设置 Windows 桌面当前使用的鼠标指针配置名称
 
     Args:
@@ -152,7 +161,9 @@ def set_windows_cursor_theme(cursor_name: str) -> None:
     refresh_system_params()
 
 
-def set_windows_cursor_size(cursor_size: int) -> None:
+def set_windows_cursor_size(
+    cursor_size: int,
+) -> None:
     """设置 Windows 桌面当前使用的鼠标指针大小
 
     Args:
@@ -198,7 +209,13 @@ def broadcast_settings_change(
     return result
 
 
-def create_windows_shortcut(target_path: Path, shortcut_path: Path, description: str | None = "", working_dir: Path | None = None, icon_path: Path | None = None) -> None:
+def create_windows_shortcut(
+    target_path: Path,
+    shortcut_path: Path,
+    description: str | None = "",
+    working_dir: Path | None = None,
+    icon_path: Path | None = None,
+) -> None:
     """创建 Windows 快捷方式
 
     Args:

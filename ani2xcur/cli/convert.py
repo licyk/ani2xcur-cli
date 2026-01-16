@@ -12,7 +12,10 @@ from ani2xcur.cursor_conversion.convert import (
     win_cursor_to_x11,
     x11_cursor_to_win,
 )
-from ani2xcur.cursor_conversion.win2xcur_warp import Win2xcurArgs, X2wincurArgs
+from ani2xcur.cursor_conversion.win2xcur_warp import (
+    Win2xcurArgs,
+    X2wincurArgs,
+)
 from ani2xcur.smart_finder import (
     find_inf_file,
     find_desktop_entry_file,

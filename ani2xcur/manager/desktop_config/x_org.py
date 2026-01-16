@@ -9,7 +9,9 @@ X_RESOURCES_PATH = Path("~/.Xresources").expanduser()
 """X resources 配置文件路径"""
 
 
-def read_x_resources_config(config_path: Path) -> dict[str, str]:
+def read_x_resources_config(
+    config_path: Path,
+) -> dict[str, str]:
     """读取 X resources 配置文件并返回配置字典
 
     Args:
@@ -38,7 +40,10 @@ def read_x_resources_config(config_path: Path) -> dict[str, str]:
     return config
 
 
-def write_x_resources_config(config_path: Path, updates: dict[str, str]) -> None:
+def write_x_resources_config(
+    config_path: Path,
+    updates: dict[str, str],
+) -> None:
     """修改 X resources 配置文件
 
     Args:
@@ -106,7 +111,9 @@ def get_x_resources_cursor_size() -> int | None:
     return safe_convert_to_int(config.get("Xcursor.size"))
 
 
-def set_x_resources_cursor_theme(cursor_name: str) -> None:
+def set_x_resources_cursor_theme(
+    cursor_name: str,
+) -> None:
     """设置 X11 标准方案的当前使用的鼠标指针配置名称
 
     Args:
@@ -116,7 +123,9 @@ def set_x_resources_cursor_theme(cursor_name: str) -> None:
     write_x_resources_config(config_path=X_RESOURCES_PATH, updates={"Xcursor.theme": cursor_name})
 
 
-def set_x_resources_cursor_size(cursor_size: int) -> None:
+def set_x_resources_cursor_size(
+    cursor_size: int,
+) -> None:
     """设置 X11 标准方案的当前使用的鼠标指针大小
 
     Args:

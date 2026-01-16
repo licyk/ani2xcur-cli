@@ -20,7 +20,9 @@ LINUX_CURSOR_SIZE_RANGE = IntRange(16, 96)
 """Windows 鼠标指针大小有效值范围"""
 
 
-def check_windows_cursor_size_value(value: int) -> int:
+def check_windows_cursor_size_value(
+    value: int,
+) -> int:
     """检查设置的 Windows 鼠标指针大小是否符合范围
 
     Args:
@@ -37,7 +39,9 @@ def check_windows_cursor_size_value(value: int) -> int:
     raise ValueError(f"Windows 鼠标指针大小的值 {value} 超过有效范围 [{rng.min}, {rng.max}]")
 
 
-def check_linux_cursor_size_value(value: int) -> int:
+def check_linux_cursor_size_value(
+    value: int,
+) -> int:
     """检查设置的 Linux 鼠标指针大小是否符合范围
 
     Args:

@@ -86,7 +86,10 @@ def download_file_from_url(
     return cached_file
 
 
-def compare_sha256(file_path: str | Path, hash_prefix: str) -> bool:
+def compare_sha256(
+    file_path: str | Path,
+    hash_prefix: str,
+) -> bool:
     """检查文件的 sha256 哈希值是否与给定的前缀匹配
 
     Args:

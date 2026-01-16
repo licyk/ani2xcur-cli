@@ -45,17 +45,29 @@ INFSectionName = Literal[
 class INFSectionDict(Protocol):
     """INF 选项结构字典"""
 
-    def get(self, key: Literal["var", "constant"], default: Any = ...) -> str | dict[str, str | list[str]] | Any: ...
+    def get(  # pylint: disable=missing-function-docstring
+        self,
+        key: Literal["var", "constant"],
+        default: Any = ...,
+    ) -> str | dict[str, str | list[str]] | Any: ...
 
 
 class KnownINFSections(Protocol):
     """已知的 INF 结构"""
 
-    def __getitem__(self, key: INFSectionName) -> INFSectionDict: ...
-    def __contains__(self, key: object) -> bool: ...
+    def __getitem__(
+        self,
+        key: INFSectionName,
+    ) -> INFSectionDict: ...
+    def __contains__(
+        self,
+        key: object,
+    ) -> bool: ...
 
 
-def preprocess_inf_to_cursor_scheme(parsed: ParsedINF) -> CursorShemeINF:
+def preprocess_inf_to_cursor_scheme(
+    parsed: ParsedINF,
+) -> CursorShemeINF:
     """将 ParsedINF 处理为鼠标指针已知键的扁平结构
 
     返回包含常见节的字典:
@@ -75,7 +87,9 @@ def preprocess_inf_to_cursor_scheme(parsed: ParsedINF) -> CursorShemeINF:
         ValueError: 当鼠标指针配置文件不完整时
     """
 
-    def _ensure_list(v: str | list[str]) -> list[str]:
+    def _ensure_list(
+        v: str | list[str],
+    ) -> list[str]:
         return v if isinstance(v, list) else [v]
 
     out: CursorShemeINF = {}
@@ -135,7 +149,10 @@ def parse_inf_file_content(
         raise e
 
 
-def dict_to_inf_strings_format(data_dict: dict[str, str], indent_width: int | None = 12) -> str:
+def dict_to_inf_strings_format(
+    data_dict: dict[str, str],
+    indent_width: int | None = 12,
+) -> str:
     """
     将字典转换为 INF 文件 [Strings] 部分的格式
 

@@ -2,7 +2,10 @@
 
 import importlib.metadata
 import re
-from typing import Annotated
+from typing import (
+    Annotated,
+    Any,
+)
 
 import typer
 from rich.console import Console
@@ -45,7 +48,9 @@ def update(
 def version() -> None:
     """显示 Ani2xcur 和其他组件的当前版本"""
 
-    def _display_frame(items) -> None:
+    def _display_frame(
+        items: list[dict[str, Any]],
+    ) -> None:
         console = Console()
 
         # 设置表格整体样式
@@ -82,7 +87,9 @@ def version() -> None:
     _display_frame(info)
 
 
-def get_package_name(package: str) -> str:
+def get_package_name(
+    package: str,
+) -> str:
     """获取 Python 软件包的包名, 去除末尾的版本声明
 
     Args:
@@ -93,7 +100,9 @@ def get_package_name(package: str) -> str:
     return package.split("===")[0].split("~=")[0].split("!=")[0].split("<=")[0].split(">=")[0].split("<")[0].split(">")[0].split("==")[0].strip()
 
 
-def remove_optional_dependence_from_package(filename: str) -> str:
+def remove_optional_dependence_from_package(
+    filename: str,
+) -> str:
     """移除 Python 软件包声明中可选依赖
 
     Args:
@@ -107,7 +116,9 @@ def remove_optional_dependence_from_package(filename: str) -> str:
 def env() -> None:
     """列出 Ani2xcur 使用的环境变量"""
 
-    def _display_frame(items) -> None:
+    def _display_frame(
+        items: list[dict[str, Any]],
+    ) -> None:
         console = Console()
 
         # 设置表格整体样式

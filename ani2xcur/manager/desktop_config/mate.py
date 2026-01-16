@@ -53,7 +53,9 @@ def get_mate_cursor_size() -> int | None:
     return safe_convert_to_int(result)
 
 
-def set_mate_cursor_theme(cursor_name: str) -> None:
+def set_mate_cursor_theme(
+    cursor_name: str,
+) -> None:
     """设置 Mate 桌面当前使用的鼠标指针配置名称
 
     Args:
@@ -69,7 +71,9 @@ def set_mate_cursor_theme(cursor_name: str) -> None:
     )
 
 
-def set_mate_cursor_size(cursor_size: int) -> None:
+def set_mate_cursor_size(
+    cursor_size: int,
+) -> None:
     """设置 Mate 桌面当前使用的鼠标指针大小
 
     Args:

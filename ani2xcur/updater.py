@@ -3,7 +3,10 @@
 import sys
 import importlib.metadata
 from pathlib import Path
-from datetime import datetime, timedelta
+from datetime import (
+    datetime,
+    timedelta,
+)
 
 from ani2xcur.cmd import run_cmd
 from ani2xcur.logger import get_logger
@@ -100,7 +103,10 @@ def check_update_time() -> bool:
     time_span = timedelta(hours=24)
     time_format = r"%Y-%m-%d %H:%M:%S"
 
-    def _save_time_record(_record: datetime, _time_record_file: Path) -> None:
+    def _save_time_record(
+        _record: datetime,
+        _time_record_file: Path,
+    ) -> None:
         try:
             with open(_time_record_file, "w", encoding="utf-8") as f:
                 f.write(_record.strftime(time_format))

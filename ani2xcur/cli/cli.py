@@ -9,7 +9,10 @@ class AlphabeticalMixedGroup(typer.core.TyperGroup):
     自定义的命令组
     """
 
-    def list_commands(self, ctx: click.Context) -> list[str]:  # type: ignore[name-defined]
+    def list_commands(
+        self,
+        ctx: click.Context,
+    ) -> list[str]:  # type: ignore[name-defined]
         """将命令按键名进行字母排序
 
         Args:
@@ -18,7 +21,9 @@ class AlphabeticalMixedGroup(typer.core.TyperGroup):
         return sorted(self.commands.keys())
 
 
-def typer_factory(help: str) -> typer.Typer:  # pylint: disable=redefined-builtin
+def typer_factory(
+    help: str,  # pylint: disable=redefined-builtin
+) -> typer.Typer:
     """生成 typer 装饰器
 
     Args:

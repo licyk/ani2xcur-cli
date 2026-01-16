@@ -65,7 +65,9 @@ def get_xfce_cursor_size() -> int | None:
     return safe_convert_to_int(result)
 
 
-def set_xfce_cursor_theme(cursor_name: str) -> str | None:
+def set_xfce_cursor_theme(
+    cursor_name: str,
+) -> str | None:
     """设置 Xfce 桌面当前使用的鼠标指针配置名称
 
     Args:
@@ -81,7 +83,9 @@ def set_xfce_cursor_theme(cursor_name: str) -> str | None:
     )
 
 
-def set_xfce_cursor_size(cursor_size: int) -> int | None:
+def set_xfce_cursor_size(
+    cursor_size: int,
+) -> int | None:
     """设置 Xfce 桌面当前使用的鼠标指针大小
 
     Args:

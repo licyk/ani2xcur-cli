@@ -9,7 +9,9 @@ GTK_XSETTINGS_PATH = Path("~/.config/xsettingsd/xsettingsd.conf").expanduser()
 """GTK xsettings 配置文件路径"""
 
 
-def read_gtk_xsettings_config(config_path: Path) -> dict[str, str | int]:
+def read_gtk_xsettings_config(
+    config_path: Path,
+) -> dict[str, str | int]:
     """读取 GTK xsettings 配置文件并返回配置字典
 
     Args:
@@ -45,7 +47,10 @@ def read_gtk_xsettings_config(config_path: Path) -> dict[str, str | int]:
     return config
 
 
-def write_gtk_xsettings_config(config_path: Path, config: dict[str, str | int]) -> None:
+def write_gtk_xsettings_config(
+    config_path: Path,
+    config: dict[str, str | int],
+) -> None:
     """将配置字典写入 GTK xsettings 配置文件
 
     Args:
@@ -88,7 +93,9 @@ def get_gtk_xsettings_cursor_size() -> int | None:
     return safe_convert_to_int(size)
 
 
-def set_gtk_xsettings_cursor_theme(cursor_name: str) -> None:
+def set_gtk_xsettings_cursor_theme(
+    cursor_name: str,
+) -> None:
     """设置 GTK xsettings 配置文件中的鼠标指针主题
 
     Args:
@@ -104,7 +111,9 @@ def set_gtk_xsettings_cursor_theme(cursor_name: str) -> None:
     write_gtk_xsettings_config(GTK_XSETTINGS_PATH, config)
 
 
-def set_gtk_xsettings_cursor_size(cursor_size: int) -> None:
+def set_gtk_xsettings_cursor_size(
+    cursor_size: int,
+) -> None:
     """设置 GTK xsettings 配置文件中的鼠标指针大小
 
     Args:

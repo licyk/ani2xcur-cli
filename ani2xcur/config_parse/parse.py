@@ -35,7 +35,9 @@ ParsedINF: TypeAlias = dict[str, INFSection]
 """parsed INF 的类型"""
 
 
-def parse_inf_text(text: str) -> ParsedINF:
+def parse_inf_text(
+    text: str,
+) -> ParsedINF:
     """解析 INF 文本
     Args:
         text (str): INF 文本字符串
@@ -89,7 +91,9 @@ def parse_inf_text(text: str) -> ParsedINF:
     return result
 
 
-def parse_inf_file(path: Path) -> ParsedINF:
+def parse_inf_file(
+    path: Path,
+) -> ParsedINF:
     """解析 INF 文件
     Args:
         path (str): INF 文件路径

@@ -191,7 +191,9 @@ def list_linux_cursors() -> CursorSchemesList:
     return cursors_list
 
 
-def set_linux_cursor_theme(cursor_name: str) -> None:
+def set_linux_cursor_theme(
+    cursor_name: str,
+) -> None:
     """设置 Linux 桌面当前使用的鼠标指针配置名称
 
     Args:
@@ -220,7 +222,9 @@ def set_linux_cursor_theme(cursor_name: str) -> None:
     logger.info("Linux 鼠标指针主题已设置为 '%s'", cursor_name)
 
 
-def set_linux_cursor_size(cursor_size: int) -> None:
+def set_linux_cursor_size(
+    cursor_size: int,
+) -> None:
     """设置 Linux 桌面当前使用的鼠标指针大小
 
     Args:
@@ -347,7 +351,9 @@ def get_linux_cursor_info() -> CurrentCursorInfoList:
     return info_list
 
 
-def delete_linux_cursor(cursor_name: str) -> None:
+def delete_linux_cursor(
+    cursor_name: str,
+) -> None:
     """删除 Linux 系统上指定的鼠标指针
 
     Args:

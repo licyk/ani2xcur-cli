@@ -72,7 +72,7 @@ def set_gnome_cursor_size(cursor_size: int) -> None:
         return
 
     run_cmd(
-        ["gsettings", "set", "org.gnome.desktop.interface", "cursor-size", cursor_size],
+        ["gsettings", "set", "org.gnome.desktop.interface", "cursor-size", str(cursor_size)],
         live=False,
         check=False,
     )

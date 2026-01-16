@@ -88,7 +88,7 @@ def get_gtk_xsettings_cursor_size() -> int | None:
     return safe_convert_to_int(size)
 
 
-def set_gtk_xsettings_cursor_theme(theme_name: str) -> None:
+def set_gtk_xsettings_cursor_theme(cursor_name: str) -> None:
     """设置 GTK xsettings 配置文件中的鼠标指针主题
 
     Args:
@@ -100,11 +100,11 @@ def set_gtk_xsettings_cursor_theme(theme_name: str) -> None:
     else:
         config = {}
 
-    config["Gtk/CursorThemeName"] = theme_name
+    config["Gtk/CursorThemeName"] = cursor_name
     write_gtk_xsettings_config(GTK_XSETTINGS_PATH, config)
 
 
-def set_gtk_xsettings_cursor_size(size: int) -> None:
+def set_gtk_xsettings_cursor_size(cursor_size: int) -> None:
     """设置 GTK xsettings 配置文件中的鼠标指针大小
 
     Args:
@@ -116,5 +116,5 @@ def set_gtk_xsettings_cursor_size(size: int) -> None:
     else:
         config = {}
 
-    config["Gtk/CursorThemeSize"] = size
+    config["Gtk/CursorThemeSize"] = str(cursor_size)
     write_gtk_xsettings_config(GTK_XSETTINGS_PATH, config)

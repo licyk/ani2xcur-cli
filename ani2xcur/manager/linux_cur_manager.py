@@ -499,10 +499,31 @@ install_cursor() {
     return 0
 }
 
+get_cursor_set_command() {
+    local cursor_name=$1
+    cat<<EOF
+Cinnamon:
+    gsettings set org.cinnamon.desktop.interface cursor-theme "${cursor_name}"
+
+Gnome:
+    gsettings set org.gnome.desktop.interface cursor-theme "${cursor_name}"
+
+Mate:
+    gsettings set org.mate.peripherals-mouse cursor-theme "${cursor_name}"
+
+KDE:
+    kwriteconfig5 --file kcminputrc --group Mouse --key cursorTheme "${cursor_name}"
+
+Xfce:
+    xfconf-query --channel xsettings --property /Gtk/CursorThemeName --set "${cursor_name}"
+EOF
+}
+
 echo "将鼠标指针安装至 '{{__INSTALL_PATH__}}/{{__CURSOR_NAME__}}'"
 
 if install_cursor; then
     echo "'{{__CURSOR_NAME__}}' 鼠标指针安装完成, 可使用运行下面的命令启用该鼠标指针"
+    get_cursor_set_command "{{__CURSOR_NAME__}}"
 else
     echo "鼠标指针安装到 '{{__INSTALL_PATH__}}/{{__CURSOR_NAME__}}' 失败, 请检查是否有 root 权限或者检查目录是否存在"
     exit 1

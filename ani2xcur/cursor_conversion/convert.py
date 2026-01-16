@@ -13,7 +13,10 @@ from ani2xcur.manager.win_cur_manager import (
     generate_cursor_scheme_inf_string,
 )
 from ani2xcur.manager.base import CURSOR_KEYS
-from ani2xcur.manager.linux_cur_manager import extract_scheme_info_from_desktop_entry
+from ani2xcur.manager.linux_cur_manager import (
+    extract_scheme_info_from_desktop_entry,
+    generate_install_script,
+)
 from ani2xcur.config import (
     LINUX_CURSOR_SOURCE_PATH,
     LOGGER_NAME,
@@ -125,6 +128,12 @@ def win_cursor_to_x11(
         generate_linux_cursor_config(
             cursor_name=cursor_name,
             cursor_path=tmp_dir / cursor_name,
+        )
+
+        # 创建安装脚本
+        generate_install_script(
+            cursor_name=cursor_name,
+            save_dir=tmp_dir / cursor_name,
         )
 
         # 导出文件到输出文件夹

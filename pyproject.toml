@@ -15,7 +15,6 @@ dependencies = [
     "typer",
     "click",
     "zstandard",
-    "python-lzo",
     "py7zr",
     "rarfile",
     "requests",

@@ -1,6 +1,5 @@
 """压缩 / 解压工具"""
 
-import io
 import os
 import zipfile
 import tarfile
@@ -11,7 +10,6 @@ from typing import Iterable
 import rarfile
 import zstandard as zstd
 import py7zr
-import lzo
 
 from ani2xcur.config import (
     LOGGER_NAME,
@@ -35,7 +33,6 @@ SUPPORTED_ARCHIVE_FORMAT = [
     ".tar.Z",
     ".tar.lz",
     ".tar.lzma",
-    ".tar.lzo",
     ".tar.bz2",
     ".tar.7z",
     ".tar.gz",
@@ -113,14 +110,6 @@ def extract_archive(archive_path: Path, extract_to: Path) -> None:
             with dctx.stream_reader(fh) as reader:
                 with tarfile.open(fileobj=reader) as tar_ref:
                     tar_ref.extractall(extract_to)
-        return
-
-    if name.endswith(".tar.lzo"):
-        with open(archive_path, "rb") as fh:
-            decompressed = lzo.decompress(fh.read())
-            bio = io.BytesIO(decompressed)
-            with tarfile.open(fileobj=bio) as tar_ref:
-                tar_ref.extractall(extract_to)
         return
 
     if name.endswith(".7z"):
@@ -224,13 +213,3 @@ def create_archive(sources: Iterable[Path], archive_path: Path) -> None:
                         _add_to_tar(tar_ref, src)
         return
 
-    # .tar.lzo 先在内存创建 tar, 再 lzo.compress 后写入
-    if name.endswith(".tar.lzo"):
-        bio = io.BytesIO()
-        with tarfile.open(fileobj=bio, mode="w") as tar_ref:
-            for src in sources:
-                _add_to_tar(tar_ref, src)
-        data = bio.getvalue()
-        compressed = lzo.compress(data)
-        archive_path.write_bytes(compressed)
-        return

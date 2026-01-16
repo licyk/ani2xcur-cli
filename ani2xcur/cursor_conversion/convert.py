@@ -262,7 +262,7 @@ def generate_win_cursor_config(
     destination_dirs = r'10,"%CUR_DIR%"'
     strings["SCHEME_NAME"] = cursor_name
     strings["CUR_DIR"] = rf"Cursors\{cursor_name}"
-    wreg_list.append(r'HKCU,"Control Panel\Cursors\Schemes","%SCHEME_NAME%",,"')
+    wreg_list.append(r'HKCU,"Control Panel\Cursors",,0x00020000,"%SCHEME_NAME%"')
 
     for name, path in cursor_save_paths:
         if path is not None:

@@ -1,7 +1,7 @@
 """Windows 注册表操作工具"""
 
 import sys
-from enum import IntFlag
+from enum import IntFlag, Enum
 
 
 if sys.platform == "win32":
@@ -92,14 +92,14 @@ if sys.platform == "win32":
             return int(self.value)
 else:
 
-    class RegistryRootKey(IntFlag):  # pylint: disable=missing-class-docstring
+    class RegistryRootKey(Enum):  # pylint: disable=missing-class-docstring
         CLASSES_ROOT = NotImplemented
         CURRENT_USER = NotImplemented
         LOCAL_MACHINE = NotImplemented
         USERS = NotImplemented
         CURRENT_CONFIG = NotImplemented
 
-    class RegistryAccess(IntFlag):  # pylint: disable=missing-class-docstring
+    class RegistryAccess(Enum):  # pylint: disable=missing-class-docstring
         READ = NotImplemented
         WRITE = NotImplemented
         SET_VALUE = NotImplemented
@@ -111,7 +111,7 @@ else:
         WOW64_64KEY = NotImplemented
         WOW64_32KEY = NotImplemented
 
-    class RegistryValueType(IntFlag):  # pylint: disable=missing-class-docstring
+    class RegistryValueType(Enum):  # pylint: disable=missing-class-docstring
         SZ = NotImplemented
         EXPAND_SZ = NotImplemented
         DWORD = NotImplemented

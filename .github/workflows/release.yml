@@ -13,8 +13,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
-      
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+          cache: 'pip'
+
       - name: Install Dependences
         shell: bash
         env:
@@ -22,12 +28,12 @@ jobs:
           PIP_DISABLE_PIP_VERSION_CHECK: 1
           PIP_NO_WARN_SCRIPT_LOCATION: 0
         run: |
-          python3 -m pip install build twine --upgrade
+          python -m pip install build twine --upgrade
 
       - name: Build Wheel
         shell: bash
         run: |
-          python3 -m build "${{ github.workspace }}" --outdir "${{ github.workspace }}/dist"
+          python -m build "${{ github.workspace }}" --outdir "${{ github.workspace }}/dist"
 
       - name: Upload to PyPI
         shell: bash
@@ -35,7 +41,7 @@ jobs:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
         run: |
-          python3 -m twine upload "${{ github.workspace }}/dist"/*
+          python -m twine upload "${{ github.workspace }}/dist"/*
 
       - name: Create Github release
         shell: bash
@@ -43,5 +49,5 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           PYTHONPATH: ${{ github.workspace }}
         run: |
-          ani2xcur_version=$(python3 -c "from ani2xcur.version import VERSION; print(VERSION)")
-          gh release create "v${ani2xcur_version}" "${{ github.workspace }}/dist"/* --target main --generate-notes
+          ani2xcur_version=$(python -c "from ani2xcur.version import VERSION; print(VERSION)")
+          gh release create "v${ani2xcur_version}" "${{ github.workspace }}/dist"/* --target main --generate-notes --title "Release v${ani2xcur_version}"

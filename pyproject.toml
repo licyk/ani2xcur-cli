@@ -8,6 +8,7 @@ description = "鼠标指针转换、管理、和管理 ImageMagick 的命令行�
 requires-python = ">=3.10"
 readme = { content-type = "text/markdown", file = "README.md" }
 license = "GPL-3.0"
+license-files = ["LICENSE"]
 dynamic = ["version"]
 authors = [ {name = "licyk"} ]
 dependencies = [

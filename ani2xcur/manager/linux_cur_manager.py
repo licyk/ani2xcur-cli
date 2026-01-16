@@ -366,9 +366,11 @@ def delete_linux_cursor(cursor_name: str) -> None:
             # 清理鼠标指针文件
             for file in scheme["cursor_files"]:
                 if not file.exists():
+                    logger.debug("鼠标指针文件 '%s' 不存在", file)
                     continue
 
                 try:
+                    logger.debug("清理鼠标指针文件 '%s'", file)
                     remove_files(file)
                 except OSError as e:
                     logger.error("删除 '%s' 鼠标指针所使用的指针文件 '%s' 发生错误: %s\n可尝试使用管理员权限运行 Ani2xcur 进行删除, 或者尝试手动删除文件")
@@ -377,12 +379,11 @@ def delete_linux_cursor(cursor_name: str) -> None:
             # 清理鼠标指针的父文件夹
             for file in scheme["install_paths"]:
                 if not file.is_dir():
-                    continue
-
-                if any(file.iterdir()):
+                    logger.debug("鼠标指针文件的父文件夹 '%s' 不存在", file)
                     continue
 
                 try:
+                    logger.debug("清理鼠标指针文件的父文件夹 '%s'", file)
                     remove_files(file)
                 except OSError as e:
                     logger.error("清理 '%s' 鼠标指针文件的残留文件夹 '%s' 发生错误: %s\n可尝试使用管理员权限运行 Ani2xcur 进行删除, 或者尝试手动删除文件", cursor_name, file, e)

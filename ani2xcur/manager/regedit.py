@@ -92,11 +92,33 @@ if sys.platform == "win32":
             return int(self.value)
 else:
 
-    class RegistryRootKey(IntFlag): ...  # pylint: disable=missing-class-docstring
+    class RegistryRootKey(IntFlag):  # pylint: disable=missing-class-docstring
+        CLASSES_ROOT = NotImplemented
+        CURRENT_USER = NotImplemented
+        LOCAL_MACHINE = NotImplemented
+        USERS = NotImplemented
+        CURRENT_CONFIG = NotImplemented
 
-    class RegistryAccess(IntFlag): ...  # pylint: disable=missing-class-docstring
+    class RegistryAccess(IntFlag):  # pylint: disable=missing-class-docstring
+        READ = NotImplemented
+        WRITE = NotImplemented
+        SET_VALUE = NotImplemented
+        QUERY_VALUE = NotImplemented
+        CREATE_SUB_KEY = NotImplemented
+        ENUMERATE_SUB_KEYS = NotImplemented
+        NOTIFY = NotImplemented
+        ALL_ACCESS = NotImplemented
+        WOW64_64KEY = NotImplemented
+        WOW64_32KEY = NotImplemented
 
-    class RegistryValueType(IntFlag): ...  # pylint: disable=missing-class-docstring
+    class RegistryValueType(IntFlag):  # pylint: disable=missing-class-docstring
+        SZ = NotImplemented
+        EXPAND_SZ = NotImplemented
+        DWORD = NotImplemented
+        QWORD = NotImplemented
+        BINARY = NotImplemented
+        MULTI_SZ = NotImplemented
+        NONE = NotImplemented
 
     winreg = NotImplemented  # pylint: disable=invalid-name
 

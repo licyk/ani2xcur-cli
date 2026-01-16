@@ -97,7 +97,11 @@ def copy_files(src: Path | str, dst: Path | str) -> None:
         else:
             # symlinks=True: 保留软链接本身而非复制指向的内容
             # dirs_exist_ok=True: 实现合并逻辑，如果目标目录已存在则覆盖同名文件
-            shutil.copytree(src_path, dst_file, symlinks=True, dirs_exist_ok=True)
+            try:
+                shutil.copytree(src_path, dst_file, symlinks=True, dirs_exist_ok=True)
+            except shutil.Error:
+                # Linux 中遇到已存在的软链接会导致失败, 则使用 symlinks=False 重试
+                shutil.copytree(src_path, dst_file, symlinks=False, dirs_exist_ok=True)
 
     except PermissionError as e:
         logger.error("权限错误, 请检查文件权限或以管理员身份运行: %s", e)
@@ -171,7 +175,7 @@ def get_file_list(
     return file_list
 
 
-def create_symlink(target: Path, link: Path) -> None:
+def save_create_symlink(target: Path, link: Path) -> None:
     """创建软链接, 当创建软链接失败时则尝试复制文件
 
     Args:

@@ -32,7 +32,7 @@ from ani2xcur.cursor_conversion.win2xcur_warp import (
 )
 from ani2xcur.file_operations.file_manager import (
     copy_files,
-    create_symlink,
+    save_create_symlink,
 )
 
 logger = get_logger(
@@ -120,7 +120,7 @@ def win_cursor_to_x11(
         os.chdir(cursors_dir)
         logger.debug("要进行链接的鼠标指针别名: %s", link_file_list)
         for s, v in tqdm(link_file_list, desc="链接鼠标指针别名"):
-            create_symlink(s, v)
+            save_create_symlink(s, v)
 
         os.chdir(current_path)
 

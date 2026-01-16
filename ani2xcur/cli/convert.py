@@ -96,7 +96,7 @@ def win2xcur(
     shadow_color: Annotated[
         str,
         typer.Option(
-            help="阴影的颜色",
+            help="阴影的颜色 (十六进制颜色格式)",
         ),
     ] = "#000000",
     scale: Annotated[

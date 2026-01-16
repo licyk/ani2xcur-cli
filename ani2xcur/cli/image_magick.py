@@ -95,7 +95,7 @@ def uninstall_image_magick(
         typer.Option(
             "--yes",
             "-y",
-            help="直接确认安装",
+            help="直接确认卸载",
         ),
     ] = False,
 ) -> None:

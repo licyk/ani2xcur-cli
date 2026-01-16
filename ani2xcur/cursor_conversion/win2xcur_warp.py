@@ -53,7 +53,7 @@ class Win2xcurArgs(TypedDict, total=False):
     """阴影的 y 偏移量 (高度的分数值)"""
 
     shadow_color: str | None
-    """阴影的颜色"""
+    """阴影的颜色 (十六进制颜色格式)"""
 
     scale: float | None
     """按指定倍数缩放光标"""
@@ -84,7 +84,7 @@ def win2xcur_process(
         shadow_sigma (float | None): 阴影模糊效果的西格玛值 (宽度的分数值)
         shadow_x (float | None): 阴影的 x 偏移量 (宽度的分数值)
         shadow_y (float | None): 阴影的 y 偏移量 (高度的分数值)
-        shadow_color (str | None): 阴影的颜色
+        shadow_color (str | None): 阴影的颜色 (十六进制颜色格式)
         scale (float | None): 按指定倍数缩放光标
     Returns:
         Path: 光标保存路径

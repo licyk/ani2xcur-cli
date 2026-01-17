@@ -34,8 +34,5 @@ ANI2XCUR_REPOSITORY_URL = os.getenv("ANI2XCUR_REPOSITORY_URL", "https://github.c
 WIN2XCUR_REPOSITORY_URL = os.getenv("WIN2XCUR_REPOSITORY_URL", "https://github.com/quantum5/win2xcur")
 """Win2xcur 仓库地址"""
 
-ANI2XCUR_CONFIG_PATH = (Path("~").expanduser() / "AppData" / "Roaming" / "ani2xcur") if sys.platform == "win32" else (Path("~").expanduser() / ".config" / "ani2xcur")
-"""Ani2xcur 配置文件路径"""
-
 SMART_FINDER_SEARCH_DEPTH = int(os.getenv("ANI2XCUR_SMART_FINDER_SEARCH_DEPTH", "3"))
 """Ani2xcur 智能搜索鼠标指针配置文件的深度"""

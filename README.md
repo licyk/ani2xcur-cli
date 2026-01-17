@@ -163,6 +163,9 @@ ani2xcur cursor install <指针路径>
 ani2xcur cursor uninstall <指针名称>
 ```
 
+- **高级选项**:
+  - `-y`|`--yes`: 直接确认卸载鼠标指针。
+
 
 ### 设置指针主题和大小
 设置当前系统指针主题。

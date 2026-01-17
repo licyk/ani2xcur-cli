@@ -159,9 +159,20 @@ def uninstall_cursor(
             help="要删除的鼠标指针名称",
         ),
     ],
+    force: Annotated[
+        bool,
+        typer.Option(
+            "--yes",
+            "-y",
+            help="直接确认删除鼠标指针",
+        ),
+    ] = False,
 ) -> None:
     """删除系统中指定的鼠标指针"""
     if sys.platform == "win32":
+        if not force:
+            typer.confirm(f"确认删除 {cursor_name} 鼠标指针吗?", abort=True)
+
         try:
             delete_windows_cursor(cursor_name)
         except RuntimeError as e:
@@ -173,6 +184,9 @@ def uninstall_cursor(
             logger.error("删除鼠标指针时发生错误: %s\n请检查要删除的鼠标指针是否存在或者正在使用", e)
             sys.exit(1)
     elif sys.platform == "linux":
+        if not force:
+            typer.confirm(f"确认删除 {cursor_name} 鼠标指针吗?", abort=True)
+
         try:
             delete_linux_cursor(cursor_name)
         except RuntimeError as e:

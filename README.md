@@ -1,12 +1,38 @@
 <div align="center">
 
+<img src="assets/ani2xcur_icon.png" width="200" height="200" alt="Ani2xcur CLI">
+
 # Ani2xcur CLI
 
 _✨一站式鼠标指针转换与管理工具_
   <p align="center">
-    <img src="https://img.shields.io/github/stars/licyk/ani2xcur-cli?style=flat&logo=github&logoColor=silver&color=bluegreen&labelColor=grey" alt="Stars">
-    <a href="https://github.com/licyk/ani2xcur-cli/issues"><img src="https://img.shields.io/github/issues/licyk/ani2xcur-cli?style=flat&logo=github&logoColor=silver&color=bluegreen&labelColor=grey" alt="Issues"></a>
-    <a href="https://github.com/licyk/ani2xcur-cli/commits/main"><img src="https://flat.badgen.net/github/last-commit/licyk/ani2xcur-cli/main?icon=github&color=green&label=last%20commit" alt="Commit"></a>
+    <a href="https://github.com/licyk/ani2xcur-cli/stargazers" style="margin: 2px;">
+      <img src="https://img.shields.io/github/stars/licyk/ani2xcur-cli?style=flat&logo=github&logoColor=silver&color=bluegreen&labelColor=grey" alt="Stars">
+    </a>
+    <a href="https://github.com/licyk/ani2xcur-cli/forks" style="margin: 2px;">
+      <img src="https://img.shields.io/github/forks/licyk/ani2xcur-cli?style=flat&logo=github&logoColor=silver&color=bluegreen&labelColor=grey" alt="GitHub forks">
+    </a>
+    <a href="https://github.com/licyk/ani2xcur-cli/issues" style="margin: 2px;">
+      <img src="https://img.shields.io/github/issues/licyk/ani2xcur-cli?style=flat&logo=github&logoColor=silver&color=bluegreen&labelColor=grey" alt="Issues">
+    </a>
+    <a href="https://github.com/licyk/ani2xcur-cli/commits/main" style="margin: 2px;">
+      <img src="https://flat.badgen.net/github/last-commit/licyk/ani2xcur-cli/main?icon=github&color=green&label=last%20commit" alt="Commit">
+    </a>
+    <a href="https://github.com/licyk/ani2xcur-cli/actions/workflows/lint.yml" style="margin: 2px;">
+      <img src="https://github.com/licyk/ani2xcur-cli/actions/workflows/lint.yml/badge.svg" alt="Ruff Lint">
+    </a>
+    <a href="https://github.com/licyk/ani2xcur-cli/actions/workflows/release.yml" style="margin: 2px;">
+      <img src="https://github.com/licyk/ani2xcur-cli/actions/workflows/release.yml/badge.svg" alt="Release">
+    </a>
+    <a href="https://github.com/licyk/ani2xcur-cli/releases" style="margin: 2px;">
+      <img src="https://img.shields.io/github/v/release/licyk/ani2xcur-cli?include_prereleases" alt="Release">
+    </a>
+    <a href="https://pypi.org/project/ani2xcur" style="margin: 2px;">
+      <img src="https://img.shields.io/pypi/v/ani2xcur" alt="PyPI">
+    </a>
+    <a href="https://pypi.org/project/ani2xcur" style="margin: 2px;">
+      <img src="https://img.shields.io/pypi/pyversions/ani2xcur.svg" alt="Python Version">
+    </a>
   </p>
 
 </div>
@@ -189,7 +215,7 @@ ani2xcur imagemagick install
 ```
 
 - **高级选项**:
-  - `--install-path`: (仅 Windows 平台) 自定义安装 ImageMagick 的目录。
+  - `--install-path <安装路径>`: (仅 Windows 平台) 自定义安装 ImageMagick 的目录。
   - `-y`|`--yes`: 直接确认安装。
 
 
@@ -209,8 +235,8 @@ ani2xcur update
 
 - **高级选项**:
   - `--install-from-source`: 更新时是否从源码进行安装。
-  - `--ani2xcur-source`: Ani2xcur 源仓库的 Git 链接。
-  - `--win2xcur-source`: Win2xcur 源仓库的 Git 链接。
+  - `--ani2xcur-source <Git 仓库链接>`: Ani2xcur 源仓库的 Git 链接。
+  - `--win2xcur-source <Git 仓库链接>`: Win2xcur 源仓库的 Git 链接。
 
 
 ## 查看 Ani2xcur CLI 使用的环境变量
@@ -226,9 +252,9 @@ ani2xcur version
 
 
 # 使用的项目
-- [win2xcur](https://github.com/quantum5/win2xcur): 转换核心。
-- [breeze cursor](https://store.kde.org/p/999927): 鼠标指针补全文件。
+- [Win2xcur](https://github.com/quantum5/win2xcur): 转换核心。
+- [Breeze cursor](https://store.kde.org/p/999927): 鼠标指针补全文件。
 
 
 # 许可证
-- [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.html)
+- [GPL-3.0](LICENSE)

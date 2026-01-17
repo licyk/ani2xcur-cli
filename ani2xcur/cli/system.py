@@ -2,6 +2,7 @@
 
 import importlib.metadata
 import re
+import sys
 from typing import (
     Annotated,
     Any,
@@ -53,11 +54,21 @@ def update(
     ] = None,
 ) -> None:
     """更新 Ani2xcur"""
-    self_update(
-        install_from_source=install_from_source,
-        ani2xcur_source=ani2xcur_source,
-        win2xcur_source=win2xcur_source,
-    )
+    try:
+        self_update(
+            install_from_source=install_from_source,
+            ani2xcur_source=ani2xcur_source,
+            win2xcur_source=win2xcur_source,
+        )
+    except RuntimeError as e:
+        logger.error("更新 Ani2xcur 时发生错误: %s\n", e)
+        logger.error("提示:")
+        logger.error("1. 如果为网络问题, 可尝试配置终端代理或者 PyPI 镜像源")
+        logger.error(
+            "2. 如果提示`error: externally-managed-environment`, 这是由于在 Linux 中直接使用 Pip 包管理器引起的错误, "
+            "可尝试使用 PIP_BREAK_SYSTEM_PACKAGES=1 ani2xcur update 忽略该错误, 或者在虚拟环境中安装 Ani2xcur"
+        )
+        sys.exit(1)
 
 
 def version() -> None:
@@ -90,7 +101,7 @@ def version() -> None:
 
     requires = importlib.metadata.requires("ani2xcur")
     requires.insert(0, "ani2xcur")
-    info = []
+    info: list[dict[str, str | None]] = []
     pkgs = [remove_optional_dependence_from_package(get_package_name(x)).split(";")[0].strip() for x in requires]
     for pkg in pkgs:
         try:

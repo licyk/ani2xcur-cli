@@ -7,12 +7,27 @@ name = "ani2xcur"
 description = "一个功能强大的命令行工具，用于在 Windows 和 Linux 平台上发现、转换、安装和管理鼠标指针主题。它支持双向转换，可将 Linux 光标主题 (XCursor) 转为 Windows 格式 (.cur/.ani)，亦可将 Windows 主题转为 Linux 格式，并提供安装、应用和卸载鼠标主题的全套管理功能。"
 requires-python = ">=3.10"
 readme = { content-type = "text/markdown", file = "README.md" }
-license = "GPL-3.0"
 license-files = ["LICENSE"]
 dynamic = ["version"]
 authors = [ {name = "licyk"} ]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Win32 (MS Windows)",
+    "Environment :: X11 Applications",
+    "Intended Audience :: End Users/Desktop",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Desktop Environment",
+]
 dependencies = [
-    "win2xcur>=0.1.2",
+    "win2xcur>=0.2.0",
     "typer",
     "click",
     "zstandard",

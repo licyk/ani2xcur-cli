@@ -21,6 +21,9 @@ jobs:
           python-version: '3.13'
           cache: 'pip'
 
+      - name: Run Ruff
+        uses: astral-sh/ruff-action@v3
+
       - name: Install Dependences
         shell: bash
         env:

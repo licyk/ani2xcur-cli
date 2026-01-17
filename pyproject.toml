@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ani2xcur"
-description = "鼠标指针转换、管理、和管理 ImageMagick 的命令行工具"
+description = "一个功能强大的命令行工具，用于在 Windows 和 Linux 平台上发现、转换、安装和管理鼠标指针主题。它支持双向转换，可将 Linux 光标主题 (XCursor) 转为 Windows 格式 (.cur/.ani)，亦可将 Windows 主题转为 Linux 格式，并提供安装、应用和卸载鼠标主题的全套管理功能。"
 requires-python = ">=3.10"
 readme = { content-type = "text/markdown", file = "README.md" }
 license = "GPL-3.0"
@@ -60,6 +60,6 @@ ignore-long-lines = "^\\s*(# )?<?https?://\\S+>?$"
 [tool.ruff]
 line-length = 180
 indent-width = 4
-ignore = [
+lint.ignore = [
     "E402" # module-import-not-at-top-of-file
 ]

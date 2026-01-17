@@ -208,6 +208,11 @@ ani2xcur imagemagick uninstall
 ani2xcur update
 ```
 
+- **高级选项**:
+  - `--install-from-source`: 更新时是否从源码进行安装。
+  - `--ani2xcur-source`: Ani2xcur 源仓库的 Git 链接。
+  - `--win2xcur-source`: Win2xcur 源仓库的 Git 链接。
+
 
 ## 查看 Ani2xcur CLI 使用的环境变量
 ```bash
@@ -222,8 +227,8 @@ ani2xcur version
 
 
 # 使用的项目
-- [win2xcur](https://github.com/quantum5/win2xcur): 转换核心  
-- [breeze cursor](https://store.kde.org/p/999927): 鼠标指针补全文件
+- [win2xcur](https://github.com/quantum5/win2xcur): 转换核心。
+- [breeze cursor](https://store.kde.org/p/999927): 鼠标指针补全文件。
 
 
 # 许可证

@@ -324,7 +324,7 @@ def generate_random_string(
     include_lowercase: bool | None = True,
     include_digits: bool | None = True,
     include_special: bool | None = False,
-):
+) -> str:
     """
     生成随机字符串
 

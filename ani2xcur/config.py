@@ -2,7 +2,6 @@
 
 import os
 import logging
-import sys
 from pathlib import Path
 
 LOGGER_NAME = os.getenv("ANI2XCUR_LOGGER_NAME", "Ani2xcur")

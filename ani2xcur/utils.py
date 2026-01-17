@@ -8,6 +8,7 @@ import string
 import sys
 from typing import Any
 from pathlib import Path
+from urllib.parse import urlparse
 
 from ani2xcur.logger import get_logger
 from ani2xcur.config import (
@@ -373,3 +374,21 @@ def normalized_filepath(
 
     logger.debug("解析成绝对路径后的路径: '%s'", filepath)
     return filepath
+
+
+def is_http_or_https(url: str) -> bool:
+    """检测字符串是否为 HTTP / HTTPS 链接
+
+    Args:
+        url (str): 待检测的字符串
+
+    Returns:
+        bool: 如果是 HTTPS / HTTP 链接返回 True
+    """
+    try:
+        result = urlparse(url)
+        # result.scheme 获取协议部分 (如 http, https)
+        # result.netloc 确保有域名部分 (避免 "https://" 这种空链接)
+        return result.scheme in ("http", "https") and bool(result.netloc)
+    except Exception:
+        return False

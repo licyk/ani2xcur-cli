@@ -32,6 +32,7 @@ from ani2xcur.file_operations.archive_manager import (
     SUPPORTED_ARCHIVE_FORMAT,
 )
 from ani2xcur.manager.image_magick_manager import check_image_magick_is_installed
+from ani2xcur.utils import is_http_or_https
 
 logger = get_logger(
     name=LOGGER_NAME,
@@ -42,10 +43,9 @@ logger = get_logger(
 
 def win2xcur(
     input_path: Annotated[
-        Path,
+        str,
         typer.Argument(
-            help="Windows 鼠标指针文件的路径, 可以为 inf / ani / cur 文件路径, 或者鼠标指针压缩包文件路径",
-            resolve_path=True,
+            help="Windows 鼠标指针文件的路径, 可以为 inf / ani / cur 文件路径, 或者鼠标指针压缩包文件路径, 也可以是鼠标指针压缩包的下载链接",
         ),
     ],
     output_path: Annotated[
@@ -125,18 +125,25 @@ def win2xcur(
         sys.exit(1)
 
     logger.info("将 '%s' 的 Windows 鼠标指针主题包转换为 Linux 鼠标指针主题包中", input_path)
-    win2x_args: Win2xcurArgs = {}
-    win2x_args["shadow"] = shadow
-    win2x_args["shadow_opacity"] = shadow_opacity
-    win2x_args["shadow_radius"] = shadow_radius
-    win2x_args["shadow_sigma"] = shadow_sigma
-    win2x_args["shadow_x"] = shadow_x
-    win2x_args["shadow_y"] = shadow_y
-    win2x_args["shadow_color"] = shadow_color
-    win2x_args["scale"] = scale
+
+    win2x_args: Win2xcurArgs = {
+        "shadow": shadow,
+        "shadow_opacity": shadow_opacity,
+        "shadow_radius": shadow_radius,
+        "shadow_sigma": shadow_sigma,
+        "shadow_x": shadow_x,
+        "shadow_y": shadow_y,
+        "shadow_color": shadow_color,
+        "scale": scale,
+    }
 
     if output_path is None:
-        output_path = input_path.parent
+        if is_http_or_https(input_path):
+            # 如果是 URL, 默认保存在当前执行目录下
+            output_path = Path.cwd()
+        else:
+            # 如果是本地路径, 保存在输入文件的父目录
+            output_path = Path(input_path).resolve().parent
 
     with TemporaryDirectory() as temp_dir:
         temp_dir = Path(temp_dir)
@@ -169,10 +176,9 @@ def win2xcur(
 
 def x2wincur(
     input_path: Annotated[
-        Path,
+        str,
         typer.Argument(
-            help="Linux 鼠标指针文件的路径, 可以为 index.theme 文件路径, 或者鼠标指针压缩包文件路径",
-            resolve_path=True,
+            help="Linux 鼠标指针文件的路径, 可以为 index.theme 文件路径, 或者鼠标指针压缩包文件路径, 也可以是鼠标指针压缩包的下载链接",
         ),
     ],
     output_path: Annotated[
@@ -208,11 +214,17 @@ def x2wincur(
         sys.exit(1)
 
     logger.info("将 '%s' 的 Linux 鼠标指针主题包转换为 Windows 鼠标指针主题包中", input_path)
-    x2win_args: X2wincurArgs = {}
-    x2win_args["scale"] = scale
+    x2win_args: X2wincurArgs = {
+        "scale": scale,
+    }
 
     if output_path is None:
-        output_path = input_path.parent
+        if is_http_or_https(input_path):
+            # 如果是 URL, 默认保存在当前执行目录下
+            output_path = Path.cwd()
+        else:
+            # 如果是本地路径, 保存在输入文件的父目录
+            output_path = Path(input_path).resolve().parent
 
     with TemporaryDirectory() as temp_dir:
         temp_dir = Path(temp_dir)

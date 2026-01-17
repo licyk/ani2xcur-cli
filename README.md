@@ -85,7 +85,7 @@ ani2xcur imagemagick install
 将 Windows 指针主题转换为 Linux X11 格式。
 
 ```bash
-ani2xcur convert win2x <Windows 指针路径>
+ani2xcur convert win2x <Windows 指针路径或者是鼠标指针压缩包下载链接>
 ```
 
 - **高级选项**:
@@ -106,7 +106,7 @@ ani2xcur convert win2x <Windows 指针路径>
 将 Linux X11 指针主题转换为 Windows 格式。
 
 ```bash
-ani2xcur convert x2win <Linux 指针路径>
+ani2xcur convert x2win <Linux 指针路径或者是鼠标指针压缩包下载链接>
 ```
 
 - **高级选项**:
@@ -119,7 +119,6 @@ ani2xcur convert x2win <Linux 指针路径>
 ## 鼠标指针管理
 
 ### 安装指针
-
 从本地路径（压缩包、`.inf` 文件或 `index.theme` 文件）安装指针主题。
 
 ```bash

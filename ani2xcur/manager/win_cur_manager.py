@@ -337,47 +337,61 @@ def delete_windows_cursor(
         raise ValueError(f"鼠标指针 {cursor_name} 正在被使用, 无法删除")
 
     logger.info("从 Windows 系统删除 '%s' 鼠标指针中", cursor_name)
+
+    # 统计需要删除和保留的鼠标指针文件
+    delete_file_paths: list[Path] = []
+    preserve_file_paths: list[Path] = []
+    delete_parent_paths: list[Path] = []
     for scheme in cursors:
         if cursor_name == scheme["name"]:
-            # 清理鼠标指针文件
-            for file in scheme["cursor_files"]:
-                if not file.exists():
-                    logger.debug("鼠标指针文件 '%s' 不存在", file)
-                    continue
+            delete_file_paths += scheme["cursor_files"]
+            delete_parent_paths += scheme["install_paths"]
+        else:
+            preserve_file_paths += scheme["cursor_files"]
 
-                try:
-                    logger.debug("清理鼠标指针文件 '%s'", file)
-                    remove_files(file)
-                except OSError as e:
-                    logger.error(
-                        "删除 '%s' 鼠标指针所使用的指针文件 '%s' 发生错误: %s\n可尝试使用管理员权限运行 Ani2xcur 进行删除, 或者尝试手动删除文件",
-                        cursor_name,
-                        file,
-                        e,
-                    )
-                    raise RuntimeError(f"删除 {cursor_name} 鼠标指针所使用的指针文件 {file} 发生错误: {e}\n可尝试使用管理员权限运行 Ani2xcur 进行删除, 或者尝试手动删除文件") from e
+    # 计算需要删除的文件
+    preserve_file_paths_set = set(preserve_file_paths)
+    need_delete_file_paths = [x for x in delete_file_paths if x not in preserve_file_paths_set]
 
-            # 清理鼠标指针的父文件夹
-            for file in scheme["install_paths"]:
-                if not file.is_dir():
-                    logger.debug("鼠标指针文件的父文件夹 '%s' 不存在", file)
-                    continue
+    logger.debug("%s 所属的鼠标指针文件列表: %s", cursor_name, delete_file_paths)
+    logger.debug("%s 所属的鼠标指针安装目录列表: %s", cursor_name, delete_parent_paths)
+    logger.debug("%s 需要删除的鼠标指针文件列表: %s", cursor_name, need_delete_file_paths)
 
-                if any(file.iterdir()):
-                    logger.debug("鼠标指针文件的父文件夹 '%s' 不为空, 跳过清理", file)
-                    continue
+    # 清理鼠标指针文件
+    for file in need_delete_file_paths:
+        try:
+            logger.debug("清理鼠标指针文件 '%s'", file)
+            remove_files(file)
+        except OSError as e:
+            logger.error(
+                "删除 '%s' 鼠标指针所使用的指针文件 '%s' 发生错误: %s\n可尝试使用管理员权限运行 Ani2xcur 进行删除, 或者尝试手动删除文件",
+                cursor_name,
+                file,
+                e,
+            )
+            raise RuntimeError(f"删除 {cursor_name} 鼠标指针所使用的指针文件 {file} 发生错误: {e}\n可尝试使用管理员权限运行 Ani2xcur 进行删除, 或者尝试手动删除文件") from e
 
-                try:
-                    logger.debug("清理鼠标指针文件的父文件夹 '%s'", file)
-                    remove_files(file)
-                except OSError as e:
-                    logger.error(
-                        "清理 '%s' 鼠标指针文件的残留文件夹 '%s' 发生错误: %s\n可尝试使用管理员权限运行 Ani2xcur 进行删除, 或者尝试手动删除文件",
-                        cursor_name,
-                        file,
-                        e,
-                    )
-                    raise RuntimeError(f"清理 {cursor_name} 鼠标指针文件的残留文件夹 {file} 发生错误: {e}\n可尝试使用管理员权限运行 Ani2xcur 进行删除, 或者尝试手动删除文件") from e
+    # 清理鼠标指针的父文件夹
+    for file in delete_parent_paths:
+        if not file.is_dir():
+            logger.debug("鼠标指针文件的父文件夹 '%s' 不存在", file)
+            continue
+
+        if any(file.iterdir()):
+            logger.debug("鼠标指针文件的父文件夹 '%s' 不为空, 跳过清理", file)
+            continue
+
+        try:
+            logger.debug("清理鼠标指针文件的父文件夹 '%s'", file)
+            remove_files(file)
+        except OSError as e:
+            logger.error(
+                "清理 '%s' 鼠标指针文件的残留文件夹 '%s' 发生错误: %s\n可尝试使用管理员权限运行 Ani2xcur 进行删除, 或者尝试手动删除文件",
+                cursor_name,
+                file,
+                e,
+            )
+            raise RuntimeError(f"清理 {cursor_name} 鼠标指针文件的残留文件夹 {file} 发生错误: {e}\n可尝试使用管理员权限运行 Ani2xcur 进行删除, 或者尝试手动删除文件") from e
 
     # 清理注册表中对应的鼠标指针方案
     registry_delete_value(

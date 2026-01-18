@@ -1,11 +1,9 @@
 """其他工具合集"""
 
 import ctypes
-import gc
 import getpass
 import random
 import string
-import sys
 from typing import Any
 from pathlib import Path
 from urllib.parse import urlparse
@@ -268,56 +266,6 @@ def is_root_on_linux() -> bool:
     return getpass.getuser() == "root"
 
 
-def unload_specific_module(
-    module_name: str,
-) -> None:
-    """从内存卸载指定的 Python 模块
-
-    Args:
-        module_name (str): 要卸载的模块名称
-    """
-    if module_name not in sys.modules:
-        logger.info("'%s' 模块未被加载", module_name)
-        return
-
-    logger.info("卸载 '%s' 模块中", module_name)
-    # 尝试调用模块的清理函数
-    if hasattr(module_name, "cleanup") and callable(getattr(module_name, "cleanup")):
-        try:
-            getattr(module_name, "cleanup")()
-        except Exception:  # pylint: disable=broad-exception-caught
-            pass
-
-        # 如果模块有句柄属性
-        if hasattr(module_name, "_handle"):
-            handle = module_name._handle  # pylint: disable=protected-access
-            if sys.platform.startswith("win"):
-                ctypes.windll.kernel32.FreeLibrary(handle)
-            elif sys.platform.startswith("linux"):
-                ctypes.CDLL(None).dlclose(handle)
-
-    # 删除 sys.modules 中的条目
-    del sys.modules[module_name]
-    logger.info("卸载模块: '%s'", module_name)
-
-    # 如果有子模块, 也要删除
-    module_keys_to_remove = []
-    for key in sys.modules:
-        if key.startswith(module_name + "."):
-            module_keys_to_remove.append(key)
-
-    for key in module_keys_to_remove:
-        del sys.modules[key]
-        logger.info("卸载 '%s' 子模块: '%s'", module_name, key)
-
-    # 从局部命名空间删除模块引用 (如果在全局命名空间中)
-    if module_name in globals():
-        del globals()[module_name]
-
-    gc.collect()
-    logger.info("模块 '%s' 已彻底卸载", module_name)
-
-
 def generate_random_string(
     length: int | None = 8,
     chars: str | None = None,
@@ -357,23 +305,6 @@ def generate_random_string(
         raise ValueError("字符池不能为空")
 
     return "".join(random.choice(char_pool) for _ in range(length))
-
-
-def normalized_filepath(
-    filepath: str | Path,
-) -> Path:
-    """将输入的路径转换为绝对路径
-
-    Args:
-        filepath (str | Path): 原始的路径
-    Returns:
-        Path: 绝对路径
-    """
-    if filepath is not None:
-        filepath = Path(filepath).absolute()
-
-    logger.debug("解析成绝对路径后的路径: '%s'", filepath)
-    return filepath
 
 
 def is_http_or_https(url: str) -> bool:

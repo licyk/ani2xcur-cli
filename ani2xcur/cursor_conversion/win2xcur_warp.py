@@ -13,7 +13,6 @@ from ani2xcur.utils import (
     open_file_as_bytes,
     save_bytes_to_file,
 )
-from ani2xcur.win2xcur.patch import patch_win2xcur
 
 logger = get_logger(
     name=LOGGER_NAME,
@@ -95,7 +94,6 @@ def win2xcur_process(
     try:
         # 依赖关系: win2xcur -> wand -> ImageMagick
         # 当 ImageMagick 未安装时将导致 win2xcur 导入失败
-        patch_win2xcur()
         from win2xcur.scale import apply_to_frames as apply_to_frames_for_scale  # pylint: disable=import-outside-toplevel
         from win2xcur.shadow import apply_to_frames as apply_to_frames_for_shadow  # pylint: disable=import-outside-toplevel
         from win2xcur.parser import open_blob  # pylint: disable=import-outside-toplevel
@@ -174,7 +172,6 @@ def x2wincur_process(
     try:
         # 依赖关系: win2xcur -> wand -> ImageMagick
         # 当 ImageMagick 未安装时将导致 win2xcur 导入失败
-        patch_win2xcur()
         from win2xcur.scale import apply_to_frames as apply_to_frames_for_scale  # pylint: disable=import-outside-toplevel
         from win2xcur.parser import open_blob  # pylint: disable=import-outside-toplevel
         from win2xcur.writer import to_smart  # pylint: disable=import-outside-toplevel

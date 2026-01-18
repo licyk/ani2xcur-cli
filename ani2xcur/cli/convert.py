@@ -33,6 +33,12 @@ from ani2xcur.file_operations.archive_manager import (
 )
 from ani2xcur.manager.image_magick_manager import check_image_magick_is_installed
 from ani2xcur.utils import is_http_or_https
+from ani2xcur.manager.linux_cur_manager import install_linux_cursor
+from ani2xcur.manager.win_cur_manager import install_windows_cursor
+from ani2xcur.manager.base import (
+    WINDOWS_USER_CURSOR_PATH,
+    LINUX_USER_ICONS_PATH,
+)
 
 logger = get_logger(
     name=LOGGER_NAME,
@@ -118,6 +124,19 @@ def win2xcur(
             click_type=click.Choice(SUPPORTED_ARCHIVE_FORMAT),
         ),
     ] = ".zip",
+    install: Annotated[
+        bool,
+        typer.Option(
+            help="在转换完成后立即安装鼠标指针到系统中",
+        ),
+    ] = False,
+    install_path: Annotated[
+        Path | None,
+        typer.Option(
+            help=f"自定义鼠标指针文件安装路径, 默认为 '{LINUX_USER_ICONS_PATH}'",
+            resolve_path=True,
+        ),
+    ] = None,
 ) -> None:
     """将 Windows 鼠标指针文件包转换为 Linux 鼠标指针文件包"""
     if not check_image_magick_is_installed():
@@ -163,12 +182,27 @@ def win2xcur(
             win2x_args=win2x_args,
         )
 
+        if install:
+            if sys.platform == "linux":
+                logger.info("将 '%s' 鼠标指针安装到 Linux 系统中", save_path)
+                desktop_entry_file = find_desktop_entry_file(
+                    input_file=save_path,
+                    temp_dir=temp_dir,
+                    depth=SMART_FINDER_SEARCH_DEPTH,
+                )
+                install_linux_cursor(
+                    desktop_entry_file=desktop_entry_file,
+                    cursor_install_path=LINUX_USER_ICONS_PATH if install_path is None else install_path,
+                )
+            else:
+                logger.warning("当前为 '%s' 系统, 不支持安装 Linux 鼠标指针到系统中", sys.platform)
+
     logger.info("鼠标指针转换完成, 保存路径: '%s'", save_path)
     if compress:
         logger.info("将鼠标指针进行打包")
         archive_path = output_path / f"{save_path.name}{compress_format}"
         create_archive(
-            sources=save_path,
+            sources=[save_path],
             archive_path=archive_path,
         )
         logger.info("鼠标指针打包完成, 保存路径: '%s'", archive_path)
@@ -207,6 +241,19 @@ def x2wincur(
             click_type=click.Choice(SUPPORTED_ARCHIVE_FORMAT),
         ),
     ] = ".zip",
+    install: Annotated[
+        bool,
+        typer.Option(
+            help="在转换完成后立即安装鼠标指针到系统中",
+        ),
+    ] = False,
+    install_path: Annotated[
+        Path | None,
+        typer.Option(
+            help=f"自定义鼠标指针文件安装路径, 默认为 '{WINDOWS_USER_CURSOR_PATH}'",
+            resolve_path=True,
+        ),
+    ] = None,
 ) -> None:
     """将 Linux 鼠标指针文件包转换为 Windows 鼠标指针文件包"""
     if not check_image_magick_is_installed():
@@ -248,12 +295,27 @@ def x2wincur(
             x2win_args=x2win_args,
         )
 
+        if install:
+            if sys.platform == "win32":
+                logger.info("将 '%s' 鼠标指针安装到 Windows 系统中", save_path)
+                desktop_entry_file = find_inf_file(
+                    input_file=save_path,
+                    temp_dir=temp_dir,
+                    depth=SMART_FINDER_SEARCH_DEPTH,
+                )
+                install_windows_cursor(
+                    inf_file=desktop_entry_file,
+                    cursor_install_path=WINDOWS_USER_CURSOR_PATH if install_path is None else install_path,
+                )
+            else:
+                logger.warning("当前为 '%s' 系统, 不支持安装 Windows 鼠标指针到系统中", sys.platform)
+
     logger.info("鼠标指针转换完成, 保存路径: '%s'", save_path)
     if compress:
         logger.info("将鼠标指针进行打包")
         archive_path = output_path / f"{save_path.name}{compress_format}"
         create_archive(
-            sources=save_path,
+            sources=[save_path],
             archive_path=archive_path,
         )
         logger.info("鼠标指针打包完成, 保存路径: '%s'", archive_path)

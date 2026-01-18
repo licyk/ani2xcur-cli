@@ -136,10 +136,12 @@ def win_cursor_to_x11(
             save_dir=tmp_dir / cursor_name,
         )
 
-        # 导出文件到输出文件夹
-        copy_files((tmp_dir / cursor_name), output_path)
+        save_dir = output_path / cursor_name
 
-    return output_path / cursor_name
+        # 导出文件到输出文件夹
+        copy_files((tmp_dir / cursor_name), save_dir)
+
+    return save_dir
 
 
 def generate_linux_cursor_config(

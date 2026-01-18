@@ -44,7 +44,7 @@ jobs:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
         run: |
-          python -m twine upload "${{ github.workspace }}/dist"/*
+          python -m twine upload "${{ github.workspace }}/dist"/* --skip-existing
 
       - name: Create Github release
         shell: bash

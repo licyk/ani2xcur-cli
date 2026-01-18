@@ -10,6 +10,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import typer
+import click
 from rich.console import Console
 from rich.table import Table
 from rich import box
@@ -46,6 +47,10 @@ from ani2xcur.logger import get_logger
 from ani2xcur.smart_finder import (
     find_inf_file,
     find_desktop_entry_file,
+)
+from ani2xcur.file_operations.archive_manager import (
+    create_archive,
+    SUPPORTED_ARCHIVE_FORMAT,
 )
 
 logger = get_logger(
@@ -223,6 +228,19 @@ def export_cursor(
             resolve_path=True,
         ),
     ] = None,
+    compress: Annotated[
+        bool,
+        typer.Option(
+            help="导出完成后将鼠标指针打包成压缩包",
+        ),
+    ] = False,
+    compress_format: Annotated[
+        str,
+        typer.Option(
+            help="打包成压缩包时使用的压缩包格式",
+            click_type=click.Choice(SUPPORTED_ARCHIVE_FORMAT),
+        ),
+    ] = ".zip",
 ) -> None:
     """将鼠标指针从系统中导出"""
     if sys.platform == "win32":
@@ -233,6 +251,14 @@ def export_cursor(
                 custom_install_path=custom_install_path,
             )
             logger.info("Windows 鼠标指针导出完成, 导出路径: '%s'", path)
+            if compress:
+                logger.info("将 Windows 鼠标指针进行打包")
+                archive_path = output_path / f"{path.name}{compress_format}"
+                create_archive(
+                    sources=[path],
+                    archive_path=archive_path,
+                )
+                logger.info("Windows 鼠标指针打包完成, 保存路径: '%s'", archive_path)
         except ValueError as e:
             traceback.print_exc()
             logger.error("导出鼠标指针发生错误: %s\n请检查导出的鼠标指针是否存在于系统中", e)
@@ -244,7 +270,15 @@ def export_cursor(
                 output_path=output_path,
                 custom_install_path=custom_install_path,
             )
-            logger.info("Windows 鼠标指针导出完成, 导出路径: '%s'", path)
+            logger.info("Linux 鼠标指针导出完成, 导出路径: '%s'", path)
+            if compress:
+                logger.info("将 Linux 鼠标指针进行打包")
+                archive_path = output_path / f"{path.name}{compress_format}"
+                create_archive(
+                    sources=[path],
+                    archive_path=archive_path,
+                )
+                logger.info("Linux 鼠标指针打包完成, 保存路径: '%s'", archive_path)
         except ValueError as e:
             traceback.print_exc()
             logger.error("导出鼠标指针发生错误: %s\n请检查导出的鼠标指针是否存在于系统中", e)

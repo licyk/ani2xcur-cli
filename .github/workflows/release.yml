@@ -53,9 +53,21 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}
         run: |
           ani2xcur_version=$(python -c "from ani2xcur.version import VERSION; print(VERSION)")
-          previous_tag=$(gh release view --json tagName --jq '.tagName')
-          gh release create "v${ani2xcur_version}" "${{ github.workspace }}/dist"/* \
-            --target main \
-            --generate-notes \
-            --title "Release v${ani2xcur_version}" \
-            --notes-start-tag "${previous_tag}"
+          new_tag="v${ani2xcur_version}"
+          previous_tag=$(gh release view --json tagName --jq '.tagName' 2>/dev/null || echo "")
+          if [ -z "${previous_tag}" ]; then
+              gh release create "${new_tag}" "${{ github.workspace }}/dist"/* \
+                --target main \
+                --generate-notes \
+                --title "Release v${ani2xcur_version}"
+          else
+              if gh release view "${new_tag}" >/dev/null 2>&1; then
+                  gh release upload "${new_tag}" "${{ github.workspace }}/dist"/*
+              else
+                  gh release create "${new_tag}" "${{ github.workspace }}/dist"/* \
+                    --target main \
+                    --generate-notes \
+                    --title "Release v${ani2xcur_version}" \
+                    --notes-start-tag "${previous_tag}"
+              fi
+          fi

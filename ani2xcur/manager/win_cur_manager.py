@@ -13,6 +13,7 @@ from ani2xcur.config import (
 from ani2xcur.file_operations.file_manager import (
     remove_files,
     copy_files,
+    get_real_path,
 )
 from ani2xcur.config_parse.win import dict_to_inf_strings_format
 from ani2xcur.manager.base import (
@@ -90,7 +91,7 @@ def extract_scheme_info_from_inf(
         ValueError: 鼠标指针配置文件中的注册表信息不合法时
     """
 
-    def _get_real_path(
+    def _expand_path(
         x: str,
     ) -> Path:
         return Path(expand_var_string(x.replace('"', "").replace("'", ""), vars_dict))
@@ -125,15 +126,24 @@ def extract_scheme_info_from_inf(
 
     # 统一路径分隔符 (Linux 中无法处理正确 `\` 路径分隔符字符串)
     cursor_reg_paths = [x.replace(r"\\", "/").replace("\\", "/") for x in cursor_reg_paths]
+    logger.debug("统一后的注册表路径列表: %s", cursor_reg_paths)
 
     # 获取鼠标指针配置中指针文件的实际安装路径列表
-    default_dst_cursor_paths = [_get_real_path(x) for x in cursor_reg_paths if _get_real_path(x).is_file()]
+    # 为什么要大小写不敏感啊, 呜呜呜
+    default_dst_cursor_paths: list[Path] = []
+    for x in cursor_reg_paths:
+        logger.debug("尝试查找对应的鼠标指针文件: '%s'", x)
+        p = get_real_path(_expand_path(x))
+        if p.is_file():
+            logger.debug("匹配到鼠标指针文件: '%s'", p)
+            default_dst_cursor_paths.append(p)
+            continue
 
     # 记录鼠标指针原文件路径和安装到的实际路径, 并记录成字典
     for key, value in zip(CURSOR_KEYS["win"], cursor_reg_paths):
         if value.strip() != "":
-            dst_path = _get_real_path(value)
-            src_path = inf_file.parent / dst_path.name
+            dst_path = _expand_path(value)
+            src_path = get_real_path(inf_file.parent / dst_path.name)  # 大小写不敏感好坑
             if not src_path.is_file():
                 src_path = None
         else:

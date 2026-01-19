@@ -202,3 +202,55 @@ def save_create_symlink(
     except OSError:
         logger.debug("尝试创建软链接失败, 尝试复制文件: '%s' -> '%s'", target, link)
         copy_files(target, link)
+
+
+def safe_is_file(
+    path: Path,
+) -> bool:
+    """检查文件是否存在 (忽略大小写)
+
+    Args:
+        path (Path): 文件路径
+
+    Returns:
+        bool: 当文件存在时则返回 True
+    """
+    # 首先尝试原生检查（性能最高）
+    if path.is_file():
+        return True
+
+    # 如果原生检查失败 (可能是 Linux 大小写问题), 进行模糊查找
+    parent = path.parent
+    if not parent.is_dir():
+        return False
+
+    target_name = path.name.lower()
+    # 遍历当前目录, 比对小写后的文件名
+    for child in parent.iterdir():
+        if child.name.lower() == target_name and child.is_file():
+            return True
+
+    return False
+
+
+def get_real_path(
+    path: Path,
+) -> Path:
+    """如果文件存在 (不计大小写), 返回文件系统中的真实路径, 否则返回原路径
+
+    Args:
+        path (Path): 原始文件路径
+
+    Returns:
+        Path: 文件系统中的真实路径
+    """
+    parent = path.parent
+    target = path.name.lower()
+
+    if not parent.exists():
+        return path
+
+    for child in parent.iterdir():
+        if child.name.lower() == target:
+            return child  # 返回 Linux 硬盘上真实的 Test1.ani
+    return path

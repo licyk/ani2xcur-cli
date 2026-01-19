@@ -3,6 +3,8 @@
 import configparser
 from pathlib import Path
 
+from ani2xcur.utils import safe_convert_to_int
+
 LXQT_CONFIG_PATH = Path("~/.config/lxqt/session.conf").expanduser()
 """LXQT 桌面的配置文件路径"""
 
@@ -29,7 +31,7 @@ def get_lxqt_cursor_size() -> int | None:
     config = configparser.ConfigParser()
     config.read(LXQT_CONFIG_PATH)
     if "General" in config and "cursor_size" in config["General"]:
-        return int(config.get("General", "cursor_size"))
+        return safe_convert_to_int(config.get("General", "cursor_size"))
     return None
 
 

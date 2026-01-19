@@ -4,6 +4,8 @@ import re
 import configparser
 from pathlib import Path
 
+from ani2xcur.utils import safe_convert_to_int
+
 GTK4_CONFIG_PATH = Path("~/.config/gtk-4.0/settings.ini").expanduser()
 """GTK 4.0 配置文件路径"""
 
@@ -145,7 +147,7 @@ def get_gtk4_cursor_size() -> int | None:
     config = configparser.ConfigParser()
     config.read(GTK4_CONFIG_PATH)
     if "Settings" in config and "gtk-cursor-theme-size" in config["Settings"]:
-        return int(config.get("Settings", "gtk-cursor-theme-size"))
+        return safe_convert_to_int(config.get("Settings", "gtk-cursor-theme-size"))
     return None
 
 
@@ -158,7 +160,7 @@ def get_gtk3_cursor_size() -> int | None:
     config = configparser.ConfigParser()
     config.read(GTK3_CONFIG_PATH)
     if "Settings" in config and "gtk-cursor-theme-size" in config["Settings"]:
-        return int(config.get("Settings", "gtk-cursor-theme-size"))
+        return safe_convert_to_int(config.get("Settings", "gtk-cursor-theme-size"))
     return None
 
 
@@ -172,7 +174,7 @@ def get_gtk2_cursor_size() -> int | None:
         return None
 
     config = read_gtk2_config(GTK2_CONFIG_PATH)
-    return int(config.get("gtk-cursor-theme-size"))
+    return safe_convert_to_int(config.get("gtk-cursor-theme-size"))
 
 
 def set_gtk4_cursor_theme(

@@ -27,7 +27,7 @@ def remove_files(
     """文件删除工具，支持删除只读文件和非空文件夹。
 
     Args:
-        path (str | Path): 要删除的文件或目录路径
+        path (Path): 要删除的文件或目录路径
     Raises:
         ValueError: 路径不存在时
         OSError: 删除过程中的系统错误
@@ -63,14 +63,14 @@ def remove_files(
 
 
 def copy_files(
-    src: Path | str,
-    dst: Path | str,
+    src: Path,
+    dst: Path,
 ) -> None:
     """复制文件或目录
 
     Args:
-        src (Path | str): 源文件路径
-        dst (Path | str): 复制文件到指定的路径
+        src (Path): 源文件路径
+        dst (Path): 复制文件到指定的路径
     Raises:
         PermissionError: 没有权限复制文件时
         OSError: 复制文件失败时
@@ -215,7 +215,7 @@ def safe_is_file(
     Returns:
         bool: 当文件存在时则返回 True
     """
-    # 首先尝试原生检查（性能最高）
+    # 首先尝试原生检查 (性能最高)
     if path.is_file():
         return True
 

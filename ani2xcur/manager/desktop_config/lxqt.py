@@ -16,7 +16,7 @@ def get_lxqt_cursor_theme() -> str | None:
         (str | None): 当前使用的鼠标指针名称
     """
     config = configparser.ConfigParser()
-    config.read(LXQT_CONFIG_PATH)
+    config.read(LXQT_CONFIG_PATH, encoding="utf-8")
     if "General" in config and "cursor_theme" in config["General"]:
         return config.get("General", "cursor_theme")
     return None
@@ -29,7 +29,7 @@ def get_lxqt_cursor_size() -> int | None:
         (int | None): 当前使用的鼠标指针大小
     """
     config = configparser.ConfigParser()
-    config.read(LXQT_CONFIG_PATH)
+    config.read(LXQT_CONFIG_PATH, encoding="utf-8")
     if "General" in config and "cursor_size" in config["General"]:
         return safe_convert_to_int(config.get("General", "cursor_size"))
     return None
@@ -45,7 +45,7 @@ def set_lxqt_cursor_theme(
     """
     LXQT_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
     config = configparser.ConfigParser()
-    config.read(LXQT_CONFIG_PATH)
+    config.read(LXQT_CONFIG_PATH, encoding="utf-8")
     if "General" not in config:
         config["General"] = {}
 
@@ -64,7 +64,7 @@ def set_lxqt_cursor_size(
     """
     LXQT_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
     config = configparser.ConfigParser()
-    config.read(LXQT_CONFIG_PATH)
+    config.read(LXQT_CONFIG_PATH, encoding="utf-8")
     if "General" not in config:
         config["General"] = {}
 

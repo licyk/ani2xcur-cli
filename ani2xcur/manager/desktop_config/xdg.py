@@ -18,8 +18,8 @@ def get_xdg_cursor_theme() -> tuple[str, str] | None:
     """
     config = configparser.ConfigParser()
     config_share = configparser.ConfigParser()
-    config.read(XDG_CONFIG_PATH)
-    config_share.read(XDG_CONFIG_SHARE_PATH)
+    config.read(XDG_CONFIG_PATH, encoding="utf-8")
+    config_share.read(XDG_CONFIG_SHARE_PATH, encoding="utf-8")
     cursor_name = config.get("Icon Theme", "Inherits") if "Icon Theme" in config and "Inherits" in config["Icon Theme"] else None
     cursor_name_share = config_share.get("Icon Theme", "Inherits") if "Icon Theme" in config_share and "Inherits" in config_share["Icon Theme"] else None
     return (cursor_name, cursor_name_share)
@@ -35,8 +35,8 @@ def set_xdg_cursor_theme(cursor_name: str) -> None:
     XDG_CONFIG_SHARE_PATH.parent.mkdir(parents=True, exist_ok=True)
     config = configparser.ConfigParser()
     config_share = configparser.ConfigParser()
-    config.read(XDG_CONFIG_PATH)
-    config_share.read(XDG_CONFIG_SHARE_PATH)
+    config.read(XDG_CONFIG_PATH, encoding="utf-8")
+    config_share.read(XDG_CONFIG_SHARE_PATH, encoding="utf-8")
     if "Icon Theme" not in config:
         config["Icon Theme"] = {}
 

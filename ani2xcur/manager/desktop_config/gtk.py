@@ -106,7 +106,7 @@ def get_gtk4_cursor_theme() -> str | None:
         (str | None): 当前使用的鼠标指针名称
     """
     config = configparser.ConfigParser()
-    config.read(GTK4_CONFIG_PATH)
+    config.read(GTK4_CONFIG_PATH, encoding="utf-8")
     if "Settings" in config and "gtk-cursor-theme-name" in config["Settings"]:
         return config.get("Settings", "gtk-cursor-theme-name")
     return None
@@ -119,7 +119,7 @@ def get_gtk3_cursor_theme() -> str | None:
         (str | None): 当前使用的鼠标指针名称
     """
     config = configparser.ConfigParser()
-    config.read(GTK3_CONFIG_PATH)
+    config.read(GTK3_CONFIG_PATH, encoding="utf-8")
     if "Settings" in config and "gtk-cursor-theme-name" in config["Settings"]:
         return config.get("Settings", "gtk-cursor-theme-name")
     return None
@@ -145,7 +145,7 @@ def get_gtk4_cursor_size() -> int | None:
         (int | None): 当前使用的鼠标指针大小
     """
     config = configparser.ConfigParser()
-    config.read(GTK4_CONFIG_PATH)
+    config.read(GTK4_CONFIG_PATH, encoding="utf-8")
     if "Settings" in config and "gtk-cursor-theme-size" in config["Settings"]:
         return safe_convert_to_int(config.get("Settings", "gtk-cursor-theme-size"))
     return None
@@ -158,7 +158,7 @@ def get_gtk3_cursor_size() -> int | None:
         (int | None): 当前使用的鼠标指针大小
     """
     config = configparser.ConfigParser()
-    config.read(GTK3_CONFIG_PATH)
+    config.read(GTK3_CONFIG_PATH, encoding="utf-8")
     if "Settings" in config and "gtk-cursor-theme-size" in config["Settings"]:
         return safe_convert_to_int(config.get("Settings", "gtk-cursor-theme-size"))
     return None
@@ -187,7 +187,7 @@ def set_gtk4_cursor_theme(
     """
     GTK4_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
     config = configparser.ConfigParser()
-    config.read(GTK4_CONFIG_PATH)
+    config.read(GTK4_CONFIG_PATH, encoding="utf-8")
     if "Settings" not in config:
         config["Settings"] = {}
 
@@ -206,7 +206,7 @@ def set_gtk3_cursor_theme(
     """
     GTK3_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
     config = configparser.ConfigParser()
-    config.read(GTK3_CONFIG_PATH)
+    config.read(GTK3_CONFIG_PATH, encoding="utf-8")
     if "Settings" not in config:
         config["Settings"] = {}
 
@@ -237,7 +237,7 @@ def set_gtk4_cursor_size(
     """
     GTK4_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
     config = configparser.ConfigParser()
-    config.read(GTK4_CONFIG_PATH)
+    config.read(GTK4_CONFIG_PATH, encoding="utf-8")
     if "Settings" not in config:
         config["Settings"] = {}
 
@@ -256,7 +256,7 @@ def set_gtk3_cursor_size(
     """
     GTK3_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
     config = configparser.ConfigParser()
-    config.read(GTK3_CONFIG_PATH)
+    config.read(GTK3_CONFIG_PATH, encoding="utf-8")
     if "Settings" not in config:
         config["Settings"] = {}
 

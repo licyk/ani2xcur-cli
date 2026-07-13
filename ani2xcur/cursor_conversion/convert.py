@@ -138,6 +138,7 @@ def win_cursor_to_x11(
         os.chdir(current_path)
 
         _normalize_xcursor_theme_files(cursors_dir, win2x_args.get("xcursor_sizes"))
+        _generate_cinnamon_cursor_thumbnail(cursors_dir)
 
         # 创建配置文件
         generate_linux_cursor_config(
@@ -250,6 +251,55 @@ def _normalize_xcursor_theme_files(
         normalized_count,
         skipped_count,
     )
+
+
+def _generate_cinnamon_cursor_thumbnail(
+    cursors_dir: Path,
+    target_size: int = 32,
+) -> Path | None:
+    """为 Cinnamon 主题选择器生成光标缩略图。
+
+    Cinnamon 优先读取 ``cursors/thumbnail.png``，而不是直接从 Xcursor
+    文件渲染预览。这里优先使用 ``left_ptr``，并在缺失时尝试
+    ``default``，取第一帧中名义尺寸最接近目标尺寸的图像。
+
+    Args:
+        cursors_dir (Path): Xcursor 主题的 cursors 目录。
+        target_size (int): Cinnamon 选择器中的目标预览尺寸。
+    Returns:
+        Path | None: 生成的 PNG 路径；没有可用光标图像时返回 None。
+    """
+    for cursor_name in ["left_ptr", "default"]:
+        cursor_path = cursors_dir / cursor_name
+        if not cursor_path.is_file():
+            continue
+
+        try:
+            frames = parse_blob(cursor_path.read_bytes())
+        except (OSError, ValueError) as e:
+            logger.debug("无法从 '%s' 生成 Cinnamon 光标缩略图: %s", cursor_path, e)
+            continue
+
+        if not frames or not frames[0].images:
+            continue
+
+        cursor_image = min(
+            frames[0].images,
+            key=lambda image: (abs(image.nominal - target_size), image.nominal),
+        )
+        thumbnail_path = cursors_dir / "thumbnail.png"
+        cursor_image.image.convert("RGBA").save(thumbnail_path, format="PNG")
+        logger.debug(
+            "生成 Cinnamon 光标缩略图: source='%s', nominal_size=%s, actual_size=%s, output='%s'",
+            cursor_path,
+            cursor_image.nominal,
+            cursor_image.image.size,
+            thumbnail_path,
+        )
+        return thumbnail_path
+
+    logger.warning("光标主题中没有可用的 left_ptr/default 图像，无法生成 Cinnamon 预览图: '%s'", cursors_dir)
+    return None
 
 
 def x11_cursor_to_win(

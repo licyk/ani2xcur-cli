@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pytest
+from PIL import Image
 
 from ani2xcur.config_parse.win import parse_inf_file_content
 from ani2xcur.cursor_conversion import convert as cursor_convert
@@ -87,14 +88,41 @@ def test_real_win_cursor_to_x11_conversion_smoke(windows_inf_file: Path, tmp_pat
     assert left_ptr.is_file()
     assert (cursors_dir / "default").exists()
     assert (cursors_dir / "wayland-cursor").is_file()
+    thumbnail = cursors_dir / "thumbnail.png"
+    assert thumbnail.is_file()
     assert (save_dir / "cursor.theme").is_file()
     assert parse_blob(left_ptr.read_bytes())[0].images[0].hotspot == (7, 4)
 
+    with Image.open(thumbnail) as preview:
+        assert preview.format == "PNG"
+        assert preview.mode == "RGBA"
+        assert preview.size == (32, 32)
+
     for cursor_file in cursors_dir.iterdir():
-        if cursor_file.is_symlink() or not cursor_file.is_file():
+        if cursor_file.name == "thumbnail.png" or cursor_file.is_symlink() or not cursor_file.is_file():
             continue
         frames = parse_blob(cursor_file.read_bytes())
         assert set(DEFAULT_XCURSOR_SIZES).issubset({image.nominal for frame in frames for image in frame.images})
+
+
+def test_generate_cinnamon_thumbnail_uses_nearest_left_ptr_size(linux_cursor_dir: Path, tmp_path: Path):
+    cursors_dir = tmp_path / "cursors"
+    cursors_dir.mkdir()
+    left_ptr = cursors_dir / "left_ptr"
+    left_ptr.write_bytes((linux_cursor_dir / "cursors" / "left_ptr").read_bytes())
+
+    thumbnail = cursor_convert._generate_cinnamon_cursor_thumbnail(cursors_dir, target_size=30)
+
+    assert thumbnail == cursors_dir / "thumbnail.png"
+    source_image = min(
+        parse_blob(left_ptr.read_bytes())[0].images,
+        key=lambda image: (abs(image.nominal - 30), image.nominal),
+    ).image.convert("RGBA")
+    with Image.open(thumbnail) as preview:
+        assert preview.format == "PNG"
+        assert preview.mode == "RGBA"
+        assert preview.size == source_image.size
+        assert preview.tobytes() == source_image.tobytes()
 
 
 @pytest.mark.integration

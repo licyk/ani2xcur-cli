@@ -204,8 +204,8 @@ def _read_cursor_file(input_file: Path) -> list[CursorFrame]:
         frames = parse_blob(blob)
         logger.debug("解析光标文件完成: input='%s', summary=%s", input_file, _frames_debug_summary(frames))
         return frames
-    except ValueError:
-        logger.error("不支持的光标文件格式: '%s'", input_file.suffix)
+    except ValueError as error:
+        logger.error("解析光标文件失败: input='%s', error='%s'", input_file, error)
         raise
     except Exception as e:
         logger.error("打开光标文件时发生未知错误: %s", e)

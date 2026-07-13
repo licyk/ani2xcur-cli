@@ -6,7 +6,7 @@ from PIL import Image
 
 from ani2xcur.cursor_conversion.native_cursor.models import CursorFrame, CursorImage
 from ani2xcur.cursor_conversion.native_cursor.parsers import parse_blob
-from ani2xcur.cursor_conversion.native_cursor.process import win2xcur_process
+from ani2xcur.cursor_conversion.native_cursor.process import win2xcur_process, x2wincur_process
 from ani2xcur.cursor_conversion.native_cursor.transforms import (
     DEFAULT_XCURSOR_SIZES,
     add_shadow_to_frames,
@@ -58,6 +58,67 @@ def test_xcursor_writer_round_trips_multisize_cursor():
         ((4, 4), (2, 2), 4),
     ]
     assert parsed[0].images[0].image.getpixel((0, 0)) == (100, 20, 40, 128)
+
+
+def test_parse_xcursor_selects_complete_32px_animation_when_size_sequences_differ():
+    small_red = CursorImage(Image.new("RGBA", (32, 32), (255, 0, 0, 255)), (3, 4), 32)
+    small_green = CursorImage(Image.new("RGBA", (32, 32), (0, 255, 0, 255)), (5, 6), 32)
+    large_blue = CursorImage(Image.new("RGBA", (128, 128), (0, 0, 255, 255)), (12, 16), 128)
+    blob = to_xcursor(
+        [
+            CursorFrame([small_red, large_blue], delay=0.1),
+            CursorFrame([small_green], delay=0.2),
+        ]
+    )
+
+    frames = parse_blob(blob)
+
+    assert len(frames) == 2
+    assert [frame.delay for frame in frames] == [0.1, 0.2]
+    assert [[image.nominal for image in frame.images] for frame in frames] == [[32], [32]]
+    assert frames[0].images[0].image.getpixel((0, 0)) == (255, 0, 0, 255)
+    assert frames[1].images[0].image.getpixel((0, 0)) == (0, 255, 0, 255)
+
+
+def test_parse_xcursor_preserves_static_images_with_independent_delays():
+    small = CursorImage(Image.new("RGBA", (32, 32), (255, 0, 0, 255)), (3, 4), 32)
+    large = CursorImage(Image.new("RGBA", (128, 128), (0, 0, 255, 255)), (12, 16), 128)
+    blob = to_xcursor(
+        [
+            CursorFrame([small], delay=0.1),
+            CursorFrame([large], delay=0.2),
+        ]
+    )
+
+    frames = parse_blob(blob)
+
+    assert len(frames) == 1
+    assert [image.nominal for image in frames[0].images] == [32, 128]
+
+
+def test_x2wincur_process_converts_independent_size_sequences_to_ani(tmp_path):
+    input_file = tmp_path / "independent-xcursor"
+    small_red = CursorImage(Image.new("RGBA", (32, 32), (255, 0, 0, 255)), (3, 4), 32)
+    small_green = CursorImage(Image.new("RGBA", (32, 32), (0, 255, 0, 255)), (5, 6), 32)
+    large_blue = CursorImage(Image.new("RGBA", (128, 128), (0, 0, 255, 255)), (12, 16), 128)
+    input_file.write_bytes(
+        to_xcursor(
+            [
+                CursorFrame([small_red, large_blue], delay=0.1),
+                CursorFrame([small_green], delay=0.2),
+            ]
+        )
+    )
+
+    output_file = x2wincur_process(input_file, tmp_path)
+    frames = parse_blob(output_file.read_bytes())
+
+    assert output_file.suffix == ".ani"
+    assert len(frames) == 2
+    assert [frame.images[0].image.getpixel((0, 0)) for frame in frames] == [
+        (255, 0, 0, 255),
+        (0, 255, 0, 255),
+    ]
 
 
 def test_windows_writers_round_trip_static_and_animated_cursors():

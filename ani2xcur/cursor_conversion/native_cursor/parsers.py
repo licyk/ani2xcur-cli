@@ -24,6 +24,7 @@ PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
 XCURSOR_MAGIC = b"Xcur"
 XCURSOR_VERSION = 0x00010000
 XCURSOR_IMAGE_TYPE = 0xFFFD0002
+WINDOWS_ANIMATED_STANDARD_SIZE = 32
 
 ICON_DIR = struct.Struct("<HHH")
 ICON_DIR_ENTRY = struct.Struct("<BBBBHHII")
@@ -200,6 +201,32 @@ def parse_xcursor(blob: bytes) -> list[CursorFrame]:
     Raises:
         ValueError: Xcursor 文件内容损坏或格式不受支持时抛出。
     """
+    sequences = _parse_xcursor_size_sequences(blob)
+    ordered_sizes = sorted(sequences)
+    frame_counts = {nominal: len(sequences[nominal]) for nominal in ordered_sizes}
+    logger.debug("Xcursor 文件尺寸序列: %s", frame_counts)
+
+    if _xcursor_sequences_share_timeline(sequences):
+        frames = _combine_xcursor_size_sequences(sequences)
+        logger.debug("Xcursor 尺寸序列共享时间轴，保留多尺寸帧")
+    else:
+        selected_size = min(
+            ordered_sizes,
+            key=lambda nominal: (abs(nominal - WINDOWS_ANIMATED_STANDARD_SIZE), nominal),
+        )
+        frames = sequences[selected_size]
+        logger.debug(
+            "Xcursor 尺寸序列具有独立时间轴，选择最接近 Windows 标准动画尺寸的序列: selected=%s, target=%s",
+            selected_size,
+            WINDOWS_ANIMATED_STANDARD_SIZE,
+        )
+
+    logger.debug("Xcursor 文件解析完成: frame_count=%s", len(frames))
+    return frames
+
+
+def _parse_xcursor_size_sequences(blob: bytes) -> dict[int, list[CursorFrame]]:
+    """按名义尺寸解析彼此独立的 Xcursor 动画序列。"""
     if len(blob) < XCURSOR_FILE_HEADER.size:
         raise ValueError("Xcursor file is too small")
 
@@ -220,7 +247,7 @@ def parse_xcursor(blob: bytes) -> list[CursorFrame]:
         offset += XCURSOR_TOC_CHUNK.size
     logger.debug("解析 Xcursor 文件: toc_size=%s", toc_size)
 
-    images_by_size: dict[int, list[tuple[CursorImage, float]]] = defaultdict(list)
+    images_by_size: dict[int, list[CursorFrame]] = defaultdict(list)
     for chunk_type, chunk_subtype, position in chunks:
         if chunk_type != XCURSOR_IMAGE_TYPE:
             continue
@@ -245,27 +272,44 @@ def parse_xcursor(blob: bytes) -> list[CursorFrame]:
 
         rgba = _unpremultiply_bgra_to_rgba(blob[image_start:image_end])
         image = Image.frombytes("RGBA", (width, height), rgba)
-        images_by_size[nominal].append((CursorImage(image=image, hotspot=(hotspot_x, hotspot_y), nominal=nominal), delay / 1000))
+        images_by_size[nominal].append(
+            CursorFrame(
+                images=[CursorImage(image=image, hotspot=(hotspot_x, hotspot_y), nominal=nominal)],
+                delay=delay / 1000,
+            )
+        )
 
     if not images_by_size:
         raise ValueError("Xcursor file does not contain images")
-    logger.debug("Xcursor 文件尺寸集合: %s", sorted(images_by_size))
+    return dict(images_by_size)
 
-    frame_counts = {len(images) for images in images_by_size.values()}
+
+def _xcursor_sequences_share_timeline(sequences: dict[int, list[CursorFrame]]) -> bool:
+    """判断不同尺寸序列能否无损合并为多尺寸动画帧。"""
+    frame_counts = {len(frames) for frames in sequences.values()}
     if len(frame_counts) != 1:
-        raise ValueError("Xcursor animations must have the same frame count for every size")
+        return False
 
-    frames: list[CursorFrame] = []
-    size_sequences = list(images_by_size.values())
-    for frame_items in zip(*size_sequences):
-        images = [item[0] for item in frame_items]
-        frame_delays = {item[1] for item in frame_items}
-        if len(frame_delays) != 1:
-            raise ValueError("Xcursor animations must use the same delay for every size in a frame")
-        frames.append(CursorFrame(images=images, delay=frame_items[0][1]))
+    frame_count = next(iter(frame_counts))
+    if frame_count == 1:
+        return True
 
-    logger.debug("Xcursor 文件解析完成: frame_count=%s", len(frames))
-    return frames
+    delay_sequences = {tuple(frame.delay for frame in frames) for frames in sequences.values()}
+    return len(delay_sequences) == 1
+
+
+def _combine_xcursor_size_sequences(sequences: dict[int, list[CursorFrame]]) -> list[CursorFrame]:
+    """将共享时间轴的尺寸序列合并为多尺寸动画帧。"""
+    ordered_sequences = [sequences[nominal] for nominal in sorted(sequences)]
+    combined: list[CursorFrame] = []
+    for frame_items in zip(*ordered_sequences):
+        combined.append(
+            CursorFrame(
+                images=[frame.images[0] for frame in frame_items],
+                delay=frame_items[0].delay,
+            )
+        )
+    return combined
 
 
 def _is_ani(blob: bytes) -> bool:

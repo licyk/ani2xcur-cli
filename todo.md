@@ -5,16 +5,16 @@
 - Preserve both conversion directions: Windows `.cur/.ani` to Linux Xcursor, and Linux Xcursor to Windows `.cur/.ani`.
 - Remove the third-party `win2xcur` conversion dependency from runtime code and packaging metadata.
 - Keep Linux output as a standard Xcursor theme that works for X11 and Wayland/XWayland loaders.
-- Stop requiring ImageMagick for conversion while keeping the existing ImageMagick management commands available.
+- Keep conversion self-contained around Pillow without external image-processing tools.
 
 ## Done
 - Created `dev` branch for the refactor.
 - Chose the scope: dual-direction rewrite, Xcursor theme compatibility, no Hyprcursor output.
 - Decided that `todo.md` is tracked and the external reference `win2xcur/` directory is ignored.
 - Added the first native Pillow converter package with shared models, CUR/ANI/Xcursor parsers, Xcursor/CUR/ANI writers, scale, shadow, and public conversion entry points.
-- Switched conversion imports to the native converter, removed the old external converter wrapper, removed the package dependency on `win2xcur`, and removed conversion-time ImageMagick checks.
+- Switched conversion imports to the native converter, removed the old external converter wrapper, and removed the package dependency on `win2xcur`.
 - Added unit coverage for CUR PNG/DIB parsing, ANI parsing, Xcursor roundtrip, Windows writer roundtrip, scale, and shadow opacity.
-- Updated real-sample conversion tests to run without ImageMagick and read back generated cursor files with the native parser.
+- Updated real-sample conversion tests to use the native parser when reading back generated cursor files.
 - Updated README and update/system options so conversion is described as Pillow-based and no longer source-updates `win2xcur`.
 - Ran full validation: pytest, ruff, and ty all pass.
 - Added a libwayland-cursor verifier tool under `tests/tools/` and a headless Weston integration test for generated Xcursor themes.
@@ -49,7 +49,6 @@
 - Real KDE/Wayland cursor crashes still need separate investigation after conversion output is stable.
 - Wayland loader CI coverage depends on system packages: `weston`, `pkg-config`, `cc`, and `libwayland-dev`. The test skips when those are unavailable.
 - The dedicated CI job sets `ANI2XCUR_REQUIRE_WAYLAND_TEST=1`, so missing Wayland test dependencies fail there instead of skipping.
-- ImageMagick manager commands may become legacy functionality; keep them for now to avoid unrelated CLI removal.
 - Real desktop size menus should still be checked manually across KDE/GNOME/XFCE/LXQt because each shell may cache cursor themes differently.
 
 ## References

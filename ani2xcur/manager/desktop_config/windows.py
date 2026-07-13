@@ -3,20 +3,7 @@
 import ctypes
 import os
 import re
-from pathlib import Path
-from typing import Any, Literal
-
-win32gui: Any
-win32con: Any
-win32com_client: Any
-try:
-    import win32gui as win32gui  # ty: ignore[unresolved-import]
-    import win32con as win32con  # ty: ignore[unresolved-import]
-    import win32com.client as win32com_client  # ty: ignore[unresolved-import]
-except ImportError:
-    win32gui = None
-    win32con = None
-    win32com_client = None
+from typing import Any
 
 from ani2xcur.manager.regedit import (
     registry_query_value,
@@ -274,65 +261,3 @@ def set_windows_cursor_size(
         access=RegistryAccess.SET_VALUE,
     )
     refresh_system_params(cursor_base_size=cursor_base_size)
-
-
-def broadcast_settings_change(
-    area_name: Literal["Environment", "Policy", "intl"] | None = "Environment",
-) -> bool:
-    """发送 WM_SETTINGCHANGE 广播消息通知系统设置已更改
-    
-    Args:
-        area_name (Literal["Environment", "Policy", "intl"] | None): 更改的区域名称
-    Returns:
-        bool: 通知结果
-    Raises:
-        ImportError: 未安装 pywin32 时
-    """
-    # WM_SETTINGCHANGE 的消息数值在 win32con 中已定义
-    # HWND_BROADCAST: 0xFFFF (发送给所有顶层窗口)
-    # SMTO_ABORTIFHUNG: 如果目标窗口挂起，则立即返回
-
-    if win32gui is None or win32con is None:
-        raise ImportError("广播 Windows 设置变更需要安装 pywin32")
-
-    result = win32gui.SendMessageTimeout(  # pylint: disable=c-extension-no-member,no-member
-        win32con.HWND_BROADCAST,
-        win32con.WM_SETTINGCHANGE,
-        0,
-        area_name,
-        win32con.SMTO_ABORTIFHUNG,
-        5000,  # 等待每个窗口响应的最大毫秒数
-    )
-    return bool(result)
-
-
-def create_windows_shortcut(
-    target_path: Path,
-    shortcut_path: Path,
-    description: str | None = "",
-    working_dir: Path | None = None,
-    icon_path: Path | None = None,
-) -> None:
-    """创建 Windows 快捷方式
-    
-    Args:
-        target_path (Path): 目标文件路径
-        shortcut_path (Path): 快捷方式保存路径
-        description (str | None): 快捷方式描述
-        working_dir (Path | None): 工作目录
-        icon_path (Path | None): 图标路径
-    Raises:
-        ImportError: 未安装 pywin32 时
-    """
-    if win32com_client is None:
-        raise ImportError("创建 Windows 快捷方式需要安装 pywin32")
-
-    shell = win32com_client.Dispatch("WScript.Shell")
-    shortcut = shell.CreateShortCut(str(shortcut_path))
-    shortcut.Targetpath = str(target_path)
-    shortcut.WorkingDirectory = str(working_dir if working_dir is not None else target_path.parent)
-    if description:
-        shortcut.Description = description
-    if icon_path is not None:
-        shortcut.IconLocation = str(icon_path)
-    shortcut.save()

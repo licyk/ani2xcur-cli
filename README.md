@@ -54,9 +54,6 @@ _✨一站式鼠标指针转换与管理工具_
     - [设置指针主题和大小](#设置指针主题和大小)
     - [查看指针信息](#查看指针信息)
     - [导出指针](#导出指针)
-  - [ImageMagick 管理](#imagemagick-管理)
-    - [自动下载并安装 ImageMagick](#自动下载并安装-imagemagick)
-    - [从系统中卸载 ImageMagick](#从系统中卸载-imagemagick)
   - [更新 Ani2xcur](#更新-ani2xcur)
   - [查看 Ani2xcur 使用的环境变量](#查看-ani2xcur-使用的环境变量)
   - [调试日志](#调试日志)
@@ -82,7 +79,6 @@ Ani2xcur 是一个强大且易于使用的命令行工具，专为鼠标指针�
   - **查看**: 列出所有已安装的指针主题，并显示当前使用的主题和大小。
   - **导出**: 将系统中的指针主题导出为文件，方便备份和分享。
 - **智能识别**: 自动在压缩包或目录中查找指针配置文件 (`.inf` 或 `index.theme`)。
-- **辅助管理**: 保留独立的 ImageMagick 安装和卸载命令，可用于手动排障；当前转换流程不依赖 ImageMagick。
 
 
 # 安装
@@ -104,7 +100,7 @@ ani2xcur --help
 ## 鼠标指针格式转换
 Windows 鼠标指针主题和 Linux 鼠标指针主题并不能互相兼容，而 Ani2xcur 可以将鼠标指针主题文件转换为对应平台的文件。
 
-鼠标指针主题的转换功能由 Ani2xcur 内置的 Pillow 转换器完成，不需要额外安装 ImageMagick。
+鼠标指针主题的转换功能由 Ani2xcur 内置的 Pillow 转换器完成，不需要额外的图像转换程序。
 
 
 ### Windows 转 Linux
@@ -214,28 +210,6 @@ ani2xcur cursor export <指针名称> <导出路径>
   - `--custom-install-path <路径>`: 自定义鼠标指针配置文件在安装时的文件安装路径。
   - `--compress`: 导出完成后将鼠标指针打包成压缩包。
   - `--compress-format <压缩包格式>`: 打包成压缩包时使用的压缩包格式 (`.zip`|`.7z`|`.rar`|`.tar`|`.tar.Z`|`.tar.lz`|`.tar.lzma`|`.tar.bz2`|`.tar.7z`|`.tar.gz`|`.tar.xz`|`.tar.zst`)。
-
-
-## ImageMagick 管理
-Ani2xcur 保留 ImageMagick 管理命令用于手动排障；当前内置转换器不需要安装 ImageMagick。
-
-### 自动下载并安装 ImageMagick
-```bash
-ani2xcur imagemagick install
-```
-
-- **高级选项**:
-  - `--install-path <安装路径>`: (仅 Windows 平台) 自定义安装 ImageMagick 的目录。
-  - `-y`|`--yes`: 直接确认安装。
-
-
-### 从系统中卸载 ImageMagick
-```bash
-ani2xcur imagemagick uninstall
-```
-
-- **高级选项**:
-  - `-y`|`--yes`: 直接确认卸载。
 
 
 ## 更新 Ani2xcur

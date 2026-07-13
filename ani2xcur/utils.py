@@ -1,7 +1,5 @@
 """其他工具合集"""
 
-import ctypes
-import getpass
 import random
 import string
 from typing import Any
@@ -243,30 +241,6 @@ def extend_list_to_length(
     if len(lst) < target_length:
         lst.extend([fill_value] * (target_length - len(lst)))
     return lst
-
-
-def is_admin_on_windows() -> bool:
-    """检测当前进程是否以管理员权限运行
-
-    Returns:
-        bool: 当使用管理员运行时返回 True
-    """
-    windll = getattr(ctypes, "windll", None)
-    if windll is None:
-        return False
-    try:
-        return bool(windll.shell32.IsUserAnAdmin())
-    except AttributeError:
-        return False
-
-
-def is_root_on_linux() -> bool:
-    """检测当前进程是否以管理员权限运行
-
-    Returns:
-        bool: 当使用管理员运行时返回 True
-    """
-    return getpass.getuser() == "root"
 
 
 def generate_random_string(

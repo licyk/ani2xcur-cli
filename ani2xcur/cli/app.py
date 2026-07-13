@@ -32,10 +32,6 @@ from ani2xcur.cli.cursor import (
     list_cursor,
     get_current_cursor,
 )
-from ani2xcur.cli.image_magick import (
-    install_image_magick,
-    uninstall_image_magick,
-)
 
 
 logger = get_logger(
@@ -51,7 +47,7 @@ def get_app() -> typer.Typer:
     Returns:
         typer.Typer: Ani2xcur 命令行应用
     """
-    app = typer_factory("鼠标指针转换、管理和 ImageMagick 辅助管理的命令行工具")
+    app = typer_factory("鼠标指针转换和管理命令行工具")
 
     app.command(help="显示 Ani2xcur 和其他组件的当前版本", name="version")(version)
     app.command(help="更新 Ani2xcur", name="update")(update)
@@ -73,13 +69,8 @@ def get_app() -> typer.Typer:
     cursor_set_cli.command(help="设置系统要使用的鼠标指针大小", name="size")(set_cursor_size)
     cursor_cli.add_typer(cursor_set_cli, name="set")
 
-    image_magick_cli = typer_factory(help="ImageMagick 管理工具")
-    image_magick_cli.command(help="安装 ImageMagick 到系统中", name="install")(install_image_magick)
-    image_magick_cli.command(help="将 ImageMagick 从系统中卸载", name="uninstall")(uninstall_image_magick)
-
     app.add_typer(convert_cli, name="convert")
     app.add_typer(cursor_cli, name="cursor")
-    app.add_typer(image_magick_cli, name="imagemagick")
 
     return app
 
